@@ -30,7 +30,6 @@ class basemap:
             self._attr[kw] = kwargs[kw]
         return self
 
-    # 初始化，指定投影，分辨率和地图边界
     def init(self):
         try:
             self._base = Basemap(projection=self['proj'], llcrnrlon = self['long'][0], llcrnrlat = self['lat'][0], 
@@ -39,13 +38,20 @@ class basemap:
             raise RuntimeError('More attributes needed!')
         return self._base
 
-    # 绘制海岸线（当且仅当边界内有海岸线的时候）
     def drawcoastlines(self):
+        if self['coastline_func']:
+            if 'c' in self._coastlines.keys():
+                self['clcolor'] = self._coastlines['c']
+            if 'color' in self._coastlines.keys():
+                self['clcolor'] = self._coastlines['color']
+            if 'lw' in self._coastlines.keys():
+                self['cllw'] = self._coastlines['lw']
+            if 'linewidth' in self._coastlines.keys():
+                self['cllw'] = self._coastlines['linewidth']
         if len(self._base.coastsegs) and len(self._base.coastsegs[0]):
             self._base.drawcoastlines(color=self._attr['clcolor'], linewidth=self._attr['cllw'])
         return self._base
 
-    # 使用彩色背景（预设）
     def colorbg(self, style=None):
         if style == 'bluemarble':
             self._base.bluemarble(scale=self._attr['clbgs'])
@@ -55,7 +61,6 @@ class basemap:
             self._base.etopo(scale=self._attr['clbgs'])
         return self._base
 
-    # 画经纬度线的操作
     def lldraw(self):
         if self['grid'] == 'grid':
             self._base.drawparallels(np.arange(self['latref'], self['latref2'], self['latinv']), labels=[1,0,0,0],
@@ -81,56 +86,51 @@ class basemap:
                     self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self._longssub['inv']), labels=[0,0,0,1],
                                          color=self._longssub['c'], linewidth=self._longssub['lw'], linestyle=self._longssub['ls'], fontsize=self._longssub['fs'])
 
-    
+    def ifcoast(self):
+        if 'coastline_func' in self._attr.keys():
+            self.drawcoastlines()
+            return True
+        else:
+            return False
 
+    def extraproc(self):
+        self.ifcoast()
+        self.lldraw()
 
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-    # 以下是返回self的函数
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-    # 画经纬度线（完整版设置）
     def grid(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self['grid'] = 'grid'
-        # if int(self._attr['latinv']):
-            # self._base.drawparallels(np.arange(self['latref'], self['latref2'], self['latinv']), labels=[1,0,0,0],
-            #                             color=self['gridc'], linewidth=self['gridlw'], linestyle=self['gridls'], fontsize=self['gfontsize'])
-        # if int(self._attr['longinv']):
-            # self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self['longinv']), labels=[0,0,0,1],
-            #                             color=self['gridc'], linewidth=self['gridlw'], linestyle=self['gridls'], fontsize=self['gfontsize'])
         return self
 
-    # 画经纬度线（快捷版设置）
     def lls(self, inv, **kwargs):
         self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10,}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
-        # self._base.drawparallels(np.arange(self['latref'], self['latref2'], self._lls['inv']), labels=[1,0,0,0],
-        #                                 color=self._lls['c'], linewidth=self._lls['lw'], linestyle=self._lls['ls'], fontsize=self._lls['fs'])
-        # self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self._lls['inv']), labels=[0,0,0,1],
-        #                                 color=self._lls['c'], linewidth=self._lls['lw'], linestyle=self._lls['ls'], fontsize=self._lls['fs'])
         return self
     
-    # 画经度线（快速设置）
     def longs(self, inv, **kwargs):
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10,}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
-        # self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self._lls['inv']), labels=[0,0,0,1],
-        #                                 color=self._lls['c'], linewidth=self._lls['lw'], linestyle=self._lls['ls'], fontsize=self._lls['fs'])
         return self
 
-    # 画纬度线（快速设置）
     def lats(self, inv, **kwargs):
         self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10,}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
-        # self._base.drawparallels(np.arange(self['latref'], self['latref2'], self._lls['inv']), labels=[1,0,0,0],
-        #                                 color=self._lls['c'], linewidth=self._lls['lw'], linestyle=self._lls['ls'], fontsize=self._lls['fs'])
+        return self
+
+    def coastlines(self, **kwargs):
+        self._coastlines = {}
+        for kw in COAST_DEFAULT_ATTRS.keys():
+            self._attr[kw] = COAST_DEFAULT_ATTRS[kw]
+        for kw in kwargs:
+            self._coastlines[kw] = kwargs[kw]
+        self['coastline_func'] = True
         return self
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -148,27 +148,27 @@ class imageB(image):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 BASIC_DEFAULT_ATTRS = {
-    'proj'      :   'cyl',          # changed from 'cea'
+    'proj'      :   'cyl',
     'long'      :   [-180.,180.],
     'lat'       :   [-90.,90.],
     'res'       :   'c',
 
-    # 画经纬度时的参数
     'grid'      :   'default',
-    'gridc'     :   'k',       # color of parallels and meridians
-    'gridlw'    :   0.5,            # linewidth of parallels and meridians
+    'gridc'     :   'k',
+    'gridlw'    :   0.5,
     'gfontsize' :   12,
     'gridls'    :   '-',
 
-    # 画经纬度线时的参考点
     'latinv': 0,
     'longinv': 0,
     'latref': -90,
     'latref2': 90,
     'longref': -180,
     'longref2': 179,
+
+    'coastline_func'    : False,
 }
-# 空白地图
+
 class blank(basemap):
 
     def __init__(self, **kwargs):
@@ -176,7 +176,7 @@ class blank(basemap):
 
     def out(self, show=False):
         self._base = self.init()
-        self.lldraw()
+        self.extraproc()
         if show:
             plt.show()
         return self._base
@@ -184,10 +184,10 @@ class blank(basemap):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 COAST_DEFAULT_ATTRS = {
-    'clcolor'   :   'k',            # coastline $color
-    'cllw'      :   1.,             # coastline $linewidth
+    'clcolor'   :   'k',
+    'cllw'      :   1.,
 }
-# 带海岸线的地图
+
 class coast(basemap):
 
     def __init__(self, **kwargs):
@@ -196,7 +196,7 @@ class coast(basemap):
     def out(self, show=False):
         self.init()
         self._base = self.drawcoastlines()
-        self.lldraw()
+        self.extraproc()
         if show:
             plt.show()
         return self._base
@@ -204,9 +204,9 @@ class coast(basemap):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 CLBG_DEFAULT_ATTRS = {
-    'clbgs'     :   0.5,            # colored backgrounds $scale
+    'clbgs'     :   0.5,
 }
-# 用内置的bluemarble或shadedrelief或etopo作为底图的地图，默认不画海岸线
+
 class bluemarble(basemap):
 
     def __init__(self, **kwargs):
@@ -216,7 +216,7 @@ class bluemarble(basemap):
         self.init()
         self['clbg'] = 'bluemarble'
         self._base = self.colorbg('bluemarble')
-        self.lldraw()
+        self.extraproc()
         if show:
             plt.show()
         return self._base
@@ -230,7 +230,7 @@ class shadedrelief(basemap):
         self.init()
         self['clbg'] = 'shadedrelief'
         self._base = self.colorbg('shadedrelief')
-        self.lldraw()
+        self.extraproc()
         if show:
             plt.show()
         return self._base
@@ -244,7 +244,7 @@ class etopo(basemap):
         self.init()
         self['clbg'] = 'etopo'
         self._base = self.colorbg('etopo')
-        self.lldraw()
+        self.extraproc()
         if show:
             plt.show()
         return self._base
@@ -258,7 +258,7 @@ class colorbg(basemap):
         self.init()
         if 'clbg' in self._attr.keys():
             self._base = self.colorbg(self['clbg'])
-        self.lldraw()
+        self.extraproc()
         if show:
             plt.show()
         return self._base
