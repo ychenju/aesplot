@@ -135,18 +135,6 @@ class basemap:
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class imageB(image):
-    
-    def __init__(self, basemap: basemap):
-        self._attr = {}
-        for kw in IMG_DEFAULT_ATTRS.keys():
-            self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
-        for kw in basemap._attr.keys():
-            self._attr[kw] = basemap[kw]
-        self.preset()
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 BASIC_DEFAULT_ATTRS = {
     'proj'      :   'cyl',
     'long'      :   [-180.,180.],
@@ -165,8 +153,6 @@ BASIC_DEFAULT_ATTRS = {
     'latref2': 90,
     'longref': -180,
     'longref2': 179,
-
-    'coastline_func'    : False,
 }
 
 class blank(basemap):
