@@ -4,6 +4,66 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
+
+class csv:
+
+    def __init__(self, path, **kwargs):
+        self._x = 'default'
+        self._y = 'default'
+        self._path = path
+        self._pdattrs = {}
+        for kw in kwargs.keys():
+            self._pdattrs[kw] = kwargs[kw]
+
+    def __call__(self, **kwargs):
+        for kw in kwargs.keys():
+            self._pdattrs[kw] = kwargs[kw]
+        _df = pd.read_csv(self._path, **self._pdattrs)
+        _ar = np.array(_df.iloc[:,:])
+        _y, _x = _ar.shape
+        if isinstance(self._x, str):
+            self._x = slice(0, _x)
+        if isinstance(self._y, str):
+            self._y = slice(0, _y)
+        return _ar[self._y, self._x]
+
+    # header = None
+    def nhd(self):
+        self._pdattrs['header'] = None
+        return self
+
+    def __getitem__(self, index):
+        if isinstance(index, tuple):
+            self._y, self._x = index
+        else:
+            self._y = index
+        return self
+
+class xls(csv):
+
+    def __init__(self, path, sheet):
+        self._x = 'default'
+        self._y = 'default'
+        self._path = path
+        self._pdattrs = {'sheet_name': sheet}
+
+class xlsx(xls):
+    pass
+
+# 把一个(2,n)二维array变为figure数据输入需要的xy字典
+def xy(xy):
+    xy = np.array(xy)
+    return {'x': xy[0], 'y': xy[1]}
+
+def yx(xy):
+    xy = np.array(xy)
+    return {'x': xy[1], 'y': xy[0]}
+
+# 把一个(3,n)二维array变为figure数据输入需要的xyz字典
+def xyz(xyz):
+    xyz = np.array(xyz)
+    return {'x': xyz[0], 'y': xyz[1], 'z': xyz[2]}
+
+def yxz(xyz):
+    xyz = np.array(xyz)
+    return {'x': xyz[1], 'y': xyz[0], 'z': xyz[2]}

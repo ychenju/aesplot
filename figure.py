@@ -40,11 +40,11 @@ class figure:
     def plot(self):
         pass
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 SCATTER_DEFAULT_ATTRS = {
     'format': False,
 }
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class scatter(figure):
     def __init__(self, **kwargs):
@@ -57,21 +57,26 @@ class scatter(figure):
             if self['x'].shape != self['y'].shape:
                 raise RuntimeError('x and y should be in the same shape')
             else:
-                for x, y in zip(self['x'],self['y']):
-                    plt.plot(x, y, '.', **self._formats)
+                # if self['format']:
+                    for x, y in zip(self['x'],self['y']):
+                        plt.plot(x, y, '.', **self._formats)
+                # else:
+                #         plt.plot(x, y)
         elif 'xy' in self._attr.keys():
             for xy in self['xy']:
                 plt.plot(*xy, '.', **self._formats)
         else:
             raise RuntimeError('No data')
             
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 
 FUNC_DEFAULT_ATTRS = {
     'format': False,
     'xrange': [-10,10],
     'step': 1e-3,
 }
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class func(figure):
     def __init__(self, **kwargs):
@@ -84,11 +89,11 @@ class func(figure):
         else:
             raise RuntimeError('No data')
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 FOLDLINE_DEFAULT_ATTRS = {
     'format': False,
 }
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class foldline(figure):
 
@@ -101,11 +106,11 @@ class foldline(figure):
         else:
             raise RuntimeError('No data')
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 DOTLINE_DEFAULT_ATTRS = {
     'format': False,
 }
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class dotline(figure):
     def __init__(self, **kwargs):

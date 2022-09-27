@@ -68,9 +68,9 @@ class basemap:
             self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self['longinv']), labels=[0,0,0,1],
                                         color=self['gridc'], linewidth=self['gridlw'], linestyle=self['gridls'], fontsize=self['gfontsize'])
         elif self['grid'] == 'lls':
-            self._base.drawparallels(np.arange(self['latref'], self['latref2'], self._lls['inv']), labels=[1,0,0,0],
+            self._base.drawparallels(np.arange(self._lls['latref'], self._lls['latref2'], self._lls['inv']), labels=[1,0,0,0],
                                          color=self._lls['c'], linewidth=self._lls['lw'], fontsize=self._lls['fs'])
-            self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self._lls['inv']), labels=[0,0,0,1],
+            self._base.drawmeridians(np.arange(self._lls['longref'], self._lls['longref2'], self._lls['inv']), labels=[0,0,0,1],
                                          color=self._lls['c'], linewidth=self._lls['lw'], fontsize=self._lls['fs'])
         elif self['grid'] == 'latslongs':
             self._latssub = {'inv': 0, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10}
@@ -78,12 +78,12 @@ class basemap:
             for kw in self._lats.keys():
                 self._latssub[kw] = self._lats[kw]
                 if self._latssub['inv']:
-                    self._base.drawparallels(np.arange(self['latref'], self['latref2'], self._latssub['inv']), labels=[1,0,0,0],
+                    self._base.drawparallels(np.arange(self._latssub['latref'], self._latssub['latref2'], self._latssub['inv']), labels=[1,0,0,0],
                                          color=self._latssub['c'], linewidth=self._latssub['lw'], linestyle=self._latssub['ls'], fontsize=self._latssub['fs'])
             for kw in self._longs.keys():
                 self._longssub[kw] = self._longs[kw]
                 if self._latssub['inv']:
-                    self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self._longssub['inv']), labels=[0,0,0,1],
+                    self._base.drawmeridians(np.arange(self._longssub['longref'], self._longssub['longref2'], self._longssub['inv']), labels=[0,0,0,1],
                                          color=self._longssub['c'], linewidth=self._longssub['lw'], linestyle=self._longssub['ls'], fontsize=self._longssub['fs'])
 
     def ifcoast(self):
@@ -104,21 +104,21 @@ class basemap:
         return self
 
     def lls(self, inv, **kwargs):
-        self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10,}
+        self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
         return self
     
     def longs(self, inv, **kwargs):
-        self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10,}
+        self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
     def lats(self, inv, **kwargs):
-        self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10,}
+        self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
@@ -132,6 +132,18 @@ class basemap:
             self._coastlines[kw] = kwargs[kw]
         self['coastline_func'] = True
         return self
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class imageB(image):
+    
+    def __init__(self, basemap: basemap):
+        self._attr = {}
+        for kw in IMG_DEFAULT_ATTRS.keys():
+            self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
+        for kw in basemap._attr.keys():
+            self._attr[kw] = basemap[kw]
+        self.preset()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
