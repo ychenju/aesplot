@@ -17,6 +17,8 @@ IMG_DEFAULT_ATTRS = {
     'serif': 'sans-serif',
 }
 
+#   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   
+
 class image:
 
     def __init__(self, **kwargs):
@@ -81,15 +83,19 @@ class image:
 
     def add(self, fig: figure):
         try:
-            fig.plot()
+            fig()
         except:
             print(f'Failed to add the object \'{fig}\'')
 
     def addbasemap(self, bmp):
         try:
-            bmp.out()
+            bmp()
         except:
             print(f'Failed to add the Basemap object \'{bmp}\'')
+
+    def addbaseNmask(self, bmp, mask):
+        self.addbasemap(bmp)
+        self.add(mask)
 
     def formatting(self, **kwargs):
         for kw in kwargs.keys():
@@ -172,3 +178,11 @@ class setf:
             if 'grlw' in img._attr.keys():
                 _grattr['lw'] = img['grlw']
             plt.grid(**_grattr)
+
+
+
+
+
+        
+
+

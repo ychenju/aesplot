@@ -135,18 +135,6 @@ class basemap:
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class imageB(image):
-    
-    def __init__(self, basemap: basemap):
-        self._attr = {}
-        for kw in IMG_DEFAULT_ATTRS.keys():
-            self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
-        for kw in basemap._attr.keys():
-            self._attr[kw] = basemap[kw]
-        self.preset()
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 BASIC_DEFAULT_ATTRS = {
     'proj'      :   'cyl',
     'long'      :   [-180.,180.],
@@ -165,6 +153,7 @@ BASIC_DEFAULT_ATTRS = {
     'latref2': 90,
     'longref': -180,
     'longref2': 179,
+
 }
 
 class blank(basemap):
@@ -172,7 +161,7 @@ class blank(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **kwargs)
 
-    def out(self, show=False):
+    def __call__(self, show=False):
         self._base = self.init()
         self.extraproc()
         if show:
@@ -191,7 +180,7 @@ class coast(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **COAST_DEFAULT_ATTRS, **kwargs)
 
-    def out(self, show=False):
+    def __call__(self, show=False):
         self.init()
         self._base = self.drawcoastlines()
         self.extraproc()
@@ -210,7 +199,7 @@ class bluemarble(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def out(self, show=False):
+    def __call__(self, show=False):
         self.init()
         self['clbg'] = 'bluemarble'
         self._base = self.colorbg('bluemarble')
@@ -224,7 +213,7 @@ class shadedrelief(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def out(self, show=False):
+    def __call__(self, show=False):
         self.init()
         self['clbg'] = 'shadedrelief'
         self._base = self.colorbg('shadedrelief')
@@ -238,7 +227,7 @@ class etopo(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def out(self, show=False):
+    def __call__(self, show=False):
         self.init()
         self['clbg'] = 'etopo'
         self._base = self.colorbg('etopo')
@@ -252,7 +241,7 @@ class colorbg(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def out(self, show=False):
+    def __call__(self, show=False):
         self.init()
         if 'clbg' in self._attr.keys():
             self._base = self.colorbg(self['clbg'])
