@@ -39,7 +39,7 @@ class basemap:
         return self._base
 
     def drawcoastlines(self):
-        if self['coastline_func']:
+        if 'coastline_func' in self._attr.keys():
             if 'c' in self._coastlines.keys():
                 self['clcolor'] = self._coastlines['c']
             if 'color' in self._coastlines.keys():
@@ -153,7 +153,6 @@ BASIC_DEFAULT_ATTRS = {
     'latref2': 90,
     'longref': -180,
     'longref2': 179,
-
 }
 
 class blank(basemap):

@@ -27,7 +27,6 @@ class csv:
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    # header = None
     def nhd(self):
         self._pdattrs['header'] = None
         return self
@@ -39,6 +38,11 @@ class csv:
             self._y = index
         return self
 
+    def to_csv(self, path, **kwargs):
+        _df2 = pd.DataFrame(self())
+        _df2.to_csv(path, **kwargs)
+
+
 class xls(csv):
 
     def __init__(self, path, sheet):
@@ -47,10 +51,21 @@ class xls(csv):
         self._path = path
         self._pdattrs = {'sheet_name': sheet}
 
+    def __call__(self, **kwargs):
+        for kw in kwargs.keys():
+            self._pdattrs[kw] = kwargs[kw]
+        _df = pd.read_excel(self._path, **self._pdattrs)
+        _ar = np.array(_df.iloc[:,:])
+        _y, _x = _ar.shape
+        if isinstance(self._x, str):
+            self._x = slice(0, _x)
+        if isinstance(self._y, str):
+            self._y = slice(0, _y)
+        return _ar[self._y, self._x]
+
 class xlsx(xls):
     pass
 
-# 把一个(2,n)二维array变为figure数据输入需要的xy字典
 def xy(xy):
     xy = np.array(xy)
     return {'x': xy[0], 'y': xy[1]}
@@ -59,7 +74,6 @@ def yx(xy):
     xy = np.array(xy)
     return {'x': xy[1], 'y': xy[0]}
 
-# 把一个(3,n)二维array变为figure数据输入需要的xyz字典
 def xyz(xyz):
     xyz = np.array(xyz)
     return {'x': xyz[0], 'y': xyz[1], 'z': xyz[2]}
