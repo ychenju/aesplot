@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import copy
+from . import auxf as aux
 
 def filter(filtee, sifter, func):
-    r = copy.deepcopy(filtee)
+    r = aux.cp2d(filtee)
     for i,x in enumerate(filtee):
         for j,y in enumerate(x):
             r[i,j] = func(y, sifter[i,j])

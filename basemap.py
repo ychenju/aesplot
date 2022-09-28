@@ -145,7 +145,6 @@ BASIC_DEFAULT_ATTRS = {
     'gridc'     :   'k',
     'gridlw'    :   0.5,
     'gfontsize' :   12,
-    'gridls'    :   '-',
 
     'latinv': 0,
     'longinv': 0,

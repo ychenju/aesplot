@@ -27,13 +27,13 @@ def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
 
     return T1, Tr
 
-def rmse(T: np.ndarray):
+def rms(T: np.ndarray):
     T_ = T.reshape(-1)
     return np.sqrt(np.nanmean(T_*T_))
 
 def sigma(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
     _, Tr = planefit(X,Y,T)
-    return rmse(Tr)
+    return rms(Tr)
 
 def iserrsigma(sigma: float, table: np.ndarray):
     if sigma > np.array(table.reshape(-1)).max() - np.array(table.reshape(-1)).min():

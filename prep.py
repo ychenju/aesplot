@@ -36,6 +36,20 @@ class csv:
             self._y, self._x = index
         else:
             self._y = index
+        _df = pd.read_csv(self._path, **self._pdattrs)
+        _ar = np.array(_df.iloc[:,:])
+        _y, _x = _ar.shape
+        if isinstance(self._x, str):
+            self._x = slice(0, _x)
+        if isinstance(self._y, str):
+            self._y = slice(0, _y)
+        return _ar[self._y, self._x]
+
+    def sub(self, index):
+        if isinstance(index, tuple):
+            self._y, self._x = index
+        else:
+            self._y = index
         return self
 
     def to_csv(self, path, **kwargs):
@@ -54,6 +68,20 @@ class xls(csv):
     def __call__(self, **kwargs):
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
+        _df = pd.read_excel(self._path, **self._pdattrs)
+        _ar = np.array(_df.iloc[:,:])
+        _y, _x = _ar.shape
+        if isinstance(self._x, str):
+            self._x = slice(0, _x)
+        if isinstance(self._y, str):
+            self._y = slice(0, _y)
+        return _ar[self._y, self._x]
+
+    def __getitem__(self, index):
+        if isinstance(index, tuple):
+            self._y, self._x = index
+        else:
+            self._y = index
         _df = pd.read_excel(self._path, **self._pdattrs)
         _ar = np.array(_df.iloc[:,:])
         _y, _x = _ar.shape
