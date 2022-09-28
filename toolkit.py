@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import numpy as np
 
 class Time:
     start_time = 0
@@ -43,3 +44,11 @@ def fileout(path, mode, *content):
         for c in content:
             theF.write(f'{c},\t')
         theF.write('\n')
+
+def fold(table, length):
+    r = []
+    for i in range(len(table)//length):
+        r.append([])
+        for j in range(length):
+            r[-1].append(table[i*length+j])
+    return np.array(r)

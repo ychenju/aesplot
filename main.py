@@ -1,13 +1,8 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import pandas as pd
-import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
-from . import figure
 from . import settings
 
 IMG_DEFAULT_ATTRS = {
@@ -81,7 +76,7 @@ class image:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def add(self, fig: figure):
+    def add(self, fig):
         try:
             fig()
         except:
@@ -112,6 +107,7 @@ class image:
         setf.xticks(self)
         setf.yticks(self)
 
+    # 加轴名称和标题
     def labels(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
@@ -126,6 +122,9 @@ class image:
             plt.savefig(self['saveas'])
         except:
             raise RuntimeError('Output path (\'saveas\' attr) required.')
+
+    def colorbar(self, **kwargs):
+        plt.colorbar(**kwargs)
 
     def show(self):
         plt.show()
@@ -178,11 +177,3 @@ class setf:
             if 'grlw' in img._attr.keys():
                 _grattr['lw'] = img['grlw']
             plt.grid(**_grattr)
-
-
-
-
-
-        
-
-

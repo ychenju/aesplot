@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from .main import image
-from .main import IMG_DEFAULT_ATTRS
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 

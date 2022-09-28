@@ -81,3 +81,22 @@ def xyz(xyz):
 def yxz(xyz):
     xyz = np.array(xyz)
     return {'x': xyz[1], 'y': xyz[0], 'z': xyz[2]}
+
+def boundaries(lat='None', long='None', x='None', y='None', padding='None', padding_x=0, padding_y=0):
+    _r = {}
+    if isinstance(padding, float) or isinstance(padding, int):
+        padding_x = padding
+        padding_y = padding
+    if not isinstance(lat, str):
+        _lat = np.array(lat).reshape(-1)
+        _r['lat'] = [np.min(_lat)-padding_y, np.max(_lat)+padding_y]
+    if not isinstance(long, str):
+        _long = np.array(long).reshape(-1)
+        _r['long'] = [np.min(_long)-padding_x, np.max(_long)+padding_x]
+    if not isinstance(x, str):
+        _x = np.array(x).reshape(-1)
+        _r['xlim'] = [np.min(_x)-padding_x, np.max(_x)+padding_x]
+    if not isinstance(y, str):
+        _y = np.array(y).reshape(-1)
+        _r['ylim'] = [np.min(_y)-padding_y, np.max(_y)+padding_y]
+    return _r

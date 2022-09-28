@@ -2,11 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
-import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
 class figure:
     
@@ -16,7 +13,7 @@ class figure:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def _init_with(self, dic, **kwargs):
+    def _init_with(self, dic: dict, **kwargs):
         self._attr = {}
         self._formats = {}
         for kw in dic.keys():
@@ -274,10 +271,12 @@ TRACK_DEFAULT_ATTRS = {
     'format': False,
     'zfargs': [],
 }
+
 TRACK_DEFAULT_LFORMATS = {
     'lw': .5,
     'c': 'w',
 }
+
 class track(dotline):
 
     def __init__(self, **kwargs):

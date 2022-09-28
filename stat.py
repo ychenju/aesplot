@@ -6,7 +6,7 @@ import numpy as np
 def arg_minp(eV: np.ndarray):
     return np.where(eV>0,eV,np.inf).argmin()
 
-def pfit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
+def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
     X_ = X.reshape(-1)
     Y_ = Y.reshape(-1)
     T_ = T.reshape(-1)
@@ -31,6 +31,12 @@ def rmse(T: np.ndarray):
     T_ = T.reshape(-1)
     return np.sqrt(np.nanmean(T_*T_))
 
-def sigma(X, Y, T):
-    _, Tr = pfit(X,Y,T)
+def sigma(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
+    _, Tr = planefit(X,Y,T)
     return rmse(Tr)
+
+def iserrsigma(sigma: float, table: np.ndarray):
+    if sigma > np.array(table.reshape(-1)).max() - np.array(table.reshape(-1)).min():
+        return True
+    else:
+        return False
