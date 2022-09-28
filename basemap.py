@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+from .main import image
+from .main import IMG_DEFAULT_ATTRS
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
@@ -62,9 +64,9 @@ class basemap:
     def lldraw(self):
         if self['grid'] == 'grid':
             self._base.drawparallels(np.arange(self['latref'], self['latref2'], self['latinv']), labels=[1,0,0,0],
-                                        color=self['gridc'], linewidth=self['gridlw'], linestyle=self['gridls'], fontsize=self['gfontsize'])
+                                        color=self['gridc'], linewidth=self['gridlw'], fontsize=self['gfontsize'])
             self._base.drawmeridians(np.arange(self['longref'], self['longref2'], self['longinv']), labels=[0,0,0,1],
-                                        color=self['gridc'], linewidth=self['gridlw'], linestyle=self['gridls'], fontsize=self['gfontsize'])
+                                        color=self['gridc'], linewidth=self['gridlw'], fontsize=self['gfontsize'])
         elif self['grid'] == 'lls':
             self._base.drawparallels(np.arange(self._lls['latref'], self._lls['latref2'], self._lls['inv']), labels=[1,0,0,0],
                                          color=self._lls['c'], linewidth=self._lls['lw'], fontsize=self._lls['fs'])
