@@ -80,7 +80,7 @@ class basemap:
                                          color=self._latssub['c'], linewidth=self._latssub['lw'], linestyle=self._latssub['ls'], fontsize=self._latssub['fs'])
             for kw in self._longs.keys():
                 self._longssub[kw] = self._longs[kw]
-                if self._latssub['inv']:
+                if self._longssub['inv']:
                     self._base.drawmeridians(np.arange(self._longssub['longref'], self._longssub['longref2'], self._longssub['inv']), labels=[0,0,0,1],
                                          color=self._longssub['c'], linewidth=self._longssub['lw'], linestyle=self._longssub['ls'], fontsize=self._longssub['fs'])
 
