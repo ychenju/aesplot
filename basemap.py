@@ -111,14 +111,14 @@ class basemap:
         return self
     
     def longs(self, inv, **kwargs):
-        self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
+        self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
     def lats(self, inv, **kwargs):
-        self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
+        self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
