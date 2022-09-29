@@ -12,6 +12,7 @@ from . import main as ap
 from . import prep as app
 from . import stat
 from . import toolkit as tk
+from . import ascl
 
 class wrfout:
 
@@ -264,6 +265,14 @@ class frame:
         for interv in ilist:
             r.append(self.cutup(interv))
         return r
+
+    @property
+    def timestr(self):
+        return f'{str(self.time)[:4]}{str(self.time)[5:7]}{str(self.time)[8:10]}{str(self.time)[11:13]}{str(self.time)[14:16]}{str(self.time)[17:19]}'
+
+    @property
+    def timeobj(self):
+        return ascl.dt(self.timestr)
 
 class voidFrame(frame):
     def __init__(self, lat, long, time):

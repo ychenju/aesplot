@@ -262,7 +262,7 @@ class dt:
             return self.Y, self.M, self.D
             
     @property
-    def tm(self):
+    def time(self):
         if not self._time:
             raise RuntimeError('Invalid operation detected')
         else:
@@ -331,7 +331,7 @@ class dt:
             return tm.days(self.h, self.m, self.s)
 
     @property
-    def ms(self):
+    def mjs(self):
         if self._date and self._time:
             return gc.mjd(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
         elif self._date:
@@ -340,7 +340,7 @@ class dt:
             return tm.secs(self.h, self.m, self.s)
 
     @property
-    def md(self):
+    def mjd(self):
         if self._date and self._time:
             return gc.mjd(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
         elif self._date:
