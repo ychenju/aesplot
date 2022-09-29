@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
+import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 
 class figure:
     
@@ -13,7 +16,7 @@ class figure:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def _init_with(self, dic: dict, **kwargs):
+    def _init_with(self, dic, **kwargs):
         self._attr = {}
         self._formats = {}
         for kw in dic.keys():
@@ -27,6 +30,11 @@ class figure:
     def __setitem__(self, key, value):
         self._attr[key] = value
         return self._attr[key]
+
+    def set(self, **kwargs):
+        for kw in kwargs.keys():
+            self._attr[kw] = kwargs[kw]
+        return self
 
     def format(self, **kwargs):
         for kw in kwargs.keys():
@@ -55,7 +63,7 @@ class heat(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 SCATTER_DEFAULT_ATTRS = {
-    'format': False,
+
 }
 
 class scatter(figure):
@@ -80,7 +88,6 @@ class scatter(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 FUNC_DEFAULT_ATTRS = {
-    'format': False,
     'xrange': [-10,10],
     'step': 1e-3,
 }
@@ -99,7 +106,7 @@ class func(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 FOLDLINE_DEFAULT_ATTRS = {
-    'format': False,
+
 }
 
 class foldline(figure):
@@ -116,7 +123,7 @@ class foldline(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 DOTLINE_DEFAULT_ATTRS = {
-    'format': False,
+
 }
 
 class dotline(figure):
@@ -153,7 +160,6 @@ class dotline(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 CONTOURF_DEFAULT_ATTRS = {
-    'format': False,
     'clabel': False,
 }
 
@@ -180,7 +186,6 @@ class contourf(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 CONTOUR_DEFAULT_ATTRS = {
-    'format': False,
     'clabel': False,
 }
 
@@ -220,7 +225,7 @@ class contour(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 AXES_DEFAULT_ATTRS = {
-    'format': False,
+
 }
 
 class axes(figure):
@@ -241,7 +246,6 @@ class axes(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 LLS_DEFAULT_ATTRS = {
-    'format': False,
     'lat': 0,
     'long': 0,
     'latref': -90,
@@ -268,7 +272,6 @@ class lls(figure):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 TRACK_DEFAULT_ATTRS = {
-    'format': False,
     'zfargs': [],
 }
 
@@ -276,7 +279,6 @@ TRACK_DEFAULT_LFORMATS = {
     'lw': .5,
     'c': 'w',
 }
-
 class track(dotline):
 
     def __init__(self, **kwargs):
