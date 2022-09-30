@@ -84,7 +84,7 @@ class gc:
                             return -10
         else:
             return 0
-    
+
     @staticmethod
     def toyd(year: int, month: int, day: int):
         return gc.toyd_normal(year, month, day)[0], gc.toyd_normal(year, month, day)[1] + gc.dfix(year, month, day)
@@ -312,6 +312,22 @@ class dt:
         elif self._time:
             return tm.days(self.h, self.m, self.s)
 
+    def usf(self):
+        if self._date and self._time:
+            return gc.ud(self.Y, self.M, self.D)*86400 + tm.secs(self.h, self.m, self.s)
+        elif self._date:
+            return gc.ud(self.Y, self.M, self.D)*86400.
+        elif self._time:
+            return tm.secs(self.h, self.m, self.s)
+
+    def udf(self):
+        if self._date and self._time:
+            return gc.ud(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+        elif self._date:
+            return gc.ud(self.Y, self.M, self.D)
+        elif self._time:
+            return tm.days(self.h, self.m, self.s)
+
     @property
     def ms(self):
         if self._date and self._time:
@@ -323,6 +339,22 @@ class dt:
 
     @property
     def md(self):
+        if self._date and self._time:
+            return gc.md(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+        elif self._date:
+            return gc.md(self.Y, self.M, self.D)
+        elif self._time:
+            return tm.days(self.h, self.m, self.s)
+
+    def msf(self):
+        if self._date and self._time:
+            return gc.md(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+        elif self._date:
+            return gc.md(self.Y, self.M, self.D)*86400.
+        elif self._time:
+            return tm.secs(self.h, self.m, self.s)
+
+    def mdf(self):
         if self._date and self._time:
             return gc.md(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
         elif self._date:
@@ -348,6 +380,22 @@ class dt:
         elif self._time:
             return tm.days(self.h, self.m, self.s)
 
+    def mjsf(self):
+        if self._date and self._time:
+            return gc.mjd(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+        elif self._date:
+            return gc.mjd(self.Y, self.M, self.D)*86400.
+        elif self._time:
+            return tm.secs(self.h, self.m, self.s)
+
+    def mjdf(self):
+        if self._date and self._time:
+            return gc.mjd(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+        elif self._date:
+            return gc.mjd(self.Y, self.M, self.D)
+        elif self._time:
+            return tm.days(self.h, self.m, self.s)
+
     @property
     def ads(self):
         if self._date and self._time:
@@ -359,6 +407,22 @@ class dt:
 
     @property
     def ad(self):
+        if self._date and self._time:
+            return gc.ad(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+        elif self._date:
+            return gc.ad(self.Y, self.M, self.D)
+        elif self._time:
+            return tm.days(self.h, self.m, self.s)
+
+    def adsf(self):
+        if self._date and self._time:
+            return gc.ad(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+        elif self._date:
+            return gc.ad(self.Y, self.M, self.D)*86400.
+        elif self._time:
+            return tm.secs(self.h, self.m, self.s)
+
+    def adf(self):
         if self._date and self._time:
             return gc.ad(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
         elif self._date:
