@@ -1,7 +1,6 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from re import T
 import numpy as np
 from . import ascl
 import pandas as pd
@@ -120,7 +119,7 @@ class series:
             start_ref = self.ref(start)
         else:
             raise RuntimeError('\'start\' must be a str or ascl.dt')
-        
+
         if isinstance(end, str):
             end_ref = self.ref(ascl.dt(end))
         elif isinstance(end, ascl.dt):
@@ -130,6 +129,9 @@ class series:
                 end_ref = self.ref(ascl.dt(start) + end)
             elif isinstance(start, ascl.dt):
                 end_ref = self.ref(start + end)
+
+        if start_ref > end_ref:
+            start_ref, end_ref = end_ref, start_ref
 
         start_i = 0
         for i, nt in enumerate(self.ntime):
@@ -146,6 +148,10 @@ class series:
     def sub(self, start, end, **kwargs):
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
+
+    def iterate(self, f):
+        _r = [f(d) for d in self.data]
+        return _r
 
     def operation(self, f):
         _r = [f(d) for d in self.data]
@@ -178,3 +184,11 @@ class gis(series):
                 self.long = kwargs[kw]
             else:
                 self._attr[kw] = kwargs[kw]
+
+    def subgis(self, start, end, **kwargs):
+        _r = self.period(start, end)
+        return gis(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
+
+    def temporalmean(self, f, pack=False):
+        _r = np.nanmean(np.array(self.iterate(f)), axis=0)
+        return [self.long, self.lat, _r] if pack else _r

@@ -84,7 +84,7 @@ class gc:
                             return -10
         else:
             return 0
-
+    
     @staticmethod
     def toyd(year: int, month: int, day: int):
         return gc.toyd_normal(year, month, day)[0], gc.toyd_normal(year, month, day)[1] + gc.dfix(year, month, day)
@@ -229,6 +229,24 @@ class dt:
                 self.h = int(dtstr[8:10])
                 self.m = int(dtstr[10:12])
                 self.s = int(dtstr[12:])
+                self._date = True
+                self._time = True
+            elif len(dtstr) == 12:
+                self.Y = int(dtstr[:4])
+                self.M = int(dtstr[4:6])
+                self.D = int(dtstr[6:8])
+                self.h = int(dtstr[8:10])
+                self.m = int(dtstr[10:12])
+                self.s = 0
+                self._date = True
+                self._time = True
+            elif len(dtstr) == 10:
+                self.Y = int(dtstr[:4])
+                self.M = int(dtstr[4:6])
+                self.D = int(dtstr[6:8])
+                self.h = int(dtstr[8:10])
+                self.m = 0
+                self.s = 0
                 self._date = True
                 self._time = True
             elif len(dtstr) == 8:
