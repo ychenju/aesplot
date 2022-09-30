@@ -104,6 +104,7 @@ class frame:
         self['XLAT_RW'] = apfilter.filter(self.lat, self['LANDMASK'], apfilter.falsetonan)
         self['XLONG_RW'] = apfilter.filter(self.long, self['LANDMASK'], apfilter.falsetonan)
         self._flag['REMOVEWATER'] = True
+        return self
 
     def planefit(self, key):
         if self._flag['REMOVEWATER']:
