@@ -22,16 +22,21 @@ from .templates import *
 from .wrfp import *
 
 # 用法：import aesplot.all as ap
-#
-#   atm         atmospheric science function module
-#   auxf        auxiliary functions (FOR INTERNAL USAGE)
-#   basemap     Basemap supports
-#   figure      figure objects
-#   main        main part (imported with the package)
-#   prep        data preprocessing
-#   settings    internal setting functions
-#   stat        statistics function module
-#   tc          tropical cyclone track processing module
-#   templates   templates
-#   toolkit     useful tool functions for programming (FOR EXTERNAL USAGE)
-#   wrfp        WRFout processing module
+#   
+#   allabbrs    0.3.0   
+#   ascl        0.4.0   astronomy and calendars
+#   atm         0.3.0   atmospheric science function module
+#   auxf        0.2.0   auxiliary functions (FOR INTERNAL USAGE)
+#   basemap     0.1.0   Basemap supports
+#   figure      0.1.0   figure objects
+#   filter      0.3.0   filter objects
+#   gc          0.4.7   GeosChem functions
+#   main        0.1.0   main part (imported with the package)
+#   prep        0.2.1   data preprocessing
+#   settings    0.1.0   internal setting functions
+#   stat        0.3.0   statistics function module
+#   tc          0.2.0   tropical cyclone track processing module
+#   templates           templates
+#   toolkit     0.2.0   useful tool functions for programming (FOR EXTERNAL USAGE)
+#   ts          0.4.5   time series module
+#   wrfp        0.3.0   WRFout processing module
