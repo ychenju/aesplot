@@ -13,6 +13,7 @@ from . import prep as app
 from . import stat
 from . import toolkit as tk
 from . import ascl
+from . import ts as apts
 
 class wrfout:
 
@@ -94,6 +95,7 @@ class frame:
     def getchara(self, key):
         return self._chara[key]
 
+    # Add: return self
     def removewater(self):
         if not ('LANDMASK' in self._data.keys()):
             raise RuntimeError("'LANDMASK' has not been loaded to the data frame")
@@ -115,14 +117,17 @@ class frame:
         self._data['PF_'+key+'_r'] = _Tr
         return _T1, _Tr
 
-    def sigma(self, key):
+    def sigma(self, key, fit=True):
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
             return np.nan
-        if self._flag['REMOVEWATER']:
-            _sig = stat.sigma(self._data['XLONG_RW'], self._data['XLAT_RW'], self._data[key])
+        if fit:
+            if self._flag['REMOVEWATER']:
+                _sig = stat.sigma(self._data['XLONG_RW'], self._data['XLAT_RW'], self._data[key])
+            else:
+                _sig = stat.sigma(self.long, self.lat, self._data[key])
         else:
-            _sig = stat.sigma(self.long, self.lat, self._data[key])
+            _sig = stat.sigmawithoutfit(self._data[key])
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
@@ -309,3 +314,9 @@ def correspond(hrdf, lrdf, len, lx, ly):
     thinGrid = hrdf.cut(len*lrdf.res(), lx*lrdf.res(), ly*lrdf.res())
     thickGrid= lrdf.cut(len*hrdf.res(), lx*hrdf.res(), ly*hrdf.res())
     return thinGrid, thickGrid
+
+def to_ts_gis(lf):
+    _s1 = apts.gis(lat=lf[0].lat, long=lf[0].long)
+    for r in lf:
+        _s1[r.timestr] = r
+    return _s1

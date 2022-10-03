@@ -35,6 +35,10 @@ def sigma(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
     _, Tr = planefit(X,Y,T)
     return rms(Tr)
 
+def sigmawithoutfit(T: np.ndarray):
+    Tr = T - np.nanmean(T)
+    return rms(Tr)
+
 def iserrsigma(sigma: float, table: np.ndarray):
     if sigma > np.array(table.reshape(-1)).max() - np.array(table.reshape(-1)).min():
         return True
