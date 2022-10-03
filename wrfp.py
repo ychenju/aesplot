@@ -131,6 +131,22 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
+    # small grid: use stat.sigmawithoutfit
+    # large grid: use stat.sigma
+    def sigma_alt(self, key, threshold=10):
+        if aux.isnantable(self._data[key]):
+            self._chara[key+'_SIGMA'] = np.nan
+            return np.nan
+        if not issmallgrid(self, threshold=threshold):
+            if self._flag['REMOVEWATER']:
+                _sig = stat.sigma(self._data['XLONG_RW'], self._data['XLAT_RW'], self._data[key])
+            else:
+                _sig = stat.sigma(self.long, self.lat, self._data[key])
+        else:
+            _sig = stat.sigmawithoutfit(self._data[key])
+        self._chara[key+'_SIGMA'] = _sig
+        return _sig
+
     def getsigma(self, key):
         return self._chara[key+'_SIGMA']
 
@@ -221,21 +237,27 @@ class frame:
         r = r.crop(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
         return r
 
+    @property
     def res(self):
         return self._flag['RES']
 
+    @property
     def latrange(self):
         return (self.lat[:,0].min(), self.lat[:,0].max())
 
+    @property
     def longrange(self):
         return (self.long[0,:].min(), self.long[0,:].max())
 
+    @property
     def anchor(self):
         return self.lat[:,0].min(), self.long[0,:].min()
 
+    @property
     def lat1d(self):
         return self.lat[:,0]
 
+    @property
     def long1d(self):
         return self.long[0,:]
 
@@ -272,10 +294,12 @@ class frame:
             r.append(self.cutup(interv))
         return r
 
+    # something new
     @property
     def timestr(self):
         return f'{str(self.time)[:4]}{str(self.time)[5:7]}{str(self.time)[8:10]}{str(self.time)[11:13]}{str(self.time)[14:16]}{str(self.time)[17:19]}'
 
+    # something new
     @property
     def timeobj(self):
         return ascl.dt(self.timestr)
@@ -306,7 +330,7 @@ class nullFrame(frame):
 
 def findanchor(li: list, lat, lon):
     for l in li:
-        if l.anchor() == (lat, lon):
+        if l.anchor == (lat, lon):
             return l
     return nullFrame()
 
@@ -315,8 +339,12 @@ def correspond(hrdf, lrdf, len, lx, ly):
     thickGrid= lrdf.cut(len*hrdf.res(), lx*hrdf.res(), ly*hrdf.res())
     return thinGrid, thickGrid
 
+# from a list of frames to ts.gis
 def to_ts_gis(lf):
     _s1 = apts.gis(lat=lf[0].lat, long=lf[0].long)
     for r in lf:
         _s1[r.timestr] = r
     return _s1
+
+def issmallgrid(grid: frame, threshold):
+    return True if grid.res < threshold else False
