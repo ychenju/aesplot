@@ -52,3 +52,11 @@ def fold(table, length):
         for j in range(length):
             r[-1].append(table[i*length+j])
     return np.array(r)
+
+def npfold(table, length):
+    try:
+        if not isinstance(table, np.ndarray):
+            table = np.array(table)
+        return np.array(table).reshape(-1, length)
+    except:
+        raise RuntimeError('Cannot \'npfold\'. Please try \'fold\' instead')
