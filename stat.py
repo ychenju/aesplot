@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import scipy.stats as spss
 
 def arg_minp(eV: np.ndarray):
     return np.where(eV>0,eV,np.inf).argmin()
 
+# plane fitting
 def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
     X_ = X.reshape(-1)
     Y_ = Y.reshape(-1)
@@ -44,3 +46,63 @@ def iserrsigma(sigma: float, table: np.ndarray):
         return True
     else:
         return False
+
+# -*- update: v0.4.12 -*-
+
+class linreg:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self._linregress = spss.linregress(x, y)
+
+    def __call__(self):
+            return self._linregress
+    
+    @property
+    def slope(self):
+        return self._linregress.slope
+
+    @property
+    def k(self):
+        return self._linregress.slope
+
+    @property
+    def intercept(self):
+        return self._linregress.intercept
+
+    @property
+    def b(self):
+        return self._linregress.intercept
+
+    @property
+    def rvalue(self):
+        return self._linregress.rvalue
+
+    @property
+    def r(self):
+        return self._linregress.rvalue
+
+    @property
+    def R2(self):
+        return self._linregress.rvalue**2
+
+    @property
+    def pvalue(self):
+        return self._linregress.pvalue
+
+    @property
+    def p(self):
+        return self._linregress.pvalue
+
+    @property
+    def stderr(self):
+        return self._linregress.stderr
+
+    @property
+    def intercept_stderr(self):
+        return self._linregress.intercept_stderr
+
+    def f(self, x):
+        return self.k * x + self.b
+

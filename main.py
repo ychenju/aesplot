@@ -1,8 +1,12 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import pandas as pd
+import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 from . import settings
 
 IMG_DEFAULT_ATTRS = {
@@ -76,17 +80,19 @@ class image:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def add(self, fig):
-        try:
-            fig()
-        except:
-            print(f'Failed to add the object \'{fig}\'')
+    def add(self, *figs):
+        for fig in figs:
+            try:
+                fig()
+            except:
+                print(f'Failed to add the object \'{fig}\'')
 
-    def addbasemap(self, bmp):
-        try:
-            bmp()
-        except:
-            print(f'Failed to add the Basemap object \'{bmp}\'')
+    def addbasemap(self, *bmps):
+        for bmp in bmps:
+            try:
+                bmp()
+            except:
+                print(f'Failed to add the Basemap object \'{bmp}\'')
 
     def addbaseNmask(self, bmp, mask):
         self.addbasemap(bmp)
@@ -107,7 +113,6 @@ class image:
         setf.xticks(self)
         setf.yticks(self)
 
-    # 加轴名称和标题
     def labels(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]

@@ -4,8 +4,8 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
+from . import figure as apf
+from . import stat as aps
 
-DUMMY = None
+def linreg_show(reg: aps.linreg):
+    return (apf.scatter(x=reg.x, y=reg.y).format(c='k'), apf.func(xrange=[np.min(reg.x), np.max(reg.x)], f=reg.f).format(c='r'))
