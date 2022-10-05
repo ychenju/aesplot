@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
 import scipy.stats as spss
+from . import auxf as aux
 
 def arg_minp(eV: np.ndarray):
     return np.where(eV>0,eV,np.inf).argmin()
 
-# plane fitting
 def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
     X_ = X.reshape(-1)
     Y_ = Y.reshape(-1)
@@ -46,8 +47,6 @@ def iserrsigma(sigma: float, table: np.ndarray):
         return True
     else:
         return False
-
-# -*- update: v0.4.12 -*-
 
 class linreg:
 
@@ -106,3 +105,54 @@ class linreg:
     def f(self, x):
         return self.k * x + self.b
 
+class corr:
+
+    def __init__(self, *data, base='scipy', method='pearson'):
+        if len(data) < 2:
+            raise RuntimeError('No enough data!')
+        if base == 'scipy':
+            if len(data) != 2:
+                raise RuntimeError('Only 2 lists of data are allowed in scipy mode')
+            if aux.hasnan(data):
+                raise RuntimeError('Data with NaN are not allowed in scipy mode')
+            self._base = 's'
+            if method.lower() in ('pearson', 'p'):
+                self.result = spss.pearsonr(*data)
+                self._method = 'p'
+            elif method.lower() in ('spearman', 's'):
+                self.result = spss.spearmanr(*data)
+                self._method = 's'
+            else:
+                raise RuntimeError('Invalid method!')
+        elif base == 'pandas':
+            self._base = 'p'
+            if method.lower() in ('pearson', 'p'):
+                self.result = pd.DataFrame(np.array([*data]).T).corr()
+                self._method = 'p'
+            elif method.lower() in ('spearman', 's'):
+                self.result = pd.DataFrame(np.array([*data]).T).corr(method='spearman')
+                self._method = 's'
+
+    def __call__(self):
+        return self.result
+
+    def __str__(self):
+        return self.result.__str__()
+
+    def r(self, x:int=1, y:int=0) -> float:
+        if self._base == 's':
+            if self._method == 'p':
+                return self.result[0]
+            elif self._method == 's':
+                return self.result.correlation
+        elif self._base == 'p':
+            return self.result.iloc[y,x]
+
+    def p(self) -> float:
+        if self._base == 'p':
+            raise RuntimeError('Cannot return p when the base is Pandas')
+        elif self._base == 's':
+            if self._method == 'p':
+                return self.result[1]
+            elif self._method == 's':
+                return self.result.pvalue

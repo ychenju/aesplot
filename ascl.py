@@ -84,7 +84,7 @@ class gc:
                             return -10
         else:
             return 0
-    
+
     @staticmethod
     def toyd(year: int, month: int, day: int):
         return gc.toyd_normal(year, month, day)[0], gc.toyd_normal(year, month, day)[1] + gc.dfix(year, month, day)
@@ -271,6 +271,9 @@ class dt:
             return f'{int(self.Y):0>4d}{div}{int(self.M):0>2d}{div}{int(self.D):0>2d}'
         elif self._time:
             return f'{int(self.h):0>2d}{div}{int(self.m):0>2d}{div}{int(self.s):0>2d}'
+
+    def __str__(self) -> str:
+        return self.__call__('-')
 
     @property
     def date(self):

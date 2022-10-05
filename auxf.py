@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
 from . import filter as apfilter
 
 def longfix(lon: float):
@@ -27,3 +28,11 @@ def isnantable(table: np.ndarray):
         return False
     else:
         return True
+
+def hasnan(*tables):
+    for table in tables:
+        r = np.array(table).reshape(-1)
+        for x in r:
+            if np.isnan(x):
+                return True
+    return False
