@@ -3,7 +3,6 @@
 
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
 from . import auxf as aux
 from . import basemap as apb
 from . import figure as apf
@@ -11,7 +10,6 @@ from . import filter as apfilter
 from . import main as ap
 from . import prep as app
 from . import stat
-from . import toolkit as tk
 from . import ascl
 from . import ts as apts
 
@@ -95,7 +93,6 @@ class frame:
     def getchara(self, key):
         return self._chara[key]
 
-    # Add: return self
     def removewater(self):
         if not ('LANDMASK' in self._data.keys()):
             raise RuntimeError("'LANDMASK' has not been loaded to the data frame")
@@ -131,8 +128,6 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
-    # small grid: use stat.sigmawithoutfit
-    # large grid: use stat.sigma
     def sigma_alt(self, key, threshold=10):
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
@@ -294,12 +289,10 @@ class frame:
             r.append(self.cutup(interv))
         return r
 
-    # something new
     @property
     def timestr(self):
         return f'{str(self.time)[:4]}{str(self.time)[5:7]}{str(self.time)[8:10]}{str(self.time)[11:13]}{str(self.time)[14:16]}{str(self.time)[17:19]}'
 
-    # something new
     @property
     def timeobj(self):
         return ascl.dt(self.timestr)
@@ -339,7 +332,6 @@ def correspond(hrdf, lrdf, len, lx, ly):
     thickGrid= lrdf.cut(len*hrdf.res(), lx*hrdf.res(), ly*hrdf.res())
     return thinGrid, thickGrid
 
-# from a list of frames to ts.gis
 def to_ts_gis(lf):
     _s1 = apts.gis(lat=lf[0].lat, long=lf[0].long)
     for r in lf:
@@ -347,4 +339,4 @@ def to_ts_gis(lf):
     return _s1
 
 def issmallgrid(grid: frame, threshold):
-    return True if grid.res < threshold else False
+    return grid.res < threshold

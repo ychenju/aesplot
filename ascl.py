@@ -84,7 +84,7 @@ class gc:
                             return -10
         else:
             return 0
-
+    
     @staticmethod
     def toyd(year: int, month: int, day: int):
         return gc.toyd_normal(year, month, day)[0], gc.toyd_normal(year, month, day)[1] + gc.dfix(year, month, day)

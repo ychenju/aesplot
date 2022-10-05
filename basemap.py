@@ -7,6 +7,27 @@ from .main import IMG_DEFAULT_ATTRS
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
+BASEMAP_DUMMY = {}
+
+EMAP_DEFAULT_ATTRS = {
+    'figsize'   :   (12,8),
+    'dpi'       :   180,
+    'proj'      :   'cyl',
+    'lon'       :   [-180.,180.],
+    'lat'       :   [-60.,60.],
+    'res'       :   'c',
+    'latinv'    :   0.,
+    'loninv'    :   0.,
+    'fontsize'  :   10,
+    'cmap'      :   'jet',
+    'clcolor'   :   'k',
+    'cllw'      :   1.,
+    'clbgs'     :   0.2,
+    'gridc'     :   'k',
+    'gridlw'    :   0.5,
+    'intlabels' :   False,
+}  
+
 class basemap:
 
     _base = Basemap()
@@ -132,6 +153,18 @@ class basemap:
             self._coastlines[kw] = kwargs[kw]
         self['coastline_func'] = True
         return self
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class imageB(image):
+    
+    def __init__(self, basemap: basemap):
+        self._attr = {}
+        for kw in IMG_DEFAULT_ATTRS.keys():
+            self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
+        for kw in basemap._attr.keys():
+            self._attr[kw] = basemap[kw]
+        self.preset()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 

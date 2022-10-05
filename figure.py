@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
-import xarray as xr
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
 class figure:
     
@@ -279,6 +275,7 @@ TRACK_DEFAULT_LFORMATS = {
     'lw': .5,
     'c': 'w',
 }
+
 class track(dotline):
 
     def __init__(self, **kwargs):

@@ -118,7 +118,6 @@ class corrClass:
                 raise RuntimeError('Only 2 lists of data are allowed in scipy mode')
             if aux.hasnan(data):
                 raise RuntimeError('Data with NaN are not allowed in scipy mode')
-            # self._base = 's'
             if method.lower() in ('pearson', 'p'):
                 self.result = spss.pearsonr(*data)
                 self._method = 'p'
@@ -128,7 +127,6 @@ class corrClass:
             else:
                 raise RuntimeError('Invalid method!')
         elif base == 'pandas':
-            # self._base = 'p'
             if method.lower() in ('pearson', 'p'):
                 self.result = pd.DataFrame(np.array([*data]).T).corr()
                 self._method = 'p'

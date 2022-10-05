@@ -34,4 +34,3 @@ def isnotnan(f):
             return 0
         else:
             return 1
-

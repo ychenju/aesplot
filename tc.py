@@ -2,7 +2,6 @@ import urllib.request as req
 import re
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from . import basemap as apb
 from . import figure as apf
 from . import auxf as aux
@@ -127,8 +126,6 @@ def readjtwc(ipath, opath):
     _p = pd.DataFrame(trx)
     _p.to_csv(opath,index=None, header=None)
 
-# 对于指定的simple对象，使用figure.track画tctrack图（需要返回一个背景图对象和一个），请配合addbaseNmask使用
-
 def tctrack(data):
     _b = apb.bluemarble(**boundaries(data), res='l').lls(10, c='w')
     _t = apf.track(x=data[2], y=data[1], z=data[3], f=sshws).lformat(c='w')
@@ -136,19 +133,19 @@ def tctrack(data):
 
 
 def sshws(inten):
-        if inten < 25:      # DIST
+        if inten < 25:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([128,204,255])/256.}
-        elif inten < 34:    # TD
+        elif inten < 34:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([ 94,186,255])/256.}
-        elif inten < 64:    # TS
+        elif inten < 64:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([  0,255,244])/256.}
-        elif inten < 82:    # C1
+        elif inten < 82:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,255,204])/256.}
-        elif inten < 96:    # C2
+        elif inten < 96:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,231,117])/256.}
-        elif inten < 112:   # C3
+        elif inten < 112:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,193, 64])/256.}
-        elif inten < 137:   # C4
+        elif inten < 137:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,143, 32])/256.}
-        else:               # C5
+        else:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255, 96, 96])/256.}

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
 from . import filter as apfilter
 
 def longfix(lon: float):

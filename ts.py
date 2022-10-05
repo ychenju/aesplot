@@ -3,7 +3,6 @@
 
 import numpy as np
 from . import ascl
-import pandas as pd
 
 SERIES_DEFAULT_ATTRS = {
     'ref': ascl.dt.udf
@@ -112,14 +111,12 @@ class series:
                 return -1
     
     def period(self, start, end):
-
         if isinstance(start, str):
             start_ref = self.ref(ascl.dt(start))
         elif isinstance(start, ascl.dt):
             start_ref = self.ref(start)
         else:
             raise RuntimeError('\'start\' must be a str or ascl.dt')
-
         if isinstance(end, str):
             end_ref = self.ref(ascl.dt(end))
         elif isinstance(end, ascl.dt):
@@ -129,10 +126,8 @@ class series:
                 end_ref = self.ref(ascl.dt(start) + end)
             elif isinstance(start, ascl.dt):
                 end_ref = self.ref(start + end)
-
         if start_ref > end_ref:
             start_ref, end_ref = end_ref, start_ref
-
         start_i = 0
         for i, nt in enumerate(self.ntime):
             if nt >= start_ref:
@@ -156,12 +151,6 @@ class series:
     def operation(self, f):
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
-
-class val(series):
-    pass
-
-class array(series):
-    pass
 
 class gis(series):
 
