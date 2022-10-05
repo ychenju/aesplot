@@ -3,6 +3,7 @@
 
 import xarray as xr
 import numpy as np
+import matplotlib.pyplot as plt
 from . import auxf as aux
 from . import basemap as apb
 from . import figure as apf
@@ -10,6 +11,7 @@ from . import filter as apfilter
 from . import main as ap
 from . import prep as app
 from . import stat
+from . import toolkit as tk
 from . import ascl
 from . import ts as apts
 
@@ -332,8 +334,8 @@ def correspond(hrdf, lrdf, len, lx, ly):
     thickGrid= lrdf.cut(len*hrdf.res(), lx*hrdf.res(), ly*hrdf.res())
     return thinGrid, thickGrid
 
-def to_ts_gis(lf):
-    _s1 = apts.gis(lat=lf[0].lat, long=lf[0].long)
+def to_ts_wpframe(lf):
+    _s1 = apts.wpframe(lat=lf[0].lat, long=lf[0].long)
     for r in lf:
         _s1[r.timestr] = r
     return _s1

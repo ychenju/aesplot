@@ -21,7 +21,15 @@ class megan:
             _r = megan.get_const(species, 'beta', 'ldf', 'ct1', 'ceo')
         else:
             _r = [beta, ldf, ct1, ceo]
-        return (1.-_r[1])*megan.get_gamma_t_li(t, _r[0]) + _r[1]*megan.get_gamma_t_ld(t, pt_15, pt_1, _r[2], _r[3])
+        if not isinstance(t, np.ndarray) and not isinstance(pt_15, np.ndarray):
+            return (1.-_r[1])*megan.get_gamma_t_li(t, _r[0]) + _r[1]*megan.get_gamma_t_ld(t, pt_15, pt_1, _r[2], _r[3])
+        elif isinstance(t, np.ndarray) and isinstance(pt_15, np.ndarray):
+            _gt = []
+            for i in range(t.shape[0]):
+                _gt.append([])
+                for j in range(t.shape[1]):
+                    _gt[-1].append((1.-_r[1])*megan.get_gamma_t_li(t[i][j], _r[0]) + _r[1]*megan.get_gamma_t_ld(t[i][j], pt_15[i][j], pt_1[i][j], _r[2], _r[3]))
+            return np.array(_gt)
 
     @staticmethod
     def get_gamma_t_li(t, beta):

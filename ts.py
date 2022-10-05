@@ -3,6 +3,7 @@
 
 import numpy as np
 from . import ascl
+import pandas as pd
 
 SERIES_DEFAULT_ATTRS = {
     'ref': ascl.dt.udf
@@ -98,6 +99,10 @@ class series:
     def ntime(self):
         return [self.ref(t) for t in self.dtime]
 
+    @property
+    def len(self):
+        return len(self.time)
+
     def index(self, t):
         if isinstance(t, ascl.dt):
             try:
@@ -144,13 +149,102 @@ class series:
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
 
-    def iterate(self, f):
+    def iterate(self, f=lambda x: x) -> list:
         _r = [f(d) for d in self.data]
         return _r
 
-    def operation(self, f):
+    def operation(self, f=lambda x: x):
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
+
+    def sum(self, f=lambda x: x) -> float:
+        _r = np.array([f(d) for d in self.data])
+        return np.sum(_r)
+
+    def mean(self, f=lambda x: x) -> float:
+        _r = np.array([f(d) for d in self.data])
+        return np.mean(_r)
+
+    def nanmean(self, f=lambda x: x) -> float:
+        _r = np.array([f(d) for d in self.data])
+        return np.nanmean(_r)
+
+    def subiterate(self, start, end, f=lambda x: x) -> list:
+        _s = self.sub(start, end)
+        _r = np.array([f(d) for d in _s.data])
+        return _r
+
+    def suboperation(self, start, end, f=lambda x: x):
+        _s = self.sub(start, end)
+        _r = np.array([f(d) for d in _s.data])
+        return series(time=_s.time, data=_r)
+
+    def subsum(self, start, end, f=lambda x: x) -> float:
+        _s = self.sub(start, end)
+        _r = np.array([f(d) for d in _s.data])
+        return np.sum(_r)
+
+    def submean(self, start, end, f=lambda x: x) -> float:
+        _s = self.sub(start, end)
+        _r = np.array([f(d) for d in _s.data])
+        return np.mean(_r)
+
+    def subnanmean(self, start, end, f=lambda x: x) -> float:
+        _s = self.sub(start, end)
+        _r = np.array([f(d) for d in _s.data])
+        return np.nanmean(_r)
+        
+class val(series):
+
+    def sum(self, f=lambda x: x) -> float:
+        return np.sum(np.array(self.data))
+    
+    def mean(self, f=lambda x: x) -> float:
+        return np.mean(np.array(self.data))
+
+    def nanmean(self, f=lambda x: x) -> float:
+        return np.nanmean(np.array(self.data))
+
+    def subsum(self, start, end, f=lambda x: x) -> float:
+        _s = self.sub(start, end)
+        return np.sum(np.array(_s.data))
+
+    def submean(self, start, end, f=lambda x: x) -> float:
+        _s = self.sub(start, end)
+        return np.mean(np.array(_s.data))
+
+    def subnanmean(self, start, end, f=lambda x: x) -> float:
+        _s = self.sub(start, end)
+        return np.nanmean(np.array(_s.data))
+
+class array(series):
+
+    def sum(self, f=lambda x: x) -> np.ndarray:
+        return np.sum(np.array(self.data), axis=0)
+    
+    def mean(self, f=lambda x: x) -> np.ndarray:
+        return np.mean(np.array(self.data), axis=0)
+
+    def nanmean(self, f=lambda x: x) -> np.ndarray:
+        return np.nanmean(np.array(self.data), axis=0)
+
+    def subsum(self, start, end, f=lambda x: x) -> np.ndarray:
+        _s = self.sub(start, end)
+        return np.sum(np.array(_s.data), axis=0)
+
+    def submean(self, start, end, f=lambda x: x) -> np.ndarray:
+        _s = self.sub(start, end)
+        return np.mean(np.array(_s.data), axis=0)
+
+    def subnanmean(self, start, end, f=lambda x: x) -> np.ndarray:
+        _s = self.sub(start, end)
+        return np.nanmean(np.array(_s.data), axis=0)
+
+class array1(array):
+    pass
+
+class array2(array):
+    pass
 
 class gis(series):
 
@@ -174,10 +268,45 @@ class gis(series):
             else:
                 self._attr[kw] = kwargs[kw]
 
-    def subgis(self, start, end, **kwargs):
+    def subgis(self, start, end, **kwargs) -> series:
         _r = self.period(start, end)
         return gis(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
 
-    def temporalmean(self, f, pack=False):
+    def meanfield(self, f, pack=False):
         _r = np.nanmean(np.array(self.iterate(f)), axis=0)
         return [self.long, self.lat, _r] if pack else _r
+
+class wpframe(gis):
+
+    def meanfield(self, var, pack=False):
+        _r = np.nanmean(np.array([d[var] for d in self.data]), axis=0)
+        return [self.long, self.lat, _r] if pack else _r
+
+    def subvar(self, var, **kwargs) -> array2:
+        _r = [d[var] for d in self.data]
+        return array2(time=self.time, data=_r, **kwargs)
+
+    def subwpf(self, start, end, **kwargs) -> series:
+        _r = self.period(start, end)
+        return wpframe(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
+
+    def sum(self, var) -> np.ndarray:
+        return np.sum(np.array([d[var] for d in self.data]), axis=0)
+
+    def mean(self, var) -> np.ndarray:
+        return np.mean(np.array([d[var] for d in self.data]), axis=0)
+
+    def nanmean(self, var) -> np.ndarray:
+        return np.nanmean(np.array([d[var] for d in self.data]), axis=0)
+
+    def subsum(self, var, start, end, f=lambda x: x) -> np.ndarray:
+        _s = self.sub(start, end)
+        return np.sum(np.array([d[var] for d in _s.data]), axis=0)
+
+    def submean(self, var, start, end, f=lambda x: x) -> np.ndarray:
+        _s = self.sub(start, end)
+        return np.mean(np.array([d[var] for d in _s.data]), axis=0)
+
+    def subnanmean(self, var, start, end, f=lambda x: x) -> np.ndarray:
+        _s = self.sub(start, end)
+        return np.nanmean(np.array([d[var] for d in _s.data]), axis=0)
