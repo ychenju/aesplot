@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.stats as spss
 from . import auxf as aux
 
-def arg_minp(eV: np.ndarray):
+def arg_minp(eV: np.ndarray) -> int:
     return np.where(eV>0,eV,np.inf).argmin()
 
 def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
@@ -30,25 +30,25 @@ def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
 
     return T1, Tr
 
-def rms(T: np.ndarray):
+def rms(T: np.ndarray) -> float:
     T_ = T.reshape(-1)
     return np.sqrt(np.nanmean(T_*T_))
 
-def sigma(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
+def sigma(X: np.ndarray, Y: np.ndarray, T: np.ndarray) -> float:
     _, Tr = planefit(X,Y,T)
     return rms(Tr)
 
-def sigmawithoutfit(T: np.ndarray):
+def sigmawithoutfit(T: np.ndarray) -> float:
     Tr = T - np.nanmean(T)
     return rms(Tr)
 
-def iserrsigma(sigma: float, table: np.ndarray):
+def iserrsigma(sigma: float, table: np.ndarray) -> bool:
     if sigma > np.array(table.reshape(-1)).max() - np.array(table.reshape(-1)).min():
         return True
     else:
         return False
 
-class linreg:
+class linregClass:
 
     def __init__(self, x, y):
         self.x = x
@@ -59,53 +59,56 @@ class linreg:
             return self._linregress
     
     @property
-    def slope(self):
+    def slope(self) -> float:
         return self._linregress.slope
 
     @property
-    def k(self):
+    def k(self) -> float:
         return self._linregress.slope
 
     @property
-    def intercept(self):
+    def intercept(self) -> float:
         return self._linregress.intercept
 
     @property
-    def b(self):
+    def b(self) -> float:
         return self._linregress.intercept
 
     @property
-    def rvalue(self):
+    def rvalue(self) -> float:
         return self._linregress.rvalue
 
     @property
-    def r(self):
+    def r(self) -> float:
         return self._linregress.rvalue
 
     @property
-    def R2(self):
+    def R2(self) -> float:
         return self._linregress.rvalue**2
 
     @property
-    def pvalue(self):
+    def pvalue(self) -> float:
         return self._linregress.pvalue
 
     @property
-    def p(self):
+    def p(self) -> float:
         return self._linregress.pvalue
 
     @property
-    def stderr(self):
+    def stderr(self) -> float:
         return self._linregress.stderr
 
     @property
-    def intercept_stderr(self):
+    def intercept_stderr(self) -> float:
         return self._linregress.intercept_stderr
 
     def f(self, x):
         return self.k * x + self.b
 
-class corr:
+def linreg(x, y) -> linregClass:
+    return linregClass(x, y)
+
+class corrClass:
 
     def __init__(self, *data, base='scipy', method='pearson'):
         if len(data) < 2:
@@ -115,7 +118,7 @@ class corr:
                 raise RuntimeError('Only 2 lists of data are allowed in scipy mode')
             if aux.hasnan(data):
                 raise RuntimeError('Data with NaN are not allowed in scipy mode')
-            self._base = 's'
+            # self._base = 's'
             if method.lower() in ('pearson', 'p'):
                 self.result = spss.pearsonr(*data)
                 self._method = 'p'
@@ -125,7 +128,7 @@ class corr:
             else:
                 raise RuntimeError('Invalid method!')
         elif base == 'pandas':
-            self._base = 'p'
+            # self._base = 'p'
             if method.lower() in ('pearson', 'p'):
                 self.result = pd.DataFrame(np.array([*data]).T).corr()
                 self._method = 'p'
@@ -136,23 +139,34 @@ class corr:
     def __call__(self):
         return self.result
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.result.__str__()
 
-    def r(self, x:int=1, y:int=0) -> float:
-        if self._base == 's':
-            if self._method == 'p':
-                return self.result[0]
-            elif self._method == 's':
-                return self.result.correlation
-        elif self._base == 'p':
-            return self.result.iloc[y,x]
+def corr(*data, base='scipy', method='pearson') -> corrClass:
+    if base == 'scipy':
+        return scipyCorrClass(*data, base=base, method=method)
+    elif base == 'pandas':
+        return pandasCorrClass(*data, base=base, method=method)
+    else:
+        raise RuntimeError('Invalid base!')
 
+class scipyCorrClass(corrClass):
+
+    @property
+    def r(self) -> float:
+        if self._method == 'p':
+            return self.result[0]
+        elif self._method == 's':
+            return self.result.correlation
+    
+    @property
     def p(self) -> float:
-        if self._base == 'p':
-            raise RuntimeError('Cannot return p when the base is Pandas')
-        elif self._base == 's':
-            if self._method == 'p':
-                return self.result[1]
-            elif self._method == 's':
-                return self.result.pvalue
+        if self._method == 'p':
+            return self.result[1]
+        elif self._method == 's':
+            return self.result.pvalue
+
+class pandasCorrClass(corrClass):
+    
+    def r(self, x:int=1, y:int=0) -> float:
+        return self.result.iloc[y,x]
