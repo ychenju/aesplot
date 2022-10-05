@@ -1,6 +1,7 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
@@ -334,6 +335,7 @@ def correspond(hrdf, lrdf, len, lx, ly):
     thickGrid= lrdf.cut(len*hrdf.res(), lx*hrdf.res(), ly*hrdf.res())
     return thinGrid, thickGrid
 
+# from a list of frames to ts.gis
 def to_ts_wpframe(lf):
     _s1 = apts.wpframe(lat=lf[0].lat, long=lf[0].long)
     for r in lf:
@@ -342,3 +344,12 @@ def to_ts_wpframe(lf):
 
 def issmallgrid(grid: frame, threshold):
     return grid.res < threshold
+
+def create_wpframe(path, *keys, removewater=False):
+    _rs = []
+    paths = os.listdir(path)
+    for fname in paths:
+        wo = wrfout(f'{path}\\{fname}')
+        _rs.append(wo.extract(*keys).removewater() if removewater else wo.extract(*keys))
+    _s1 = to_ts_wpframe(_rs)
+    return _s1
