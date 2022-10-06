@@ -4,7 +4,7 @@
 import numpy as np
 from . import auxf as aux
 
-def filter(filtee, sifter, func):
+def filter(filtee:np.ndarray, sifter:np.ndarray, func:function) -> np.ndarray:
     r = aux.cp2d(filtee)
     for i,x in enumerate(filtee):
         for j,y in enumerate(x):
@@ -23,13 +23,13 @@ def falsetonan(x, f):
         else:
             return np.nan
 
-def isnan(f):
+def isnan(f) -> bool:
         if np.isnan(f):
             return 1
         else:
             return 0
 
-def isnotnan(f):
+def isnotnan(f) -> bool:
         if np.isnan(f):
             return 0
         else:

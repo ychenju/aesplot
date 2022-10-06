@@ -21,7 +21,7 @@ from .toolkit import *
 from .templates import *
 from .wrfp import *
 
-# use：import aesplot.all as ap
+# Use：import aesplot.all as ap
 #   
 #   allabbrs    0.3.0   
 #   ascl        0.4.0   astronomy and calendars

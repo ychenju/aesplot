@@ -5,14 +5,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class figure:
-    
+
     def __init__(self, **kwargs):
         self._attr = {}
         self._formats = {}
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def _init_with(self, dic, **kwargs):
+    def _init_with(self, dic:dict, **kwargs):
         self._attr = {}
         self._formats = {}
         for kw in dic.keys():
@@ -20,10 +20,10 @@ class figure:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key:str):
         return self._attr[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key:str, value):
         self._attr[key] = value
         return self._attr[key]
 
@@ -303,7 +303,7 @@ class track(dotline):
             raise RuntimeError('No data')
 
     @staticmethod
-    def sshws(inten):
+    def sshws(inten:int) -> dict:
         if inten < 25:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([128,204,255])/256.}
         elif inten < 34:

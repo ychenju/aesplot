@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-from re import S
 import xarray as xr
 import numpy as np
-import matplotlib.pyplot as plt
 from . import auxf as aux
 from . import basemap as apb
 from . import figure as apf
@@ -13,10 +11,9 @@ from . import filter as apfilter
 from . import main as ap
 from . import prep as app
 from . import stat
-from . import toolkit as tk
 from . import ascl
 from . import ts as apts
-from typing import List
+from typing import Sequence, Tuple, Union
 
 class wrfout:
     ncfile = None
@@ -24,10 +21,10 @@ class wrfout:
     def __init__(self, path:str):
         self.ncfile = xr.open_dataset(path)
     
-    def extract(self, *keys):
+    def extract(self, *keys:Tuple[str]):
         return frame(self.ncfile, *keys)   
 
-    def __getitem__(self, key:str):
+    def __getitem__(self, key:str) -> np.ndarray:
         return np.array(self.ncfile[key]).squeeze()
     
 FRAME_DEFAULT_FLAGS = {
@@ -42,7 +39,7 @@ class frame:
     long = None
     time = None
 
-    def __init__(self, source:wrfout, *keys):
+    def __init__(self, source:wrfout, *keys:Tuple[str]):
         self._data = {}    
         self._flag = {}
         for flag in FRAME_DEFAULT_FLAGS.keys():
@@ -55,7 +52,7 @@ class frame:
         for key in keys:
             self._data[key] = aux.cp2d(np.array(source[key]).squeeze())
     
-    def load(self, source:wrfout, *keys):    
+    def load(self, source:wrfout, *keys:Tuple[str]):    
         for key in keys:
             self._data[key] = aux.cp2d(np.array(source.ncfile[key]).squeeze())
         return self
@@ -112,7 +109,7 @@ class frame:
         self._flag['REMOVEWATER'] = True
         return self
 
-    def planefit(self, key:str):
+    def planefit(self, key:str) -> Tuple[np.ndarray]:
         if self._flag['REMOVEWATER']:
             _T1, _Tr = stat.planefit(self._data['XLONG_RW'], self._data['XLAT_RW'], self._data[key])
         else:
@@ -121,7 +118,7 @@ class frame:
         self._data['PF_'+key+'_r'] = _Tr
         return _T1, _Tr
 
-    def sigma(self, key:str, fit:bool=True):
+    def sigma(self, key:str, fit:bool=True) -> Union[float, np.NaN]:
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
             return np.nan
@@ -135,7 +132,7 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
-    def sigma_alt(self, key:str, threshold=10):
+    def sigma_alt(self, key:str, threshold:Union[int, float]=10) -> Union[float, np.nan]:
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
             return np.nan
@@ -149,10 +146,10 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
-    def getsigma(self, key:str):
+    def getsigma(self, key:str) -> Union[float, np.nan]:
         return self._chara[key+'_SIGMA']
 
-    def quickshow(self, key:str):
+    def quickshow(self, key:str) -> ap.image:
         _img = ap.image()
         _img.addbasemap(apb.coast(**app.boundaries(self.lat, self.long)).lls(10))
         _img.add(apf.contourf(**app.xyz([self.long, self.lat, self[key]])).format(cmap='jet'))
@@ -161,7 +158,7 @@ class frame:
         _img.show()
         return _img
 
-    def show(self, key:str, **kwargs):
+    def show(self, key:str, **kwargs) -> ap.image:
         _image_attrs = {'title': key}
         _basemap_attrs = app.boundaries(self.lat, self.long)
         _lls_attrs = {'inv': 10}
@@ -230,7 +227,7 @@ class frame:
         rng = np.arange(0, res, 1) - res//2
         return np.array([self[key][x+i,y+j] for i in rng for j in rng])
 
-    def meannxn(self, res: int):
+    def meannxn(self, res:int):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             d = []
@@ -300,15 +297,15 @@ class frame:
         return self._flag['RES']
 
     @property
-    def latrange(self) -> tuple:
+    def latrange(self) -> Tuple[float]:
         return (self.lat[:,0].min(), self.lat[:,0].max())
 
     @property
-    def longrange(self) -> tuple:
+    def longrange(self) -> Tuple[float]:
         return (self.long[0,:].min(), self.long[0,:].max())
 
     @property
-    def anchor(self):
+    def anchor(self) -> Tuple[float]:
         return self.lat[:,0].min(), self.long[0,:].min()
 
     @property
@@ -400,27 +397,27 @@ class nullFrame(frame):
             self._flag[flag] = FRAME_DEFAULT_FLAGS[flag]
         self._chara = {}
 
-def findanchor(li:List[frame], lat:float, lon:float) -> frame:
+def findanchor(li:Sequence[frame], lat:float, lon:float) -> frame:
     for l in li:
         if l.anchor == (lat, lon):
             return l
     return nullFrame()
 
-def correspond(hrdf:frame, lrdf:frame, len:int, lx:int, ly:int):
+def correspond(hrdf:frame, lrdf:frame, len:int, lx:int, ly:int) -> Tuple[frame]:
     thinGrid = hrdf.cut(len*lrdf.res, lx*lrdf.res, ly*lrdf.res)
     thickGrid= lrdf.cut(len*hrdf.res, lx*hrdf.res, ly*hrdf.res)
     return thinGrid, thickGrid
 
-def to_ts_wpframe(lf:List[frame]) -> apts.wpframe:
+def to_ts_wpframe(lf:Sequence[frame]) -> apts.wpframe:
     _s1 = apts.wpframe(lat=lf[0].lat, long=lf[0].long)
     for r in lf:
         _s1[r.timestr] = r
     return _s1
 
-def issmallgrid(grid:frame, threshold) -> bool:
+def issmallgrid(grid:frame, threshold:Union[int, float]) -> bool:
     return grid.res < threshold
 
-def create_wpframe(path:str, *keys, removewater:bool=False) -> apts.wpframe:
+def create_wpframe(path:str, *keys:Tuple[str], removewater:bool=False) -> apts.wpframe:
     _rs = []
     paths = os.listdir(path)
     for fname in paths:
@@ -429,7 +426,7 @@ def create_wpframe(path:str, *keys, removewater:bool=False) -> apts.wpframe:
     _s1 = to_ts_wpframe(_rs)
     return _s1
 
-def pseudo_correspond(odf:frame, lrdf:frame, lx:int, ly:int):
+def pseudo_correspond(odf:frame, lrdf:frame, lx:int, ly:int) -> Tuple[frame]:
     thinGrid = odf.cut(lrdf.res, lx*lrdf.res, ly*lrdf.res)
     thickGrid= lrdf.cut(1, lx, ly)
     return thinGrid, thickGrid

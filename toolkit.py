@@ -3,6 +3,7 @@
 
 import time
 import numpy as np
+from typing import Tuple, Sequence
 
 class Time:
     start_time = 0
@@ -39,13 +40,13 @@ class perfcounter(Time):
         self.end_time = time.perf_counter()
         print(f'Time:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
 
-def fileout(path, mode, *content):
+def fileout(path:str, mode:str, *content:Tuple[str]):
     with open(path, mode) as theF:
         for c in content:
             theF.write(f'{c},\t')
         theF.write('\n')
 
-def fold(table, length):
+def fold(table:Sequence, length:int) -> np.ndarray:
     r = []
     for i in range(len(table)//length):
         r.append([])
@@ -53,7 +54,7 @@ def fold(table, length):
             r[-1].append(table[i*length+j])
     return np.array(r)
 
-def npfold(table, length):
+def npfold(table:np.ndarray, length:int) -> np.ndarray:
     try:
         if not isinstance(table, np.ndarray):
             table = np.array(table)

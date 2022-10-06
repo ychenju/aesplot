@@ -4,5 +4,5 @@
 from .main import *
 import matplotlib as mpl
 
-def sans_serif(font : str):
+def sans_serif(font:str):
     mpl.rcParams['font.sans-serif']=[font]

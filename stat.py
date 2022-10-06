@@ -5,11 +5,12 @@ import numpy as np
 import pandas as pd
 import scipy.stats as spss
 from . import auxf as aux
+from typing import Tuple, Sequence
 
-def arg_minp(eV: np.ndarray) -> int:
+def arg_minp(eV:np.ndarray) -> int:
     return np.where(eV>0,eV,np.inf).argmin()
 
-def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
+def planefit(X:np.ndarray, Y:np.ndarray, T:np.ndarray):
     X_ = X.reshape(-1)
     Y_ = Y.reshape(-1)
     T_ = T.reshape(-1)
@@ -30,19 +31,19 @@ def planefit(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
 
     return T1, Tr
 
-def rms(T: np.ndarray) -> float:
+def rms(T:np.ndarray) -> float:
     T_ = T.reshape(-1)
     return np.sqrt(np.nanmean(T_*T_))
 
-def sigma(X: np.ndarray, Y: np.ndarray, T: np.ndarray) -> float:
+def sigma(X:np.ndarray, Y:np.ndarray, T:np.ndarray) -> float:
     _, Tr = planefit(X,Y,T)
     return rms(Tr)
 
-def sigmawithoutfit(T: np.ndarray) -> float:
+def sigmawithoutfit(T:np.ndarray) -> float:
     Tr = T - np.nanmean(T)
     return rms(Tr)
 
-def iserrsigma(sigma: float, table: np.ndarray) -> bool:
+def iserrsigma(sigma:float, table:np.ndarray) -> bool:
     if sigma > np.array(table.reshape(-1)).max() - np.array(table.reshape(-1)).min():
         return True
     else:
@@ -50,7 +51,7 @@ def iserrsigma(sigma: float, table: np.ndarray) -> bool:
 
 class linregClass:
 
-    def __init__(self, x, y):
+    def __init__(self, x:Sequence, y:Sequence):
         self.x = x
         self.y = y
         self._linregress = spss.linregress(x, y)
@@ -105,12 +106,12 @@ class linregClass:
     def f(self, x):
         return self.k * x + self.b
 
-def linreg(x, y) -> linregClass:
+def linreg(x:Sequence, y:Sequence) -> linregClass:
     return linregClass(x, y)
 
 class corrClass:
 
-    def __init__(self, *data, base='scipy', method='pearson'):
+    def __init__(self, *data:Tuple[Sequence], base:str='scipy', method:str='pearson'):
         if len(data) < 2:
             raise RuntimeError('No enough data!')
         if base == 'scipy':
@@ -140,7 +141,7 @@ class corrClass:
     def __str__(self) -> str:
         return self.result.__str__()
 
-def corr(*data, base='scipy', method='pearson') -> corrClass:
+def corr(*data:Tuple[Sequence], base:str='scipy', method:str='pearson') -> corrClass:
     if base == 'scipy':
         return scipyCorrClass(*data, base=base, method=method)
     elif base == 'pandas':

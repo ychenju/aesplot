@@ -3,6 +3,7 @@
 
 import numpy as np
 from .data import GC_MEGAN_SPECIES_CONST
+from typing import Tuple, Union
 
 R = 8.3144598e-3
 
@@ -11,12 +12,12 @@ MEGAN_T_STANDARD = 303.
 class megan:
 
     @staticmethod
-    def gamma_t(t, pt_15, pt_1, species=0,
-                ldf=GC_MEGAN_SPECIES_CONST['ISOP']['ldf'], 
-                beta=GC_MEGAN_SPECIES_CONST['ISOP']['beta'], 
-                ct1=GC_MEGAN_SPECIES_CONST['ISOP']['ct1'], 
-                ceo=GC_MEGAN_SPECIES_CONST['ISOP']['ceo'], 
-                ):
+    def gamma_t(t:Union[float, np.ndarray], pt_15:Union[float, np.ndarray], pt_1:Union[float, np.ndarray], species:str=0,
+                ldf:float=GC_MEGAN_SPECIES_CONST['ISOP']['ldf'], 
+                beta:float=GC_MEGAN_SPECIES_CONST['ISOP']['beta'], 
+                ct1:float=GC_MEGAN_SPECIES_CONST['ISOP']['ct1'], 
+                ceo:float=GC_MEGAN_SPECIES_CONST['ISOP']['ceo'], 
+                ) -> Union[float, np.ndarray]:
         if isinstance(species, str):
             _r = megan.get_const(species, 'beta', 'ldf', 'ct1', 'ceo')
         else:
@@ -32,12 +33,12 @@ class megan:
             return np.array(_gt)
 
     @staticmethod
-    def get_gamma_t_li(t, beta):
+    def get_gamma_t_li(t:float, beta:float) -> float:
         gamma_t_li = np.exp(beta*(t - MEGAN_T_STANDARD))
         return gamma_t_li
 
     @staticmethod
-    def get_gamma_t_ld(t, pt_15, pt_1, ct1, ceo):
+    def get_gamma_t_ld(t:float, pt_15:float, pt_1:float, ct1:float, ceo:float) -> float:
         e_opt = ceo * np.exp(0.08*(pt_15 - 2.97e2))
         t_opt = 3.13e2 + (6.0e-1 * (pt_15 - 2.97e2))
         CT2 = 200.0
@@ -47,7 +48,7 @@ class megan:
         return gamma_t_ld
 
     @staticmethod
-    def get_const(species, *const):
+    def get_const(species:str, *const:Tuple[str]):
         if len(const) == 1:
             return GC_MEGAN_SPECIES_CONST[species][const[0]]
         else:

@@ -3,10 +3,11 @@
 
 import numpy as np
 import pandas as pd
+from typing import Union, Sequence
 
 class csv:
 
-    def __init__(self, path, **kwargs):
+    def __init__(self, path:str, **kwargs):
         self._x = 'default'
         self._y = 'default'
         self._path = path
@@ -14,7 +15,7 @@ class csv:
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
 
-    def __call__(self, **kwargs):
+    def __call__(self, **kwargs) -> np.ndarray:
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
         _df = pd.read_csv(self._path, **self._pdattrs)
@@ -30,7 +31,7 @@ class csv:
         self._pdattrs['header'] = None
         return self
 
-    def __getitem__(self, index):
+    def __getitem__(self, index:Union[int, tuple]) -> np.ndarray:
         if isinstance(index, tuple):
             self._y, self._x = index
         else:
@@ -44,27 +45,27 @@ class csv:
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    def sub(self, index):
+    def sub(self, index:Union[int, tuple]):
         if isinstance(index, tuple):
             self._y, self._x = index
         else:
             self._y = index
         return self
 
-    def to_csv(self, path, **kwargs):
+    def to_csv(self, path:str, **kwargs):
         _df2 = pd.DataFrame(self())
         _df2.to_csv(path, **kwargs)
-
+        return self
 
 class xls(csv):
 
-    def __init__(self, path, sheet):
+    def __init__(self, path:str, sheet:str):
         self._x = 'default'
         self._y = 'default'
         self._path = path
         self._pdattrs = {'sheet_name': sheet}
 
-    def __call__(self, **kwargs):
+    def __call__(self, **kwargs) -> np.ndarray:
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
         _df = pd.read_excel(self._path, **self._pdattrs)
@@ -76,7 +77,7 @@ class xls(csv):
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    def __getitem__(self, index):
+    def __getitem__(self, index:Union[int, tuple]) -> np.ndarray:
         if isinstance(index, tuple):
             self._y, self._x = index
         else:
@@ -93,23 +94,23 @@ class xls(csv):
 class xlsx(xls):
     pass
 
-def xy(xy):
+def xy(xy:Sequence) -> dict:
     xy = np.array(xy)
     return {'x': xy[0], 'y': xy[1]}
 
-def yx(xy):
+def yx(xy:Sequence) -> dict:
     xy = np.array(xy)
     return {'x': xy[1], 'y': xy[0]}
 
-def xyz(xyz):
+def xyz(xyz:Sequence) -> dict:
     xyz = np.array(xyz)
     return {'x': xyz[0], 'y': xyz[1], 'z': xyz[2]}
 
-def yxz(xyz):
+def yxz(xyz:Sequence) -> dict:
     xyz = np.array(xyz)
     return {'x': xyz[1], 'y': xyz[0], 'z': xyz[2]}
 
-def boundaries(lat='None', long='None', x='None', y='None', padding='None', padding_x=0, padding_y=0):
+def boundaries(lat:Sequence='None', long:Sequence='None', x:Sequence='None', y:Sequence='None', padding:float='None', padding_x:float=0, padding_y:float=0):
     _r = {}
     if isinstance(padding, float) or isinstance(padding, int):
         padding_x = padding

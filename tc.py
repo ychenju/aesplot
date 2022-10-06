@@ -5,16 +5,17 @@ import pandas as pd
 from . import basemap as apb
 from . import figure as apf
 from . import auxf as aux
+from typing import Tuple, NoReturn
 
 RAMMB_URL = r'https://rammb-data.cira.colostate.edu/tc_realtime/storm.asp?storm_identifier='
 JTWC_URL = r'https://www.metoc.navy.mil/jtwc/products/best-tracks'
 
 JTWC_SCALE_LIST = ('DB','TD','TS','TY','ST','TC')
 
-def get_JTWC_URL(year):
+def get_JTWC_URL(year:int) -> str:
     return JTWC_URL + f'//{year}//{year}s-bwp//bwp{year}.zip'
 
-def rammb(identifer, name, path):
+def rammb(identifer:str, name:str, path:str) -> NoReturn:
     resp = req.urlopen(RAMMB_URL+identifer)
     fcsv = open(path+'\\'+identifer[-4:]+identifer[:4]+name+'.csv', 'w')
     fhtm = open(path+'\\'+'WEBSOURCE_'+identifer[-4:]+identifer[:4]+name+'.html', 'w')
@@ -71,18 +72,18 @@ def rammb(identifer, name, path):
     fcsv.write(r)
     fcsv.close()
 
-def boundaries(track):
+def boundaries(track:np.ndarray) -> dict:
     bdrs = {
         'lat': [max(track[1].min()-5.,-70), min(track[1].max()+5.,70)],
         'long': [np.array([aux.longfix(x) for x in track[2]]).min()-10., np.array([aux.longfix(x) for x in track[2]]).max()+10.],
     }
     return bdrs
 
-def readSimple(path):
+def readSimple(path:str) -> np.ndarray:
         dframe = pd.read_csv(path, header=None)
         return np.array(dframe.iloc[:,:]).T
         
-def ace(track):
+def ace(track:np.ndarray) -> float:
     _r = []
     for inten in track[3]:
         if inten > 34:
@@ -90,7 +91,7 @@ def ace(track):
     _r2 = np.array(_r)
     return (_r2**2).sum()/1e4
 
-def report(name, track, path):
+def report(name:str, track:np.ndarray, path:str):
     _r = []
     for inten in track[3]:
         if inten > 34:
@@ -99,7 +100,7 @@ def report(name, track, path):
     with open(path, 'a') as f:
         f.write(f'{name}\t\t,\t{len(_r2)}\t,\t{max(track[3])}\t,\t{(_r2**2).sum()/1e4}\r')
 
-def coorproc(t, *args):
+def coorproc(t, *args:Tuple[int]):
     for arg in args:
         for tl in t:
             _r = list(tl[arg])
@@ -112,7 +113,7 @@ def coorproc(t, *args):
             tl[arg] = ''.join(_r)
     return t
 
-def readjtwc(ipath, opath):
+def readjtwc(ipath:str, opath:str):
     with open(ipath, 'r') as trf:
         trc = trf.read()
     trx = np.array(trc.split('\n'))
@@ -126,13 +127,12 @@ def readjtwc(ipath, opath):
     _p = pd.DataFrame(trx)
     _p.to_csv(opath,index=None, header=None)
 
-def tctrack(data):
+def tctrack(data:np.ndarray) -> Tuple[apb.bluemarble, apf.track]:
     _b = apb.bluemarble(**boundaries(data), res='l').lls(10, c='w')
     _t = apf.track(x=data[2], y=data[1], z=data[3], f=sshws).lformat(c='w')
     return _b, _t
 
-
-def sshws(inten):
+def sshws(inten:int) -> dict:
         if inten < 25:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([128,204,255])/256.}
         elif inten < 34:

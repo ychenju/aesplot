@@ -2,15 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from .main import image
-from .main import IMG_DEFAULT_ATTRS
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
 class basemap:
 
     _base = Basemap()
-    def _init_with(self, dic: dict, **kwargs):
+    def _init_with(self, dic:dict, **kwargs):
         self._attr = {}
         self._formats = {}
         for kw in dic.keys():
@@ -18,10 +16,10 @@ class basemap:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key:str):
         return self._attr[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key:str, value):
         self._attr[key] = value
         return self
 
@@ -30,7 +28,7 @@ class basemap:
             self._attr[kw] = kwargs[kw]
         return self
 
-    def init(self):
+    def init(self) -> Basemap:
         try:
             self._base = Basemap(projection=self['proj'], llcrnrlon = self['long'][0], llcrnrlat = self['lat'][0], 
                     urcrnrlon = self['long'][1], urcrnrlat = self['lat'][1], resolution=self['res'])
@@ -38,7 +36,7 @@ class basemap:
             raise RuntimeError('More attributes needed!')
         return self._base
 
-    def drawcoastlines(self):
+    def drawcoastlines(self) -> Basemap:
         if 'coastline_func' in self._attr.keys():
             if 'c' in self._coastlines.keys():
                 self['clcolor'] = self._coastlines['c']
@@ -52,7 +50,7 @@ class basemap:
             self._base.drawcoastlines(color=self._attr['clcolor'], linewidth=self._attr['cllw'])
         return self._base
 
-    def colorbg(self, style=None):
+    def colorbg(self, style:str=None) -> Basemap:
         if style == 'bluemarble':
             self._base.bluemarble(scale=self._attr['clbgs'])
         if style == 'shadedrelief':
@@ -86,7 +84,7 @@ class basemap:
                     self._base.drawmeridians(np.arange(self._longssub['longref'], self._longssub['longref2'], self._longssub['inv']), labels=[0,0,0,1],
                                          color=self._longssub['c'], linewidth=self._longssub['lw'], linestyle=self._longssub['ls'], fontsize=self._longssub['fs'])
 
-    def ifcoast(self):
+    def ifcoast(self) -> bool:
         if 'coastline_func' in self._attr.keys():
             self.drawcoastlines()
             return True
@@ -103,21 +101,21 @@ class basemap:
         self['grid'] = 'grid'
         return self
 
-    def lls(self, inv, **kwargs):
+    def lls(self, inv:float, **kwargs):
         self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
         return self
-    
-    def longs(self, inv, **kwargs):
+
+    def longs(self, inv:float, **kwargs):
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
-    def lats(self, inv, **kwargs):
+    def lats(self, inv:float, **kwargs):
         self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
@@ -132,18 +130,6 @@ class basemap:
             self._coastlines[kw] = kwargs[kw]
         self['coastline_func'] = True
         return self
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-class imageB(image):
-    
-    def __init__(self, basemap: basemap):
-        self._attr = {}
-        for kw in IMG_DEFAULT_ATTRS.keys():
-            self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
-        for kw in basemap._attr.keys():
-            self._attr[kw] = basemap[kw]
-        self.preset()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -171,7 +157,7 @@ class blank(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self, show=False):
+    def __call__(self, show:bool=False) -> Basemap:
         self._base = self.init()
         self.extraproc()
         if show:
@@ -190,7 +176,7 @@ class coast(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **COAST_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self, show=False):
+    def __call__(self, show:bool=False) -> Basemap:
         self.init()
         self._base = self.drawcoastlines()
         self.extraproc()
@@ -209,7 +195,7 @@ class bluemarble(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self, show=False):
+    def __call__(self, show:bool=False) -> Basemap:
         self.init()
         self['clbg'] = 'bluemarble'
         self._base = self.colorbg('bluemarble')
@@ -223,7 +209,7 @@ class shadedrelief(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self, show=False):
+    def __call__(self, show:bool=False) -> Basemap:
         self.init()
         self['clbg'] = 'shadedrelief'
         self._base = self.colorbg('shadedrelief')
@@ -237,7 +223,7 @@ class etopo(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self, show=False):
+    def __call__(self, show:bool=False) -> Basemap:
         self.init()
         self['clbg'] = 'etopo'
         self._base = self.colorbg('etopo')
@@ -251,7 +237,7 @@ class colorbg(basemap):
     def __init__(self, **kwargs):
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self, show=False):
+    def __call__(self, show:bool=False) -> Basemap:
         self.init()
         if 'clbg' in self._attr.keys():
             self._base = self.colorbg(self['clbg'])
