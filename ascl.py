@@ -136,7 +136,7 @@ class gc:
     @staticmethod
     def ud(year:int, month:int, day:int) -> int:
         return gc.leap(year, month, day, *gc.read('19700101'))
-    
+
     @staticmethod
     def md(year:int, month:int, day:int) -> int:
         return gc.leap(year, month, day, *gc.read('20000101'))
@@ -204,7 +204,7 @@ class tm:
         return tm.tohms(s2)
 
     @staticmethod
-    def afterd(h:int, m:int, s:int, period:int) -> NewType('date_TimeHMS', int, TimeHMS):
+    def afterd(h:int, m:int, s:int, period:int) -> Tuple[int, TimeHMS]:
         ss = tm.secs(h, m, s)
         s2 = ss + period
         hr, mr, sr = tm.tohms(s2)
@@ -220,7 +220,7 @@ class tm:
         return d, hr, mr, sr
 
     @staticmethod
-    def befored(h:int, m:int, s:int, period:int) -> NewType('date_TimeHMS', int, TimeHMS):
+    def befored(h:int, m:int, s:int, period:int) -> Tuple[int, TimeHMS]:
         return tm.afterd(h, m, s, -period)
 
 class dt:

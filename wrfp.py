@@ -4,6 +4,7 @@
 import os
 import xarray as xr
 import numpy as np
+import shutil
 from . import auxf as aux
 from . import basemap as apb
 from . import figure as apf
@@ -11,11 +12,13 @@ from . import filter as apfilter
 from . import main as ap
 from . import prep as app
 from . import stat
+from . import toolkit as tk
 from . import ascl
 from . import ts as apts
 from typing import Sequence, Tuple, Union
 
 class wrfout:
+
     ncfile = None
 
     def __init__(self, path:str):
@@ -118,7 +121,7 @@ class frame:
         self._data['PF_'+key+'_r'] = _Tr
         return _T1, _Tr
 
-    def sigma(self, key:str, fit:bool=True) -> Union[float, np.NaN]:
+    def sigma(self, key:str, fit:bool=True) -> float:
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
             return np.nan
@@ -132,7 +135,7 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
-    def sigma_alt(self, key:str, threshold:Union[int, float]=10) -> Union[float, np.nan]:
+    def sigma_alt(self, key:str, threshold:Union[int, float]=10) -> float:
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
             return np.nan
@@ -146,7 +149,7 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
-    def getsigma(self, key:str) -> Union[float, np.nan]:
+    def getsigma(self, key:str) -> float:
         return self._chara[key+'_SIGMA']
 
     def quickshow(self, key:str) -> ap.image:
@@ -373,6 +376,21 @@ class frame:
     def __str__(self) -> str:
         return self.label
 
+    def fileout(self, path:str, overw:bool=False):
+        if os.path.exists(path):
+            if overw:
+                shutil.rmtree(path)
+                os.mkdir(path)
+        else:
+            os.mkdir(path)
+        kwargs = {'header': False, 'index': False}
+        tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
+        tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
+        tk.tocsv([[self.time]], path+f'\\TIME.csv', **kwargs)
+        for key in self._data.keys():
+            tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+        tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
+
 class voidFrame(frame):
     def __init__(self, lat:np.ndarray, long:np.ndarray, time):
         self.lat = aux.cp2d(lat)
@@ -430,3 +448,31 @@ def pseudo_correspond(odf:frame, lrdf:frame, lx:int, ly:int) -> Tuple[frame]:
     thinGrid = odf.cut(lrdf.res, lx*lrdf.res, ly*lrdf.res)
     thickGrid= lrdf.cut(1, lx, ly)
     return thinGrid, thickGrid
+
+class filein(frame):
+
+    def __init__(self, path:str):
+        paths = os.listdir(path)
+        self.lat = aux.cp2d(app.csv(path+r'\LAT.csv', header=None)())
+        self.long = aux.cp2d(app.csv(path+r'\LONG.csv', header=None)())
+        self.time = app.csv(path+r'\TIME.csv', header=None)[0,0]
+        self._data = {}    
+        self._flag = {}
+        self.label = '__'
+        for p in paths:
+            if p[:5] == 'DATA_':
+                self._data[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
+        self.to_flag(self._flag, aux.cp2d(app.csv(path+r'\FLAG.csv', header=None)()))
+
+    @classmethod
+    def to_flag(self, _flag:dict, flaglist: np.ndarray):
+        for f in flaglist:
+            if f[1] == 'True':
+                _flag[f[0]] = True
+            elif f[1] == 'False':
+                _flag[f[0]] = False
+            else:
+                try:
+                    _flag[f[0]] = int(f[1])
+                except:
+                    _flag[f[0]] = float(f[1])

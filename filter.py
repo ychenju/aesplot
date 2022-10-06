@@ -3,8 +3,9 @@
 
 import numpy as np
 from . import auxf as aux
+from typing import Callable
 
-def filter(filtee:np.ndarray, sifter:np.ndarray, func:function) -> np.ndarray:
+def filter(filtee:np.ndarray, sifter:np.ndarray, func:Callable) -> np.ndarray:
     r = aux.cp2d(filtee)
     for i,x in enumerate(filtee):
         for j,y in enumerate(x):
@@ -34,3 +35,4 @@ def isnotnan(f) -> bool:
             return 0
         else:
             return 1
+

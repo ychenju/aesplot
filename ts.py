@@ -3,7 +3,8 @@
 
 import numpy as np
 from . import ascl
-from typing import Union
+import pandas as pd
+from typing import Union, Callable
 
 SERIES_DEFAULT_ATTRS = {
     'ref': ascl.dt.udf
@@ -150,94 +151,94 @@ class series:
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
 
-    def iterate(self, f:function=lambda x: x) -> list:
+    def iterate(self, f:Callable=lambda x: x) -> list:
         _r = [f(d) for d in self.data]
         return _r
 
-    def operation(self, f:function=lambda x: x):
+    def operation(self, f:Callable=lambda x: x):
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
 
-    def sum(self, f:function=lambda x: x) -> float:
+    def sum(self, f:Callable=lambda x: x) -> float:
         _r = np.array([f(d) for d in self.data])
         return np.sum(_r)
 
-    def mean(self, f:function=lambda x: x) -> float:
+    def mean(self, f:Callable=lambda x: x) -> float:
         _r = np.array([f(d) for d in self.data])
         return np.mean(_r)
 
-    def nanmean(self, f:function=lambda x: x) -> float:
+    def nanmean(self, f:Callable=lambda x: x) -> float:
         _r = np.array([f(d) for d in self.data])
         return np.nanmean(_r)
 
-    def subiterate(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> list:
+    def subiterate(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> list:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return _r
 
-    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x):
+    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x):
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return series(time=_s.time, data=_r)
 
-    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> float:
+    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return np.sum(_r)
 
-    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> float:
+    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return np.mean(_r)
 
-    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> float:
+    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return np.nanmean(_r)
 
 class val(series):
 
-    def sum(self, f:function=lambda x: x) -> float:
+    def sum(self, f:Callable=lambda x: x) -> float:
         return np.sum(np.array(self.data))
     
-    def mean(self, f:function=lambda x: x) -> float:
+    def mean(self, f:Callable=lambda x: x) -> float:
         return np.mean(np.array(self.data))
 
-    def nanmean(self, f:function=lambda x: x) -> float:
+    def nanmean(self, f:Callable=lambda x: x) -> float:
         return np.nanmean(np.array(self.data))
 
-    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> float:
+    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
         _s = self.sub(start, end)
         return np.sum(np.array(_s.data))
 
-    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> float:
+    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
         _s = self.sub(start, end)
         return np.mean(np.array(_s.data))
 
-    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> float:
+    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
         _s = self.sub(start, end)
         return np.nanmean(np.array(_s.data))
 
 class array(series):
 
-    def sum(self, f:function=lambda x: x) -> np.ndarray:
+    def sum(self, f:Callable=lambda x: x) -> np.ndarray:
         return np.sum(np.array(self.data), axis=0)
     
-    def mean(self, f:function=lambda x: x) -> np.ndarray:
+    def mean(self, f:Callable=lambda x: x) -> np.ndarray:
         return np.mean(np.array(self.data), axis=0)
 
-    def nanmean(self, f:function=lambda x: x) -> np.ndarray:
+    def nanmean(self, f:Callable=lambda x: x) -> np.ndarray:
         return np.nanmean(np.array(self.data), axis=0)
 
-    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> np.ndarray:
+    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> np.ndarray:
         _s = self.sub(start, end)
         return np.sum(np.array(_s.data), axis=0)
 
-    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> np.ndarray:
+    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> np.ndarray:
         _s = self.sub(start, end)
         return np.mean(np.array(_s.data), axis=0)
 
-    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> np.ndarray:
+    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> np.ndarray:
         _s = self.sub(start, end)
         return np.nanmean(np.array(_s.data), axis=0)
 
@@ -273,7 +274,7 @@ class gis(series):
         _r = self.period(start, end)
         return gis(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
 
-    def meanfield(self, f:function=lambda x: x, pack:bool=False):
+    def meanfield(self, f:Callable=lambda x: x, pack:bool=False):
         _r = np.nanmean(np.array(self.iterate(f)), axis=0)
         return [self.long, self.lat, _r] if pack else _r
 
@@ -300,14 +301,14 @@ class wpframe(gis):
     def nanmean(self, var:str) -> np.ndarray:
         return np.nanmean(np.array([d[var] for d in self.data]), axis=0)
 
-    def subsum(self, var:str, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> np.ndarray:
+    def subsum(self, var:str, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> np.ndarray:
         _s = self.sub(start, end)
         return np.sum(np.array([d[var] for d in _s.data]), axis=0)
 
-    def submean(self, var:str, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> np.ndarray:
+    def submean(self, var:str, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> np.ndarray:
         _s = self.sub(start, end)
         return np.mean(np.array([d[var] for d in _s.data]), axis=0)
 
-    def subnanmean(self, var:str, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:function=lambda x: x) -> np.ndarray:
+    def subnanmean(self, var:str, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> np.ndarray:
         _s = self.sub(start, end)
         return np.nanmean(np.array([d[var] for d in _s.data]), axis=0)

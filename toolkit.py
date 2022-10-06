@@ -3,6 +3,7 @@
 
 import time
 import numpy as np
+import pandas as pd
 from typing import Tuple, Sequence
 
 class Time:
@@ -61,3 +62,8 @@ def npfold(table:np.ndarray, length:int) -> np.ndarray:
         return np.array(table).reshape(-1, length)
     except:
         raise RuntimeError('Cannot \'npfold\'. Please try \'fold\' instead')
+
+def tocsv(table:np.ndarray, path:str, **kwargs) -> pd.DataFrame:
+    _df = pd.DataFrame(table)
+    _df.to_csv(path, **kwargs)
+    return _df
