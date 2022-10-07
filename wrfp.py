@@ -7,9 +7,9 @@ import numpy as np
 import shutil
 from . import auxf as aux
 from . import basemap as apb
-from . import figure as apf
+from . import fig as apf
 from . import filter as apfilter
-from . import main as ap
+from . import img as ap
 from . import prep as app
 from . import stat
 from . import toolkit as tk
@@ -375,6 +375,7 @@ class frame:
 
     def __str__(self) -> str:
         return self.label
+
 
     def fileout(self, path:str, overw:bool=False):
         if os.path.exists(path):

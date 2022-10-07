@@ -2,8 +2,9 @@ import urllib.request as req
 import re
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from . import basemap as apb
-from . import figure as apf
+from . import fig as apf
 from . import auxf as aux
 from typing import Tuple, NoReturn
 

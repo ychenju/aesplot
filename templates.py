@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from . import figure as apf
+from . import fig as apf
 from . import stat as aps
 from typing import Tuple
 

@@ -8,11 +8,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
-from . import main as ap
+from . import img as ap
 from . import ascl as ascl
 from . import atm as apa
 from . import basemap as apb
-from . import figure as apf
+from . import fig as apf
 from . import filter as apfilter
 from . import gc as gc
 from . import prep as app
