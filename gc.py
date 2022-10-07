@@ -85,7 +85,7 @@ class megan:
         c_t = e_opt * CT2 * np.exp(ct1 * x) / (CT2 - ct1 * (1.-np.exp(CT2 * x)))
         _gamma_t_ld = max(c_t, 0.)
         return _gamma_t_ld
-
+        
     @staticmethod
     def get_const(species:str, *const:Tuple[str]):
         if len(const) == 1:

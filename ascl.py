@@ -136,7 +136,7 @@ class gc:
     @staticmethod
     def ud(year:int, month:int, day:int) -> int:
         return gc.leap(year, month, day, *gc.read('19700101'))
-
+    
     @staticmethod
     def md(year:int, month:int, day:int) -> int:
         return gc.leap(year, month, day, *gc.read('20000101'))

@@ -19,7 +19,7 @@ def cp2d(attr:np.ndarray) -> np.ndarray:
     for i in range(attr.shape[0]):
         r.append([])
         for j in range(attr.shape[1]):
-            r[-1].append(attr[i,j])
+            list.append(r[-1], attr[i,j])
     return np.array(r)
 
 def isnantable(table:np.ndarray) -> bool:

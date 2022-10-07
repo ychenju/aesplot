@@ -18,7 +18,7 @@ class csv:
     def __call__(self, **kwargs) -> np.ndarray:
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
-        _df = pd.read_csv(self._path, **self._pdattrs)
+        _df:pd.DataFrame = pd.read_csv(self._path, **self._pdattrs)
         _ar = np.array(_df.iloc[:,:])
         _y, _x = _ar.shape
         if isinstance(self._x, str):
@@ -36,7 +36,7 @@ class csv:
             self._y, self._x = index
         else:
             self._y = index
-        _df = pd.read_csv(self._path, **self._pdattrs)
+        _df:pd.DataFrame = pd.read_csv(self._path, **self._pdattrs)
         _ar = np.array(_df.iloc[:,:])
         _y, _x = _ar.shape
         if isinstance(self._x, str):
@@ -57,6 +57,7 @@ class csv:
         _df2.to_csv(path, **kwargs)
         return self
 
+
 class xls(csv):
 
     def __init__(self, path:str, sheet:str):
@@ -68,7 +69,7 @@ class xls(csv):
     def __call__(self, **kwargs) -> np.ndarray:
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
-        _df = pd.read_excel(self._path, **self._pdattrs)
+        _df:pd.DataFrame = pd.read_excel(self._path, **self._pdattrs)
         _ar = np.array(_df.iloc[:,:])
         _y, _x = _ar.shape
         if isinstance(self._x, str):
@@ -82,7 +83,7 @@ class xls(csv):
             self._y, self._x = index
         else:
             self._y = index
-        _df = pd.read_csv(self._path, **self._pdattrs)
+        _df:pd.DataFrame = pd.read_csv(self._path, **self._pdattrs)
         _ar = np.array(_df.iloc[:,:])
         _y, _x = _ar.shape
         if isinstance(self._x, str):

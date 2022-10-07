@@ -52,7 +52,7 @@ def fold(table:Sequence, length:int) -> np.ndarray:
     for i in range(len(table)//length):
         r.append([])
         for j in range(length):
-            r[-1].append(table[i*length+j])
+            list.append(r[-1], table[i*length+j])
     return np.array(r)
 
 def npfold(table:np.ndarray, length:int) -> np.ndarray:

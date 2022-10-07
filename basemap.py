@@ -95,6 +95,8 @@ class basemap:
         self.ifcoast()
         self.lldraw()
 
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
     def grid(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
@@ -107,7 +109,7 @@ class basemap:
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
         return self
-
+    
     def longs(self, inv:float, **kwargs):
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():

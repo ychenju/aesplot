@@ -18,7 +18,6 @@ from . import ts as apts
 from typing import Sequence, Tuple, Union
 
 class wrfout:
-
     ncfile = None
 
     def __init__(self, path:str):
@@ -197,10 +196,10 @@ class frame:
         return _img
 
     def maxof(self, key:str) -> float:
-        return np.array(self[key].reshape(-1)).max()
+        return np.array(np.ndarray.reshape(self[key], -1)).max()
 
     def minof(self, key:str) -> float:
-        return np.array(self[key].reshape(-1)).min()
+        return np.array(np.ndarray.reshape(self[key], -1)).min()
 
     def get3x3(self, key:str, x:int, y:int) -> np.ndarray:
         return np.array([self[key][x+i,y+j] for i in (-1,0,1) for j in (-1,0,1)])
@@ -212,8 +211,7 @@ class frame:
             for i in range(self[key].shape[0]):
                 d.append([])
                 for j in range(self[key].shape[1]):
-                    d[-1].append(self[key][i,j])
-
+                    list.append(d[-1], self[key][i,j])
             for i, x in enumerate(d[1:-1]):
                 for j, _ in enumerate(x[1:-1]):
                     if np.mean(list(map(apfilter.isnan, self.get3x3(key,i,j)))) < 0.5:
@@ -237,7 +235,7 @@ class frame:
             for i in range(self[key].shape[0]):
                 d.append([])
                 for j in range(self[key].shape[1]):
-                    d[-1].append(self[key][i,j])
+                    list.append(d[-1], self[key][i,j])
 
             for i, x in enumerate(d[res//2:-res//2]):
                 for j, _ in enumerate(x[res//2:-res//2]):
@@ -375,7 +373,6 @@ class frame:
 
     def __str__(self) -> str:
         return self.label
-
 
     def fileout(self, path:str, overw:bool=False):
         if os.path.exists(path):

@@ -3,7 +3,6 @@
 
 import numpy as np
 from . import ascl
-import pandas as pd
 from typing import Union, Callable
 
 SERIES_DEFAULT_ATTRS = {
@@ -195,7 +194,7 @@ class series:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return np.nanmean(_r)
-
+        
 class val(series):
 
     def sum(self, f:Callable=lambda x: x) -> float:
