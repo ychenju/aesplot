@@ -120,12 +120,12 @@ class gc:
         dy = 0
         d2 = d + period
         if period > 0:
-            while d2 > gc.ydays(y):
-                d2 -= gc.ydays(y)
+            while d2 > gc.ydays(y+dy):
+                d2 -= gc.ydays(y+dy)
                 dy += 1
         else:
             while d2 <= 0:
-                d2 += gc.ydays(y-1)
+                d2 += gc.ydays(y-1+dy)
                 dy -= 1
         return gc.ydtogc(y+dy, d2)
 
@@ -225,7 +225,7 @@ class tm:
 
 class dt:
 
-    def __init__(self, dtstr:str):
+    def __init__(self, dtstr:str, tz:int=0):
         try:
             if len(dtstr) == 14:
                 self.Y = int(dtstr[:4])
@@ -236,6 +236,7 @@ class dt:
                 self.s = int(dtstr[12:])
                 self._date = True
                 self._time = True
+                self._tz = tz
             elif len(dtstr) == 12:
                 self.Y = int(dtstr[:4])
                 self.M = int(dtstr[4:6])
@@ -245,6 +246,7 @@ class dt:
                 self.s = 0
                 self._date = True
                 self._time = True
+                self._tz = tz
             elif len(dtstr) == 10:
                 self.Y = int(dtstr[:4])
                 self.M = int(dtstr[4:6])
@@ -254,28 +256,34 @@ class dt:
                 self.s = 0
                 self._date = True
                 self._time = True
+                self._tz = tz
             elif len(dtstr) == 8:
                 self.Y = int(dtstr[:4])
                 self.M = int(dtstr[4:6])
                 self.D = int(dtstr[6:8])
                 self._date = True
                 self._time = False
+                self._tz = tz
             elif len(dtstr) == 6:
                 self.h = int(dtstr[:2])
                 self.m = int(dtstr[2:4])
                 self.s = int(dtstr[4:])
                 self._date = False
                 self._time = True
+                self._tz = tz
         except:
             raise RuntimeError('Wrong data format for \'dt\' object')
 
-    def __call__(self, div:str='') -> str:
-        if self._date and self._time:
-            return f'{int(self.Y):0>4d}{div}{int(self.M):0>2d}{div}{int(self.D):0>2d}{div}{div}{int(self.h):0>2d}{div}{int(self.m):0>2d}{div}{int(self.s):0>2d}'
-        elif self._date:
-            return f'{int(self.Y):0>4d}{div}{int(self.M):0>2d}{div}{int(self.D):0>2d}'
-        elif self._time:
-            return f'{int(self.h):0>2d}{div}{int(self.m):0>2d}{div}{int(self.s):0>2d}'
+    def __call__(self, div:str='', utc=False) -> str:
+        if utc:
+            pass
+        else:
+            if self._date and self._time:
+                return f'{int(self.Y):0>4d}{div}{int(self.M):0>2d}{div}{int(self.D):0>2d}{div}{div}{int(self.h):0>2d}{div}{int(self.m):0>2d}{div}{int(self.s):0>2d}'
+            elif self._date:
+                return f'{int(self.Y):0>4d}{div}{int(self.M):0>2d}{div}{int(self.D):0>2d}'
+            elif self._time:
+                return f'{int(self.h):0>2d}{div}{int(self.m):0>2d}{div}{int(self.s):0>2d}'
 
     def __str__(self) -> str:
         return self.__call__('-')
@@ -294,175 +302,213 @@ class dt:
         else:
             return self.h, self.m, self.s
 
+    @property
+    def utc(self) -> TimeHMS:
+        if not self._time:
+            raise RuntimeError('Invalid operation detected')
+        else:
+            return self.h-self._tz, self.m, self.s
+
+    @property
+    def UTC(self):
+        if not self._date or not self._time:
+            raise RuntimeError('Invalid operation detected')
+        if self.h-self._tz < 0:
+            return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D-1):0>2d}{int(self.h-self._tz+24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
+        elif self.h-self._tz >= 24:
+            return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D+1):0>2d}{int(self.h-self._tz-24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
+        else:
+            return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D):0>2d}{int(self.h-self._tz):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
+
+    @property
+    def tz(self) -> str:
+        if self._tz > 0:
+            return f'UTC +{self._tz}'
+        elif self._tz < 0:
+            return f'UTC -{-self._tz}'
+        else:
+            return 'UTC'
+
+    def TZ(self, newtz):
+        diff = self._tz - newtz
+        if self.h-diff < 0:
+            return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D-1):0>2d}{int(self.h-diff+24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
+        elif self.h-diff >= 24:
+            return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D+1):0>2d}{int(self.h-diff-24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
+        else:
+            return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D):0>2d}{int(self.h-diff):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
+
     def __sub__(self, other):
         if isinstance(other, int) or isinstance(other, float):
-            return self.__add__(-other)
-        if self._date and self._time:
-            return gc.leap(self.Y, self.M, self.D, other.Y, other.M, other.D) + tm.leap(self.h, self.m, self.s, other.h, other.m, other.s)/86400.
-        elif self._date:
-            return gc.leap(self.Y, self.M, self.D, other.Y, other.M, other.D)
-        elif self._time:
-            return tm.leap(self.h, self.m, self.s, other.h, other.m, other.s)
+            return self.__add__(-other, tz=self._tz)
+        else:
+            if self._date and self._time:
+                return gc.leap(*self.date, *other.date) + tm.leap(*self.utc, *other.utc)/86400.
+            elif self._date:
+                return gc.leap(*self.date, *other.date)
+            elif self._time:
+                return tm.leap(*self.utc, *other.utc)
 
     def __add__(self, period:float):
         if self._date and self._time:
             p_d = period // 1
             p_s = period % 1 * 86400.
-            rY, rM, rD = gc.after(self.Y, self.M, self.D, p_d)
-            rd, rh, rm, rs = tm.afterd(self.h, self.m, self.s, p_s)
-            return dt(f'{int(rY):0>4d}{int(rM):0>2d}{int(rD+rd):0>2d}{int(rh):0>2d}{int(rm):0>2d}{int(rs):0>2d}')
+            rY, rM, rD = gc.after(*self.date, p_d)
+            rd, rh, rm, rs = tm.afterd(*self.time, p_s)
+            return dt(f'{int(rY):0>4d}{int(rM):0>2d}{int(rD+rd):0>2d}{int(rh):0>2d}{int(rm):0>2d}{int(rs):0>2d}', tz=self._tz)
         elif self._date:
             p_d = period // 1
-            rY, rM, rD = gc.after(self.Y, self.M, self.D, p_d)
-            return dt(f'{int(rY):0>4d}{int(rM):0>2d}{int(rD):0>2d}')
+            rY, rM, rD = gc.after(*self.date, p_d)
+            return dt(f'{int(rY):0>4d}{int(rM):0>2d}{int(rD):0>2d}', tz=self._tz)
         elif self._time:
             p_s = period % 1 * 86400.
-            rh, rm, rs = tm.after(self.h, self.m, self.s, p_s)
-            return dt(f'{int(rh):0>2d}{int(rm):0>2d}{int(rs):0>2d}')
+            rh, rm, rs = tm.after(*self.time, p_s)
+            return dt(f'{int(rh):0>2d}{int(rm):0>2d}{int(rs):0>2d}', tz=self._tz)
 
     @property
     def us(self) -> int:
         if self._date and self._time:
-            return gc.ud(self.Y, self.M, self.D)*86400 + tm.secs(self.h, self.m, self.s)
+            return gc.ud(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.ud(self.Y, self.M, self.D)*86400.
+            return gc.ud(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     @property
     def ud(self) -> float:
         if self._date and self._time:
-            return gc.ud(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.ud(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.ud(self.Y, self.M, self.D)
+            return gc.ud(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     def usf(self) -> int:
         if self._date and self._time:
-            return gc.ud(self.Y, self.M, self.D)*86400 + tm.secs(self.h, self.m, self.s)
+            return gc.ud(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.ud(self.Y, self.M, self.D)*86400.
+            return gc.ud(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     def udf(self) -> float:
         if self._date and self._time:
-            return gc.ud(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.ud(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.ud(self.Y, self.M, self.D)
+            return gc.ud(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     @property
     def ms(self) -> int:
         if self._date and self._time:
-            return gc.md(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+            return gc.md(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.md(self.Y, self.M, self.D)*86400.
+            return gc.md(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     @property
     def md(self) -> float:
         if self._date and self._time:
-            return gc.md(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.md(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.md(self.Y, self.M, self.D)
+            return gc.md(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     def msf(self) -> int:
         if self._date and self._time:
-            return gc.md(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+            return gc.md(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.md(self.Y, self.M, self.D)*86400.
+            return gc.md(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     def mdf(self) -> float:
         if self._date and self._time:
-            return gc.md(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.md(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.md(self.Y, self.M, self.D)
+            return gc.md(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     @property
     def mjs(self) -> int:
         if self._date and self._time:
-            return gc.mjd(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+            return gc.mjd(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.mjd(self.Y, self.M, self.D)*86400.
+            return gc.mjd(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     @property
     def mjd(self) -> float:
         if self._date and self._time:
-            return gc.mjd(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.mjd(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.mjd(self.Y, self.M, self.D)
+            return gc.mjd(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     def mjsf(self) -> int:
         if self._date and self._time:
-            return gc.mjd(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+            return gc.mjd(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.mjd(self.Y, self.M, self.D)*86400.
+            return gc.mjd(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     def mjdf(self) -> float:
         if self._date and self._time:
-            return gc.mjd(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.mjd(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.mjd(self.Y, self.M, self.D)
+            return gc.mjd(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     @property
     def ads(self) -> int:
         if self._date and self._time:
-            return gc.ad(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+            return gc.ad(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.ad(self.Y, self.M, self.D)*86400.
+            return gc.ad(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     @property
     def ad(self) -> float:
         if self._date and self._time:
-            return gc.ad(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.ad(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.ad(self.Y, self.M, self.D)
+            return gc.ad(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
     def adsf(self) -> int:
         if self._date and self._time:
-            return gc.ad(self.Y, self.M, self.D)*86400. + tm.secs(self.h, self.m, self.s)
+            return gc.ad(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
-            return gc.ad(self.Y, self.M, self.D)*86400.
+            return gc.ad(*self.date)*86400.
         elif self._time:
-            return tm.secs(self.h, self.m, self.s)
+            return tm.secs(*self.utc)
 
     def adf(self) -> float:
         if self._date and self._time:
-            return gc.ad(self.Y, self.M, self.D) + tm.days(self.h, self.m, self.s)
+            return gc.ad(*self.date) + tm.days(*self.utc)
         elif self._date:
-            return gc.ad(self.Y, self.M, self.D)
+            return gc.ad(*self.date)
         elif self._time:
-            return tm.days(self.h, self.m, self.s)
+            return tm.days(*self.utc)
 
 class ud(dt):
 
-    def __init__(self, days:Union[int,float]):
+    def __init__(self, days:Union[int,float], tz:int=0):
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcud(days)
             self._date = True
             self._time = False
+            self._tz = tz
         else:
             d_d = days // 1
             d_s = days % 1 * 86400
@@ -470,10 +516,11 @@ class ud(dt):
             self.h, self.m, self.s = tm.tohms(d_s)
             self._date = True
             self._time = True
+            self._tz = tz
 
 class uds(dt):
 
-    def __init__(self, ss:float):
+    def __init__(self, ss:float, tz:int=0):
         obj = dt('19700101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -483,14 +530,16 @@ class uds(dt):
         self.s = obj.s
         self._date = True
         self._time = True
+        self._tz = tz
 
 class md(dt):
 
-    def __init__(self, days:Union[int,float]):
+    def __init__(self, days:Union[int,float], tz:int=0):
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcmd(days)
             self._date = True
             self._time = False
+            self._tz = tz
         else:
             d_d = days // 1
             d_s = days % 1 * 86400
@@ -498,10 +547,11 @@ class md(dt):
             self.h, self.m, self.s = tm.tohms(d_s)
             self._date = True
             self._time = True
+            self._tz = tz
 
 class mds(dt):
 
-    def __init__(self, ss:float):
+    def __init__(self, ss:float, tz:int=0):
         obj = dt('20000101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -511,14 +561,16 @@ class mds(dt):
         self.s = obj.s
         self._date = True
         self._time = True
+        self._tz = tz
 
 class mjd(dt):
 
-    def __init__(self, days:Union[int,float]):
+    def __init__(self, days:Union[int,float], tz:int=0):
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcmjd(days)
             self._date = True
             self._time = False
+            self._tz = tz
         else:
             d_d = days // 1
             d_s = days % 1 * 86400
@@ -526,10 +578,11 @@ class mjd(dt):
             self.h, self.m, self.s = tm.tohms(d_s)
             self._date = True
             self._time = True
+            self._tz = tz
 
 class mjds(dt):
 
-    def __init__(self, ss:float):
+    def __init__(self, ss:float, tz:int=0):
         obj = dt('18581116000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -539,14 +592,16 @@ class mjds(dt):
         self.s = obj.s
         self._date = True
         self._time = True
+        self._tz = tz
 
 class ad(dt):
 
-    def __init__(self, days:Union[int,float]):
+    def __init__(self, days:Union[int,float], tz:int=0):
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcad(days)
             self._date = True
             self._time = False
+            self._tz = tz
         else:
             d_d = days // 1
             d_s = days % 1 * 86400
@@ -554,10 +609,11 @@ class ad(dt):
             self.h, self.m, self.s = tm.tohms(d_s)
             self._date = True
             self._time = True
+            self._tz = tz
 
 class ads(dt):
 
-    def __init__(self, ss:float):
+    def __init__(self, ss:float, tz:int=0):
         obj = dt('00010101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -567,10 +623,12 @@ class ads(dt):
         self.s = obj.s
         self._date = True
         self._time = True
+        self._tz = tz
 
 class dts(dt):
 
     def __init__(self, **kwargs):
+        self._tz = 0
         self._date = False
         self._time = False
         self.h = 0
@@ -595,10 +653,12 @@ class dts(dt):
             elif kw == 's':
                 self.s = kwargs[kw]
                 self._time = True
+            elif kw.lower() == 'tz':
+                self._tz = kwargs[kw]
 
 class now(dt):
 
-    def __init__(self):
+    def __init__(self, tz=0):
         obj = dt(system_time.strftime('%Y%m%d%H%M%S', system_time.localtime(system_time.time())))
         self.Y = obj.Y
         self.M = obj.M
@@ -608,3 +668,4 @@ class now(dt):
         self.s = obj.s
         self._date = True
         self._time = True
+        self._tz = tz
