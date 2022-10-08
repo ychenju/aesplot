@@ -177,6 +177,10 @@ class image:
         else:
             return [f(self[f'ax_{arg}']) for arg in args]
 
+    def text(self, *args, **kwargs):
+        plt.text(*args, **kwargs)
+        return self
+
 class setf:
 
     @staticmethod
