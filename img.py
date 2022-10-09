@@ -138,8 +138,12 @@ class image:
             raise RuntimeError('Output path (\'saveas\' attr) required.')
         return self
 
-    def colorbar(self, **kwargs):
-        plt.colorbar(**kwargs)
+    def colorbar(self, *args, **kwargs):
+        plt.colorbar(*args, **kwargs)
+        return self
+
+    def legend(self, *args, **kwargs):
+        plt.legend(*args, **kwargs)
         return self
 
     def show(self):
