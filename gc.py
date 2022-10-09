@@ -14,6 +14,7 @@ MEGAN_T_STANDARD = 303.
 WM2_TO_UMOLM2S = 4.766
 
 class megan:
+
     ENABLE = {
         'norm_fac'  : True,
         'aef'       : False,
@@ -27,6 +28,7 @@ class megan:
     }
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 
     @staticmethod
     def emis(**kwargs):
@@ -47,11 +49,11 @@ class megan:
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     @staticmethod
-    def norm_fac():
+    def norm_fac() -> float:
         return megan.get_norm_fac()
 
     @staticmethod
-    def get_norm_fac():
+    def get_norm_fac() -> float:
         PAC_DAILY = 400.0
         PHI       = 0.6
         BBB       = 1.0 + 0.0005 *( PAC_DAILY - 400.0 )
@@ -64,6 +66,7 @@ class megan:
         GAMMA_AGE_STANDARD = 0.1*0.6 + 0.8*1.0 + 0.1*0.9
         PT_15 = 297.0
         T     = 303.0
+        R     = 8.3144598e-3
         CEO = 2.0
         CT1 = 95.0
         E_OPT = CEO * np.exp( 0.08 * ( PT_15  - 2.97e2 ) )
@@ -135,54 +138,54 @@ class megan:
 
 
         for p in range(1,1+15):
-            Inst.AEF_APIN[:,:] = Inst.AEF_APIN[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_APIN[p]
-            Inst.AEF_MYRC[:,:] = Inst.AEF_MYRC[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_MYRC[p]
-            Inst.AEF_OMON[:,:] = Inst.AEF_OMON[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_OMON[p]
-            Inst.AEF_FARN[:,:] = Inst.AEF_FARN[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_FARN[p]
-            Inst.AEF_BCAR[:,:] = Inst.AEF_BCAR[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_BCAR[p]
-            Inst.AEF_OSQT[:,:] = Inst.AEF_OSQT[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_OSQT[p]
-            Inst.AEF_MOH[:,:] = Inst.AEF_MOH[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_MOH[p]
-            Inst.AEF_ACET[:,:] = Inst.AEF_ACET[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_ACET[p]
-            Inst.AEF_EOH[:,:] = Inst.AEF_EOH[:,:] + Inst.ARRAY_16[:,:,ARR_IND]*PFT_EF_BIDR[p]*EM_FRAC_EOH[p]
-            Inst.AEF_CH2O[:,:] = Inst.AEF_CH2O[:,:] + Inst.ARRAY_16[:,:,ARR_IND]*PFT_EF_BIDR[p]*EM_FRAC_CH2O[p]
-            Inst.AEF_ALD2[:,:] = Inst.AEF_ALD2[:,:] + Inst.ARRAY_16[:,:,ARR_IND]*PFT_EF_BIDR[p]*EM_FRAC_ALD2[p]
-            Inst.AEF_FAXX[:,:] = Inst.AEF_FAXX[:,:] + Inst.ARRAY_16[:,:,ARR_IND]*PFT_EF_BIDR[p]*EM_FRAC_FAXX[p]
-            Inst.AEF_AAXX[:,:] = Inst.AEF_AAXX[:,:] + Inst.ARRAY_16[:,:,ARR_IND]*PFT_EF_BIDR[p]*EM_FRAC_AAXX[p]
-            Inst.AEF_C2H4[:,:] = Inst.AEF_C2H4[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_STRS[p] * 0.58
-            Inst.AEF_TOLU[:,:] = Inst.AEF_TOLU[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_STRS[p] * 0.03
-            Inst.AEF_HCNX[:,:] = Inst.AEF_HCNX[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_STRS[p] * 0.015
-            Inst.AEF_PRPE[:,:] = Inst.AEF_PRPE[:,:] + Inst.ARRAY_16[:,:,ARR_IND] * PFT_EF_OTHR(P) * 0.722
+            Inst.AEF_APIN[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('APIN', p)
+            Inst.AEF_MYRC[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('MYRC', p)
+            Inst.AEF_OMON[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('OMON', p)
+            Inst.AEF_FARN[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('FARN', p)
+            Inst.AEF_BCAR[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('BCAR', p)
+            Inst.AEF_OSQT[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('OSQT', p)
+            Inst.AEF_MOH[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('MOH', p)
+            Inst.AEF_ACET[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('ACET', p)
+            Inst.AEF_EOH[:,:] += Inst.ARRAY_16[:,:,ARR_IND]* megan.pft_ef('BIDR', p)* megan.em_frac('EOH', p)
+            Inst.AEF_CH2O[:,:] += Inst.ARRAY_16[:,:,ARR_IND]* megan.pft_ef('BIDR', p)* megan.em_frac('CH2O', p)
+            Inst.AEF_ALD2[:,:] += Inst.ARRAY_16[:,:,ARR_IND]* megan.pft_ef('BIDR', p)* megan.em_frac('ALD2', p)
+            Inst.AEF_FAXX[:,:] += Inst.ARRAY_16[:,:,ARR_IND]* megan.pft_ef('BIDR', p)* megan.em_frac('FAXX', p)
+            Inst.AEF_AAXX[:,:] += Inst.ARRAY_16[:,:,ARR_IND]* megan.pft_ef('BIDR', p)* megan.em_frac('AAXX', p)
+            Inst.AEF_C2H4[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('STRS', p) * 0.58
+            Inst.AEF_TOLU[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('STRS', p) * 0.03
+            Inst.AEF_HCNX[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('STRS', p) * 0.015
+            Inst.AEF_PRPE[:,:] += Inst.ARRAY_16[:,:,ARR_IND] * megan.pft_ef('OTHR', p) * 0.722
 
         FACTOR = 1.0e-9 / 3600.0
 
         for j in range(1, HcoState.NY):
             for i in range(1, 1+HcoState.Nx):
 
-                Inst.AEF_APIN[i,j] = Inst.AEF_APIN[i,j] * FACTOR * 120.0 / 136.234
-                Inst.AEF_MYRC[i,j] = Inst.AEF_MYRC[i,j] * FACTOR * 120.0 / 136.234
-                Inst.AEF_OMON[i,j] = Inst.AEF_OMON[i,j] * FACTOR * 120.0 / 136.234
+                Inst.AEF_APIN[i,j] *= FACTOR * 120.0 / 136.234
+                Inst.AEF_MYRC[i,j] *= FACTOR * 120.0 / 136.234
+                Inst.AEF_OMON[i,j] *= FACTOR * 120.0 / 136.234
 
                 #    ! Sesquiterpenes
                 SPECIES2CARBON = 15. * 12.01 / ( 15. * 12.01 + 24. * 1.01 )
-                Inst.AEF_FARN[i,j] = Inst.AEF_FARN[i,j] * FACTOR * SPECIES2CARBON
-                Inst.AEF_BCAR[i,j] = Inst.AEF_BCAR[i,j] * FACTOR * SPECIES2CARBON
-                Inst.AEF_OSQT[i,j] = Inst.AEF_OSQT[i,j] * FACTOR * SPECIES2CARBON
+                Inst.AEF_FARN[i,j] *= FACTOR * SPECIES2CARBON
+                Inst.AEF_BCAR[i,j] *= FACTOR * SPECIES2CARBON
+                Inst.AEF_OSQT[i,j] *= FACTOR * SPECIES2CARBON
 
-                Inst.AEF_ACET[i,j] = Inst.AEF_ACET[i,j] * FACTOR *  36.0 /  58.079
-                Inst.AEF_EOH[i,j]  = Inst.AEF_EOH[i,j]  * FACTOR *  24.0 /  46.068
-                Inst.AEF_ALD2[i,j] = Inst.AEF_ALD2[i,j] * FACTOR *  24.0 /  44.053
-                Inst.AEF_C2H4[i,j] = Inst.AEF_C2H4[i,j] * FACTOR *  24.0 /  28.053
-                Inst.AEF_TOLU[i,j] = Inst.AEF_TOLU[i,j] * FACTOR *  84.0 /  92.138
-                Inst.AEF_PRPE[i,j] = Inst.AEF_PRPE[i,j] * FACTOR *  36.0 /  42.080
+                Inst.AEF_ACET[i,j] *= FACTOR *  36.0 /  58.079
+                Inst.AEF_EOH[i,j]  *= FACTOR *  24.0 /  46.068
+                Inst.AEF_ALD2[i,j] *= FACTOR *  24.0 /  44.053
+                Inst.AEF_C2H4[i,j] *= FACTOR *  24.0 /  28.053
+                Inst.AEF_TOLU[i,j] *= FACTOR *  84.0 /  92.138
+                Inst.AEF_PRPE[i,j] *= FACTOR *  36.0 /  42.080
 
                 #    ! Methanol, formaldehyde, formic acid, acetic acid, HCN are
                 #    ! carried in kg, not kg C
                 #    ! Convert AEF arrays to [kg/m2/s]
-                Inst.AEF_MOH[i,j]  = Inst.AEF_MOH[i,j]  * FACTOR
-                Inst.AEF_CH2O[i,j] = Inst.AEF_CH2O[i,j] * FACTOR
-                Inst.AEF_FAXX[i,j] = Inst.AEF_FAXX[i,j] * FACTOR
-                Inst.AEF_AAXX[i,j] = Inst.AEF_AAXX[i,j] * FACTOR
-                Inst.AEF_HCNX[i,j] = Inst.AEF_HCNX[i,j] * FACTOR
+                Inst.AEF_MOH[i,j]  *= FACTOR
+                Inst.AEF_CH2O[i,j] *= FACTOR
+                Inst.AEF_FAXX[i,j] *= FACTOR
+                Inst.AEF_AAXX[i,j] *= FACTOR
+                Inst.AEF_HCNX[i,j] *= FACTOR
 
         return Inst
 
@@ -241,7 +244,7 @@ class megan:
             return np.array(_gt)
 
     @staticmethod
-    def get_gamma_a(cmlai, pmlai, dbtwn, tt, an, ag, am, ao):
+    def get_gamma_a(cmlai:float, pmlai:float, dbtwn:float, tt:float, an:float, ag:float, am:float, ao:float) -> float:
         if tt <= 303.0 :
             ti = 5.0 + 0.7*(300.0 - tt)
         elif tt >  303.0:
@@ -271,6 +274,7 @@ class megan:
             _gamma_age = fnew * an + fgro * ag + fmat * am + fold * ao
             _gamma_age = max(_gamma_age, 0.)
             return _gamma_age
+
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -494,9 +498,16 @@ class megan:
         return megan.get_gamma_CO2_ISOP(*args, **kwargs) if species == 'ISOP' else 1
 
     @staticmethod
-    def get_gamma_CO2_ISOP(CO2a:float) -> float:
-        LPOSSELL    = True
-        LWILKINSON  = False
+    def get_gamma_CO2_ISOP(CO2a:float, CO2_inhibition_scheme:str='lpossell') -> float:
+        if CO2_inhibition_scheme.upper() == 'LPOSSELL':
+            LPOSSELL    = True
+            LWILKINSON  = False
+        elif CO2_inhibition_scheme.upper() == 'LWINKINSON':
+            LWILKINSON  = True
+            LPOSSELL    = False
+        else:
+            LPOSSELL    = False
+            LWILKINSON  = False
         if LPOSSELL:
             _gamma_CO2 = 8.9406 / (1.0 + 8.9406 * 0.0024 * CO2a)
         elif LWILKINSON:
@@ -548,7 +559,7 @@ class megan:
         'PRPE', 
         'FARN', 
         'BCAR', 
-        'OSQT',
+        'OSQT', 
     )
 
     @staticmethod
