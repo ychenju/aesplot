@@ -18,6 +18,7 @@ from . import ts as apts
 from typing import Sequence, Tuple, Union
 
 class wrfout:
+
     ncfile = None
 
     def __init__(self, path:str):
@@ -160,11 +161,11 @@ class frame:
         _img.show()
         return _img
 
-    def show(self, key:str, **kwargs) -> ap.image:
+    def show(self, key:str, f=lambda x:x, **kwargs) -> ap.image:
         _image_attrs = {'title': key}
         _basemap_attrs = app.boundaries(self.lat, self.long)
         _lls_attrs = {'inv': 10}
-        _figure_attrs = app.xyz([self.long, self.lat, self[key]])
+        _figure_attrs = app.xyz([self.long, self.lat, f(self[key])])
         _format_attrs = {'cmap': 'jet'}
         for kw in kwargs.keys():
             if kw in ('inv', 'latref', 'latref2', 'longref', 'longref2'):
