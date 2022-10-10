@@ -25,8 +25,13 @@ class image:
             self._attr[kw] = kwargs[kw]
         self.preset()
 
-    def __getitem__(self, key:str):
-        return self._attr[key]
+    def __getitem__(self, key:Union[str, int]):
+        if isinstance(key, str):
+            return self._attr[key]
+        elif isinstance(key, int):
+            return self.subplot(key)
+        elif isinstance(key, tuple):
+            return self.subplot(*key)
 
     def __setitem__(self, key:str, value):
         self._attr[key] = value

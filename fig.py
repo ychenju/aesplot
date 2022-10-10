@@ -362,6 +362,27 @@ class lls(figure):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+FILLRECT_DEFAULT_ATTRS = {
+
+}
+
+class fillrect(figure):
+
+    def __init__(self, *args, **kwargs):
+        self._init_with(FILLRECT_DEFAULT_ATTRS, *args, **kwargs)
+
+    def __call__(self):
+        if 'c' in self._formats.keys():
+            self._formats['color'] = self._formats['c']
+            del self._formats['c']
+        if 'x' in self._attr.keys() and 'y' in self._attr.keys():
+            plt.fill_between(self['x'], *self['y'], **self._formats)
+        if len(self._args):
+            plt.fill_between(self._args[0], *self._args[1], **self._formats)
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 TRACK_DEFAULT_ATTRS = {
     'zfargs': [],
 }
