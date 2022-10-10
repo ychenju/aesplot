@@ -18,7 +18,6 @@ from . import ts as apts
 from typing import Sequence, Tuple, Union
 
 class wrfout:
-
     ncfile = None
 
     def __init__(self, path:str):
@@ -208,18 +207,19 @@ class frame:
     def mean3x3(self):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
-            d = []
-            for i in range(self[key].shape[0]):
-                d.append([])
-                for j in range(self[key].shape[1]):
-                    list.append(d[-1], self[key][i,j])
-            for i, x in enumerate(d[1:-1]):
-                for j, _ in enumerate(x[1:-1]):
-                    if np.mean(list(map(apfilter.isnan, self.get3x3(key,i,j)))) < 0.5:
-                        d[i+1][j+1] = np.nanmean(self.get3x3(key,i,j))
-                    else:
-                        d[i+1][j+1] = np.nan
-            r[key] = np.array(d)
+            if aux.is2d(self[key]):
+                d = []
+                for i in range(self[key].shape[0]):
+                    d.append([])
+                    for j in range(self[key].shape[1]):
+                        list.append(d[-1], self[key][i,j])
+                for i, x in enumerate(d[1:-1]):
+                    for j, _ in enumerate(x[1:-1]):
+                        if np.mean(list(map(apfilter.isnan, self.get3x3(key,i,j)))) < 0.5:
+                            d[i+1][j+1] = np.nanmean(self.get3x3(key,i,j))
+                        else:
+                            d[i+1][j+1] = np.nan
+                r[key] = np.array(d)
         for flag in self._flag.keys():
             r._flag[flag] = self._flag[flag]
         r.label = self.label + 'MEAN3__'
@@ -232,19 +232,20 @@ class frame:
     def meannxn(self, res:int):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
-            d = []
-            for i in range(self[key].shape[0]):
-                d.append([])
-                for j in range(self[key].shape[1]):
-                    list.append(d[-1], self[key][i,j])
+            if aux.is2d(self[key]):
+                d = []
+                for i in range(self[key].shape[0]):
+                    d.append([])
+                    for j in range(self[key].shape[1]):
+                        list.append(d[-1], self[key][i,j])
 
-            for i, x in enumerate(d[res//2:-res//2]):
-                for j, _ in enumerate(x[res//2:-res//2]):
-                    if np.mean(list(map(apfilter.isnan, self.getnxn(key,i,j,res)))) < 0.5:
-                        d[i+1][j+1] = np.nanmean(self.getnxn(key,i,j,res))
-                    else:
-                        d[i+1][j+1] = np.nan
-            r[key] = np.array(d)
+                for i, x in enumerate(d[res//2:-res//2]):
+                    for j, _ in enumerate(x[res//2:-res//2]):
+                        if np.mean(list(map(apfilter.isnan, self.getnxn(key,i,j,res)))) < 0.5:
+                            d[i+1][j+1] = np.nanmean(self.getnxn(key,i,j,res))
+                        else:
+                            d[i+1][j+1] = np.nan
+                r[key] = np.array(d)
         for flag in self._flag.keys():
             r._flag[flag] = self._flag[flag]
         r.label = self.label + f'MEAN{res}__'
@@ -382,12 +383,16 @@ class frame:
                 os.mkdir(path)
         else:
             os.mkdir(path)
+
         kwargs = {'header': False, 'index': False}
         tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         tk.tocsv([[self.time]], path+f'\\TIME.csv', **kwargs)
+
         for key in self._data.keys():
-            tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+            if len(self[key].shape) == 2:
+                tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+
         tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
 
 class voidFrame(frame):

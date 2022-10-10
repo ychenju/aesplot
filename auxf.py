@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
 from . import filter as apfilter
-from typing import Tuple
+from typing import Sequence, Tuple
 
 def longfix(lon:float) -> float:
     if lon < 0:
@@ -36,3 +37,13 @@ def hasnan(*tables:Tuple[np.ndarray]) -> bool:
             if np.isnan(x):
                 return True
     return False
+
+def dim(table:Sequence) -> int:
+    _s = np.array(table).shape
+    return len(_s)
+
+def is1d(table:Sequence) -> bool:
+    return dim(table) == 1
+
+def is2d(table:Sequence) -> bool:
+    return dim(table) == 2
