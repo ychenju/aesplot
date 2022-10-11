@@ -12,6 +12,11 @@ def filter(filtee:np.ndarray, sifter:np.ndarray, func:Callable) -> np.ndarray:
             r[i,j] = func(y, sifter[i,j])
     return np.array(r)
 
+def map(func:Callable, filtee:np.ndarray) -> np.ndarray:
+    r = np.zeros(filtee.shape)
+    r[:,:] = np.vectorize(func)(filtee)[:,:]
+    return r
+
 def nansync(x, f):
         if np.isnan(f):
             return np.nan
@@ -35,4 +40,3 @@ def isnotnan(f) -> bool:
             return 0
         else:
             return 1
-

@@ -23,6 +23,15 @@ def cp2d(attr:np.ndarray) -> np.ndarray:
             list.append(r[-1], attr[i,j])
     return np.array(r)
 
+def cp2d_new(attr:np.ndarray) -> np.ndarray:
+    if not isinstance(attr, np.ndarray):
+        attr = np.array(attr)
+    r = np.zeros(attr.shape)
+    for i in range(attr.shape[0]):
+        for j in range(attr.shape[1]):
+            r[i,j] = attr[i,j]
+    return r
+
 def isnantable(table:np.ndarray) -> bool:
     r = np.array(list(filter(apfilter.isnotnan, table.reshape(-1))))
     if len(r) > 0:

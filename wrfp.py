@@ -18,6 +18,7 @@ from . import ts as apts
 from typing import Sequence, Tuple, Union
 
 class wrfout:
+
     ncfile = None
 
     def __init__(self, path:str):
@@ -204,6 +205,13 @@ class frame:
     def get3x3(self, key:str, x:int, y:int) -> np.ndarray:
         return np.array([self[key][x+i,y+j] for i in (-1,0,1) for j in (-1,0,1)])
 
+    def get3x3_new(self, key:str, x:int, y:int) -> np.ndarray:
+        r = np.zeros(3,3)
+        for i in range(3):
+            for j in range(3):
+                r[i,j] = self[key][x+i-1,y+j-1]
+        return r
+
     def mean3x3(self):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
@@ -225,9 +233,36 @@ class frame:
         r.label = self.label + 'MEAN3__'
         return r
 
+    def mean3x3_new(self):
+        r = voidFrame_new(self.lat, self.long, self.time)
+        for key in self.getall().keys():
+            if aux.is2d(self[key]):
+                d = np.zeros(self[key].shape)
+                for i in range(self[key].shape[0]):
+                    for j in range(self[key].shape[1]):
+                        d[i,j] = self[key][i,j]
+                for i in range(d.shape[0]-2):
+                    for j in range(d.shape[1]-2):
+                        if np.mean(apfilter.map(apfilter.isnan, self.get3x3_new(key,i,j))) < 0.5:
+                            d[i+1,j+1] = np.nanmean(self.get3x3(key,i,j))
+                        else:
+                            d[i+1,j+1] = np.nan
+                r[key] = d
+        for flag in self._flag.keys():
+            r._flag[flag] = self._flag[flag]
+        r.label = self.label + 'MEAN3__'
+        return r
+
     def getnxn(self, key:str, x:int, y:int, res:int) -> np.ndarray:
         rng = np.arange(0, res, 1) - res//2
         return np.array([self[key][x+i,y+j] for i in rng for j in rng])
+
+    def getnxn_new(self, key:str, x:int, y:int, res:int) -> np.ndarray:
+        r = np.zeros((res,res))
+        for i in range(res):
+            for j in range(res):
+                r[i,j] = self[key][x+i-res//2,y+j-res//2]
+        return r
 
     def meannxn(self, res:int):
         r = voidFrame(self.lat, self.long, self.time)
@@ -251,6 +286,27 @@ class frame:
         r.label = self.label + f'MEAN{res}__'
         return r
 
+    def meannxn_new(self, res:int):
+        r = voidFrame_new(self.lat, self.long, self.time)
+        for key in self.getall().keys():
+            if aux.is2d(self[key]):
+                d = np.zeros(self[key].shape)
+                for i in range(self[key].shape[0]):
+                    for j in range(self[key].shape[1]):
+                        d[i,j] = self[key][i,j]
+
+                for i in range(d.shape[0]-res+1):
+                    for j in range(d.shape[1]-res+1):
+                        if np.mean(apfilter.map(apfilter.isnan, self.getnxn_new(key,i,j,res))) < 0.5:
+                            d[i+1,j+1] = np.nanmean(self.getnxn_new(key,i,j,res))
+                        else:
+                            d[i+1,j+1] = np.nan
+                r[key] = np.array(d)
+        for flag in self._flag.keys():
+            r._flag[flag] = self._flag[flag]
+        r.label = self.label + f'MEAN{res}__'
+        return r
+
     def crop(self, interv:int=3, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
         _r = voidFrame(aux.cp2d(self.lat[fromx:tox:interv, fromy:toy:interv]), aux.cp2d(self.long[fromx:tox:interv, fromy:toy:interv]), self.time)
         for key in self.getall().keys():
@@ -261,9 +317,24 @@ class frame:
         _r.label = self.label + f'CROP:{interv}__'
         return _r
 
+    def crop_new(self, interv:int=3, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
+        _r = voidFrame(aux.cp2d_new(self.lat[fromx:tox:interv, fromy:toy:interv]), aux.cp2d_new(self.long[fromx:tox:interv, fromy:toy:interv]), self.time)
+        for key in self.getall().keys():
+            _r[key] = aux.cp2d_new(self[key][fromx:tox:interv, fromy:toy:interv])
+        for flag in self._flag.keys():
+            _r._flag[flag] = self._flag[flag]
+        _r._flag['RES'] *= interv
+        _r.label = self.label + f'CROP:{interv}__'
+        return _r
+
     def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
         r = self.mean3x3()
         r = r.crop(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
+        return r
+
+    def lowres3_new(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
+        r = self.mean3x3_new()
+        r = r.crop_new(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
         return r
 
     def tail(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0):
@@ -281,9 +352,30 @@ class frame:
             r._flag[flag] = self._flag[flag]
         return r
 
+    def tail_new(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0):
+        shp = self.lat.shape
+        if all:
+            fx, fy = all, all
+            tx, ty = shp[1]-all, shp[0]-all
+        else:
+            fx, fy = w, s
+            tx, ty = e, n
+        r = voidFrame(aux.cp2d_new(self.lat[fy:ty,fx:tx]), aux.cp2d_new(self.long[fy:ty,fx:tx]), self.time)
+        for key in self.getall().keys():
+            r._data[key] = aux.cp2d_new(self._data[key][fy:ty,fx:tx])
+        for flag in self._flag.keys():
+            r._flag[flag] = self._flag[flag]
+        return r
+
     def pseudo_lowres3(self):
         _r = self.mean3x3()
         _r = _r.tail(all=1)
+        _r._flag['RES'] = 3
+        return _r
+
+    def pseudo_lowres3_new(self):
+        _r = self.mean3x3_new()
+        _r = _r.tail_new(all=1)
         _r._flag['RES'] = 3
         return _r
 
@@ -292,6 +384,14 @@ class frame:
             raise RuntimeError('\'res\' should be a single number!')
         _r = self.meannxn(res)
         _r = _r.tail(all=res//2)
+        _r._flag['RES'] = res
+        return _r
+
+    def pseudo_lowres_new(self, res:int=3):
+        if not res % 2:
+            raise RuntimeError('\'res\' should be a single number!')
+        _r = self.meannxn_new(res)
+        _r = _r.tail_new(all=res//2)
         _r._flag['RES'] = res
         return _r
 
@@ -383,22 +483,31 @@ class frame:
                 os.mkdir(path)
         else:
             os.mkdir(path)
-
         kwargs = {'header': False, 'index': False}
         tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         tk.tocsv([[self.time]], path+f'\\TIME.csv', **kwargs)
-
         for key in self._data.keys():
             if len(self[key].shape) == 2:
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
-
         tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
 
 class voidFrame(frame):
     def __init__(self, lat:np.ndarray, long:np.ndarray, time):
         self.lat = aux.cp2d(lat)
         self.long = aux.cp2d(long)
+        self.time = time
+        self._data = {}    
+        self._flag = {}
+        self.label = '__'
+        for flag in FRAME_DEFAULT_FLAGS.keys():
+            self._flag[flag] = FRAME_DEFAULT_FLAGS[flag]
+        self._chara = {}   
+
+class voidFrame_new(frame):
+    def __init__(self, lat:np.ndarray, long:np.ndarray, time):
+        self.lat = aux.cp2d_new(lat)
+        self.long = aux.cp2d_new(long)
         self.time = time
         self._data = {}    
         self._flag = {}
