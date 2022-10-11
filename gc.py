@@ -29,7 +29,6 @@ class megan:
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-
     @staticmethod
     def emis(**kwargs):
         _r = 1.
@@ -210,7 +209,6 @@ class megan:
         else:
             return [GC_MEGAN_EM_FRAC[category][c-1] for c in efx]
 
-
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     @staticmethod
@@ -234,13 +232,12 @@ class megan:
                  species:str='ISOP') -> Union[float, np.ndarray]:
         _r = megan.get_const(species, 'anew', 'agro', 'amat', 'aold')
         if not isinstance(cmlai, np.ndarray):
-            return (1.-_r[1])*megan.get_gamma_a(cmlai, pmlai, dbtwn, tt, *_r)
+            return megan.get_gamma_a(cmlai, pmlai, dbtwn, tt, *_r)
         elif isinstance(cmlai, np.ndarray):
-            _gt = []
-            for i in range(cmlai.shape[0]):
-                _gt.append([])
-                for j in range(cmlai.shape[1]):
-                    list.append(_gt[-1], (1.-_r[1])*megan.get_gamma_a(cmlai[i][j], pmlai[i][j], dbtwn[i][j], tt[i][j],  *_r))
+            _gt = np.zeros(cmlai.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = megan.get_gamma_a(cmlai[i,j], pmlai[i,j], dbtwn[i,j], tt[i,j],  *_r)
             return np.array(_gt)
 
     @staticmethod
@@ -275,7 +272,6 @@ class megan:
             _gamma_age = max(_gamma_age, 0.)
             return _gamma_age
 
-
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     @staticmethod
@@ -293,11 +289,10 @@ class megan:
         if not isinstance(gwetroot, np.ndarray):
             return megan.get_gamma_sm(gwetroot, species)
         elif isinstance(gwetroot, np.ndarray):
-            _gt = []
-            for i in range(gwetroot.shape[0]):
-                _gt.append([])
-                for j in range(gwetroot.shape[1]):
-                    list.append(_gt[-1], megan.get_gamma_sm(gwetroot[i][j], species))
+            _gt = np.zeros(gwetroot.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = megan.get_gamma_sm(gwetroot[i,j], species)
             return np.array(_gt)
 
     @staticmethod
@@ -325,11 +320,10 @@ class megan:
         if not isinstance(cmlai, np.ndarray):
             return megan.get_gamma_lai(cmlai, megan.get_const(species, 'BI'))
         elif isinstance(cmlai, np.ndarray):
-            _gt = []
-            for i in range(cmlai.shape[0]):
-                _gt.append([])
-                for j in range(cmlai.shape[1]):
-                    list.append(_gt[-1], megan.get_gamma_lai(cmlai[i][j], megan.get_const(species, 'BI')))
+            _gt = np.zeros(cmlai.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = megan.get_gamma_lai(cmlai[i,j], megan.get_const(species, 'BI'))
             return np.array(_gt)
 
     @staticmethod
@@ -376,11 +370,10 @@ class megan:
         if not isinstance(t, np.ndarray):
             return (1.-_r[1])*megan.get_gamma_t_li(t, _r[0])
         elif isinstance(t, np.ndarray):
-            _gt = []
-            for i in range(t.shape[0]):
-                _gt.append([])
-                for j in range(t.shape[1]):
-                    list.append(_gt[-1], (1.-_r[1])*megan.get_gamma_t_li(t[i][j], _r[0]))
+            _gt = np.zeros(t.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = (1.-_r[1])*megan.get_gamma_t_li(t[i,j], _r[0])
             return np.array(_gt)
 
     @staticmethod
@@ -389,11 +382,10 @@ class megan:
         if not isinstance(t, np.ndarray) and not isinstance(pt_15, np.ndarray):
             return _r[0]*megan.get_gamma_t_ld(t, pt_15, _r[1], _r[2])
         elif isinstance(t, np.ndarray) and isinstance(pt_15, np.ndarray):
-            _gt = []
-            for i in range(t.shape[0]):
-                _gt.append([])
-                for j in range(t.shape[1]):
-                    list.append(_gt[-1], _r[0]*megan.get_gamma_t_ld(t[i][j], pt_15[i][j], _r[1], _r[2]))
+            _gt = np.zeros(t.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = _r[0]*megan.get_gamma_t_ld(t[i,j], pt_15[i,j], _r[1], _r[2])
             return np.array(_gt)
 
     @staticmethod
@@ -439,11 +431,10 @@ class megan:
         if not isinstance(q_dir_2, np.ndarray):
             return megan.get_gamma_p(q_dir_2, q_diff_2, pardr_avg_sim, pardf_avg_sim, timeobj, lat, long)
         elif isinstance(q_dir_2, np.ndarray):
-            _gt = []
-            for i in range(q_dir_2.shape[0]):
-                _gt.append([])
-                for j in range(q_dir_2.shape[1]):
-                    list.append(_gt[-1], megan.get_gamma_p(q_dir_2[i][j], q_diff_2[i][j], pardr_avg_sim[i][j], pardf_avg_sim[i][j], timeobj, lat[i][j], long[i][j]))
+            _gt = np.zeros(q_dir_2.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = megan.get_gamma_p(q_dir_2[i,j], q_diff_2[i,j], pardr_avg_sim[i,j], pardf_avg_sim[i,j], timeobj, lat[i,j], long[i,j])
             return np.array(_gt)
 
     @staticmethod
@@ -486,11 +477,10 @@ class megan:
         if not isinstance(CO2a, np.ndarray):
             return megan.get_gamma_CO2(species, CO2a)
         elif isinstance(CO2a, np.ndarray):
-            _gt = []
-            for i in range(CO2a.shape[0]):
-                _gt.append([])
-                for j in range(CO2a.shape[1]):
-                    list.append(_gt[-1], megan.get_gamma_CO2(species, CO2a[i][j]))
+            _gt = np.zeros(CO2a.shape)
+            for i in range(_gt.shape[0]):
+                for j in range(_gt.shape[1]):
+                    _gt[i,j] = megan.get_gamma_CO2(species, CO2a[i,j])
             return np.array(_gt)
 
     @staticmethod
@@ -532,34 +522,33 @@ class megan:
             _gamma_CO2 = 1.
         return _gamma_CO2
 
-
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     SPECIES_LIST = (
-        'ISOP', 
-        'MBOX', 
-        'MYRC', 
-        'SABI', 
-        'APIN', 
-        'LIMO', 
-        'CARE', 
-        'BPIN', 
-        'OCIM', 
-        'OMON', 
-        'MOH' , 
-        'ACET', 
-        'EOH' , 
-        'CH2O', 
-        'ALD2', 
-        'FAXX', 
-        'AAXX', 
-        'C2H4', 
-        'TOLU', 
-        'HCNX', 
-        'PRPE', 
-        'FARN', 
-        'BCAR', 
-        'OSQT', 
+        'ISOP',
+        'MBOX',
+        'MYRC',
+        'SABI',
+        'APIN',
+        'LIMO',
+        'CARE',
+        'BPIN',
+        'OCIM',
+        'OMON',
+        'MOH' ,
+        'ACET',
+        'EOH' ,
+        'CH2O',
+        'ALD2',
+        'FAXX',
+        'AAXX',
+        'C2H4',
+        'TOLU',
+        'HCNX',
+        'PRPE',
+        'FARN',
+        'BCAR',
+        'OSQT',
     )
 
     @staticmethod

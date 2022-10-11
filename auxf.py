@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
 from . import filter as apfilter
 from typing import Sequence, Tuple
 
@@ -16,20 +15,10 @@ def samesign(x:float, y:float) -> bool:
     return (np.sign(x)*np.sign(y)+1)/2.
 
 def cp2d(attr:np.ndarray) -> np.ndarray:
-    r = []
-    for i in range(attr.shape[0]):
-        r.append([])
-        for j in range(attr.shape[1]):
-            list.append(r[-1], attr[i,j])
-    return np.array(r)
-
-def cp2d_new(attr:np.ndarray) -> np.ndarray:
     if not isinstance(attr, np.ndarray):
         attr = np.array(attr)
     r = np.zeros(attr.shape)
-    for i in range(attr.shape[0]):
-        for j in range(attr.shape[1]):
-            r[i,j] = attr[i,j]
+    r[:,:] = attr[:,:]
     return r
 
 def isnantable(table:np.ndarray) -> bool:
