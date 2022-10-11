@@ -38,7 +38,6 @@ FRAME_DEFAULT_FLAGS = {
 }
 
 class frame:
-
     lat = None
     long = None
     time = None
@@ -216,10 +215,11 @@ class frame:
                 d[:,:] = self[key][:,:]
                 for i in range(1, d.shape[0]-1):
                     for j in range(1, d.shape[1]-1):
-                        if np.mean(apfilter.map(apfilter.isnan, self.get3x3(key,i,j))) < 0.5:
-                            d[i+1,j+1] = np.nanmean(self.get3x3(key,i,j))
+                        g = self[key][i-1:i+2,j-1:j+2]
+                        if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                            d[i,j] = np.nanmean(g)
                         else:
-                            d[i+1,j+1] = np.nan
+                            d[i,j] = np.nan
                 r[key] = d
         for flag in self._flag.keys():
             r._flag[flag] = self._flag[flag]
@@ -239,10 +239,11 @@ class frame:
                 d[:,:] = self[key][:,:]
                 for i in range(res//2, d.shape[0]-res//2):
                     for j in range(res//2, d.shape[1]-res//2):
-                        if np.mean(apfilter.map(apfilter.isnan, self.getnxn(key,i,j,res))) < 0.5:
-                            d[i+1,j+1] = np.nanmean(self.getnxn(key,i,j,res))
+                        g = self[key][i-res//2:i+res//2+1,j-res//2:j+res//2+1]
+                        if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                            d[i,j] = np.nanmean(g)
                         else:
-                            d[i+1,j+1] = np.nan
+                            d[i,j] = np.nan
                 r[key] = np.array(d)
         for flag in self._flag.keys():
             r._flag[flag] = self._flag[flag]
@@ -381,13 +382,16 @@ class frame:
                 os.mkdir(path)
         else:
             os.mkdir(path)
+
         kwargs = {'header': False, 'index': False}
         tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         tk.tocsv([[self.time]], path+f'\\TIME.csv', **kwargs)
+
         for key in self._data.keys():
             if len(self[key].shape) == 2:
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+
         tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
 
 class voidFrame(frame):
