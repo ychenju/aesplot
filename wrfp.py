@@ -38,7 +38,7 @@ FRAME_DEFAULT_FLAGS = {
 }
 
 class frame:
-    
+
     lat = None
     long = None
     time = None
@@ -101,7 +101,6 @@ class frame:
     def getchara(self, key:str):
         return self._chara[key]
 
-    # Add: return self
     def removewater(self):
         if not ('LANDMASK' in self._data.keys()):
             raise RuntimeError("'LANDMASK' has not been loaded to the data frame")
@@ -137,8 +136,6 @@ class frame:
         self._chara[key+'_SIGMA'] = _sig
         return _sig
 
-    # small grid: use stat.sigmawithoutfit
-    # large grid: use stat.sigma
     def sigma_alt(self, key:str, threshold:Union[int, float]=10) -> float:
         if aux.isnantable(self._data[key]):
             self._chara[key+'_SIGMA'] = np.nan
@@ -206,13 +203,11 @@ class frame:
     def minof(self, key:str) -> float:
         return np.array(np.ndarray.reshape(self[key], -1)).min()
 
-    # update v0.5.16
     def get3x3(self, key:str, x:int, y:int) -> np.ndarray:
         r = np.zeros(3,3)
         r[:,:] = self[key][x-1:x+2,y-1:y+2]
         return r
 
-    # update v0.5.16
     def mean3x3(self):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
@@ -231,14 +226,11 @@ class frame:
         r.label = self.label + 'MEAN3__'
         return r
 
-    # upgraded versions
-    # update v0.5.16
     def getnxn(self, key:str, x:int, y:int, res:int) -> np.ndarray:
         r = np.zeros((res,res))
         r[:,:] = self[key][x-res//2:x+res//2+1,y-res//2:y+res//2+1]
         return r
 
-    # update v0.5.16
     def meannxn(self, res:int):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
@@ -272,7 +264,6 @@ class frame:
         r = r.crop(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
         return r
 
-    # different from crop, tail cut the boundary areas
     def tail(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0):
         shp = self.lat.shape
         if all:
@@ -288,14 +279,12 @@ class frame:
             r._flag[flag] = self._flag[flag]
         return r
 
-    # CAUTION: this function can only be used once, or the result will lose the scientific significance
     def pseudo_lowres3(self):
         _r = self.mean3x3()
         _r = _r.tail(all=1)
         _r._flag['RES'] = 3
         return _r
 
-    # The more stable version is use this:
     def pseudo_lowres(self, res:int=3):
         if not res % 2:
             raise RuntimeError('\'res\' should be a single number!')
@@ -385,8 +374,6 @@ class frame:
     def __str__(self) -> str:
         return self.label
 
-    # frame to csvs
-    # path is the parent path
     def fileout(self, path:str, overw:bool=False):
         if os.path.exists(path):
             if overw:
@@ -394,20 +381,13 @@ class frame:
                 os.mkdir(path)
         else:
             os.mkdir(path)
-
-        # lat, long, time
         kwargs = {'header': False, 'index': False}
         tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         tk.tocsv([[self.time]], path+f'\\TIME.csv', **kwargs)
-
-        # _data
-        # v0.5.14update: only convert those 2-d
         for key in self._data.keys():
             if len(self[key].shape) == 2:
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
-
-        # _flag
         tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
 
 class voidFrame(frame):
@@ -445,7 +425,6 @@ def correspond(hrdf:frame, lrdf:frame, len:int, lx:int, ly:int) -> Tuple[frame]:
     thickGrid= lrdf.cut(len*hrdf.res, lx*hrdf.res, ly*hrdf.res)
     return thinGrid, thickGrid
 
-# from a list of frames to ts.gis
 def to_ts_wpframe(lf:Sequence[frame]) -> apts.wpframe:
     _s1 = apts.wpframe(lat=lf[0].lat, long=lf[0].long)
     for r in lf:
@@ -455,7 +434,6 @@ def to_ts_wpframe(lf:Sequence[frame]) -> apts.wpframe:
 def issmallgrid(grid:frame, threshold:Union[int, float]) -> bool:
     return grid.res < threshold
 
-# from a path, import all files under the path as frame with keys
 def create_wpframe(path:str, *keys:Tuple[str], removewater:bool=False) -> apts.wpframe:
     _rs = []
     paths = os.listdir(path)
@@ -465,15 +443,11 @@ def create_wpframe(path:str, *keys:Tuple[str], removewater:bool=False) -> apts.w
     _s1 = to_ts_wpframe(_rs)
     return _s1
 
-# lrdf is the result of pseudo_lowres(res) of the o(riginal)df
-# thickgrid here is one grid
-# for pseudo_correspond, the len is always 1, or the result will lose its scientific significance
 def pseudo_correspond(odf:frame, lrdf:frame, lx:int, ly:int) -> Tuple[frame]:
     thinGrid = odf.cut(lrdf.res, lx*lrdf.res, ly*lrdf.res)
     thickGrid= lrdf.cut(1, lx, ly)
     return thinGrid, thickGrid
 
-# generate a frame from a path generated under frame.fileout(). See fileout()
 class filein(frame):
 
     def __init__(self, path:str):
@@ -489,7 +463,6 @@ class filein(frame):
                 self._data[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
         self.to_flag(self._flag, aux.cp2d(app.csv(path+r'\FLAG.csv', header=None)()))
 
-    # to generate self._flag during __init__()
     @classmethod
     def to_flag(self, _flag:dict, flaglist: np.ndarray):
         for f in flaglist:
