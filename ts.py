@@ -115,7 +115,7 @@ class series:
                 return self.time.index(t)
             except:
                 return -1
-    
+
     def period(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float]) -> list:
         if isinstance(start, str):
             start_ref = self.ref(ascl.dt(start))
@@ -150,11 +150,22 @@ class series:
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
 
+    def split(self, n:int) -> list:
+        return [series(time=self.time[i::n], data=self.data[i::n]) for i in range(n)]
+
     def iterate(self, f:Callable=lambda x: x) -> list:
         _r = [f(d) for d in self.data]
         return _r
 
+    def iter(self, f:Callable=lambda x: x) -> list:
+        _r = [f(d) for d in self.data]
+        return _r
+
     def operation(self, f:Callable=lambda x: x):
+        _r = [f(d) for d in self.data]
+        return series(time=self.time, data=_r)
+
+    def opera(self, f:Callable=lambda x: x):
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
 
@@ -194,7 +205,7 @@ class series:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return np.nanmean(_r)
-        
+
 class val(series):
 
     def sum(self, f:Callable=lambda x: x) -> float:
