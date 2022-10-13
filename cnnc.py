@@ -17,12 +17,15 @@ class CNnc:
         return np.array(self.ncfile[key])
 
     def llbc(self) -> Tuple[np.ndarray]:
+        '''
+        Broadcast the 1d lat,long data to WRF-type 2d lat,long data
+        '''
         xlong = np.zeros((self.lat.shape[0], self.lon.shape[0]))
         xlat = np.zeros((self.lat.shape[0], self.lon.shape[0]))
-        for i, x in enumerate(self.lat):
-            for j, y in enumerate(self.lon):
-                xlat[i][j] = x
-                xlong[i][j] = y
+        for j, y in enumerate(self.lat):
+            for i, x in enumerate(self.lon):
+                xlat[i][j] = y
+                xlong[i][j] = x
         return xlat, xlong
 
 class month_mean_temp(CNnc):
@@ -46,11 +49,20 @@ class month_mean_temp(CNnc):
 
 
 def tmp_conv(tmp:float) -> float:
+    '''
+    convert the CN netCDF data temperature unit to Kelvin
+    '''
     return tmp/10.+273.15
 
+# lat-lon broadcasting
 def llbc(data:CNnc):
+    '''
+    Broadcast the 1d lat,long data to WRF-type 2d lat,long data
+    '''
     lon = np.array(data['lon'])
     lat = np.array(data['lat'])
+    # print(lon.shape)
+    # print(lat.shape)
     xlong = np.zeros((lat.shape[0], lon.shape[0]))
     xlat = np.zeros((lat.shape[0], lon.shape[0]))
     for i, x in enumerate(lat):
