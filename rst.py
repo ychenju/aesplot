@@ -1,7 +1,7 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from osgeo import gdal
+import osgeo.gdal as gdal
 import numpy as np
 from typing import Tuple
 
@@ -52,7 +52,7 @@ class raster:
 
     @property
     def effective(self) -> np.ndarray:
-        return np.where(self.values < self.fill_value_low, self.values, np.nan)
+        return np.where(self.array < self.fill_value_low, self.values, np.nan)
 
     @property
     def oriX(self) -> float:

@@ -6,8 +6,8 @@ import pandas as pd
 import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 
+from .rst import *
 
 from .ascl import *
 from .atm import *
@@ -18,7 +18,7 @@ from .fig import *
 from .filter import *
 from .img import *
 from .prep import *
-from .rst import *
+
 from .stat import *
 from .tc import *
 from .toolkit import *
