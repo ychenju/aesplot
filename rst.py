@@ -1,9 +1,18 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import osgeo.gdal as gdal
 import numpy as np
 from typing import Tuple
+
+def gettifs(path:str) -> list:
+    paths = os.listdir(path)
+    fullpaths = [path + '\\' + p for p in paths if p[-4:] == '.tif']
+    return fullpaths
+
+def rstlist(path:str, name:str='') -> list:
+    return [raster(gettifs(path)[i], name) for i in range(len(gettifs(path)))]
 
 class MODIS:
     SCALE_FACTOR = {
@@ -16,7 +25,7 @@ class MODIS:
 
 class raster:
 
-    def __init__(self, path:str, name='') -> None:
+    def __init__(self, path:str, name:str='') -> None:
         self.raster = gdal.Open(path)
         self.array = self.raster.ReadAsArray()
         self.name = name
