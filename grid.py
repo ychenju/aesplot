@@ -1,7 +1,12 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
+import shutil
 import numpy as np
+from . import auxf as aux
+from . import prep as app
+from . import toolkit as tk
 from typing import Union, Tuple
 
 class Grids:
@@ -69,7 +74,7 @@ class Grids:
 
     def boundaries(self, y:int, x:int):
         xb, yb = (0,0), (0,0)
-        if x and not x == self.long.shape[1] - 1:
+        if x and not x== self.long.shape[1] - 1:
             xb = (self[y,x-1].long + self[y,x].long)/2, (self[y,x+1].long + self[y,x].long)/2
         elif not x:
             xb = (3*self[y,0].long - self[y,1].long)/2, (self[y,1].long + self[y,0].long)/2
@@ -82,6 +87,30 @@ class Grids:
         elif y == self.lat.shape[0] - 1:
             yb = (self[y-1,x].lat + self[y,x].lat)/2, (3*self[y,x].lat - self[y-1,x].lat)/2
         return yb, xb
+
+    def cast(self, target:object) -> object:
+        '''
+        '''
+
+    def join(self, target:object, threshold=0.01, func=lambda x,y: np.nanmean(x,y)) -> object:
+        '''
+        '''
+
+    def fileout(self, path:str, overw:bool=False) -> None:
+        if os.path.exists(path):
+            if overw:
+                shutil.rmtree(path)
+                os.mkdir(path)
+        else:
+            os.mkdir(path)
+        kwargs = {'header': False, 'index': False}
+        tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
+        tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
+        if self.data:
+            tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
+
+        for key in self.kwargs.keys():
+            tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
 class Grid:
 
@@ -102,3 +131,19 @@ class Grid:
     @property
     def boundariesT(self):
         return self.origin.boundaries(*self.index)[::-1]
+
+class filein(Grids):
+
+    def __init__(self, path:str) -> None:
+        paths = os.listdir(path)
+        self.lat = aux.cp2d(app.csv(path+r'\LAT.csv', header=None)())
+        self.long = aux.cp2d(app.csv(path+r'\LONG.csv', header=None)())
+        try:
+            self._data = aux.cp2d(app.csv(path+r'\DATA.csv', header=None)())
+        except:
+            self._data = None
+            print('The directory has no \'DATA.csv\', thus self.data will be void')
+        self.kwargs = {}    
+        for p in paths:
+            if p[:5] == 'DATA_':
+                self.kwargs[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())

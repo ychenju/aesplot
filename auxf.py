@@ -45,3 +45,6 @@ def is1d(table:Sequence) -> bool:
 
 def is2d(table:Sequence) -> bool:
     return dim(table) == 2
+
+def dist(coor1:tuple, coor2:tuple) -> float:
+    return np.sqrt((coor2[0]-coor1[0])**2 + (coor2[1]-coor1[1])**2)
