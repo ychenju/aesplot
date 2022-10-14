@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
+import xarray as xr
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 class figure:
@@ -86,6 +89,7 @@ class heat(figure):
                 plt.imshow(*self._args, **self._formats)
             except:
                 raise RuntimeError('No data')
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 SCATTER_DEFAULT_ATTRS = {
@@ -377,9 +381,31 @@ class fillrect(figure):
             del self._formats['c']
         if 'x' in self._attr.keys() and 'y' in self._attr.keys():
             plt.fill_between(self['x'], *self['y'], **self._formats)
-        if len(self._args):
+        elif len(self._args):
             plt.fill_between(self._args[0], *self._args[1], **self._formats)
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+RECT_DEFAULT_ATTRS = {
+
+}
+
+class rect(figure):
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._init_with(RECT_DEFAULT_ATTRS, *args, **kwargs)
+
+    def __call__(self) -> None:
+        if 'x' in self._attr.keys() and 'y' in self._attr.keys():
+            plt.plot([self['x'][0], self['x'][0]], [self['y'][0], self['y'][1]], **self._formats)
+            plt.plot([self['x'][0], self['x'][1]], [self['y'][1], self['y'][1]], **self._formats)
+            plt.plot([self['x'][1], self['x'][1]], [self['y'][1], self['y'][0]], **self._formats)
+            plt.plot([self['x'][1], self['x'][0]], [self['y'][0], self['y'][0]], **self._formats)
+        elif len(self._args):
+            plt.plot([self._args[0][0], self._args[0][0]],[self._args[1][0], self._args[1][1]], **self._formats)
+            plt.plot([self._args[0][0], self._args[0][1]],[self._args[1][1], self._args[1][1]], **self._formats)
+            plt.plot([self._args[0][1], self._args[0][1]],[self._args[1][1], self._args[1][0]], **self._formats)
+            plt.plot([self._args[0][1], self._args[0][0]],[self._args[1][0], self._args[1][0]], **self._formats)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
