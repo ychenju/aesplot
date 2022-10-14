@@ -10,7 +10,7 @@ from typing import Tuple, Sequence
 def arg_minp(eV:np.ndarray) -> int:
     return np.where(eV>0,eV,np.inf).argmin()
 
-def planefit(X:np.ndarray, Y:np.ndarray, T:np.ndarray):
+def planefit(X:np.ndarray, Y:np.ndarray, T:np.ndarray) -> Tuple[np.ndarray]:
     X_ = X.reshape(-1)
     Y_ = Y.reshape(-1)
     T_ = T.reshape(-1)
@@ -51,7 +51,7 @@ def iserrsigma(sigma:float, table:np.ndarray) -> bool:
 
 class linregClass:
 
-    def __init__(self, x:Sequence, y:Sequence):
+    def __init__(self, x:Sequence, y:Sequence) -> None:
         self.x = x
         self.y = y
         self._linregress = spss.linregress(x, y)
@@ -111,7 +111,7 @@ def linreg(x:Sequence, y:Sequence) -> linregClass:
 
 class corrClass:
 
-    def __init__(self, *data:Tuple[Sequence], base:str='scipy', method:str='pearson'):
+    def __init__(self, *data:Tuple[Sequence], base:str='scipy', method:str='pearson') -> None:
         if len(data) < 2:
             raise RuntimeError('No enough data!')
         if base == 'scipy':

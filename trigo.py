@@ -29,7 +29,7 @@ def arctand(val:float) -> float:
 
 class tri:
     
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if len(kwargs.keys()) != 3:
             raise RuntimeError('Invalid Triangle!')
         self.counta = 0

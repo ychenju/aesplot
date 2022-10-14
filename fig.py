@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 class figure:
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._args = []
         self._attr = {}
         self._formats = {}
@@ -15,7 +15,7 @@ class figure:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
 
-    def _init_with(self, dic:dict, *args, **kwargs):
+    def _init_with(self, dic:dict, *args, **kwargs) -> None:
         self._args = []
         self._attr = {}
         self._formats = {}
@@ -33,14 +33,14 @@ class figure:
         self._attr[key] = value
         return self._attr[key]
 
-    def set(self, *args, **kwargs):
+    def set(self, *args, **kwargs) -> object:
         for arg in args:
             self._args.append(arg)
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
 
-    def format(self, **kwargs):
+    def format(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._formats[kw] = kwargs[kw]
         self['format'] = True            
@@ -56,10 +56,10 @@ TEXT_DEFAULT_ATTRS = {
 }
 
 class text(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(TEXT_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys() and 's' in self._attr.keys():
             plt.text(self['x'], self['y'], self['s'], **self._formats)
         else:
@@ -75,10 +75,10 @@ HEAT_DEFAULT_ATTRS = {
 }
 
 class heat(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(HEAT_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'X' in self._attr.keys():
             plt.imshow(self['X'], **self._formats)
         else:
@@ -93,10 +93,10 @@ SCATTER_DEFAULT_ATTRS = {
 }
 
 class scatter(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(SCATTER_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys():
             self['x'] = np.array(self['x']).reshape(-1)
             self['y'] = np.array(self['y']).reshape(-1)
@@ -128,10 +128,10 @@ FUNC_DEFAULT_ATTRS = {
 }
 
 class func(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(FUNC_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'f' in self._attr.keys():
             x = np.arange(*self['xrange'], self['step'])
             plt.plot(x, self['f'](x), **self._formats)
@@ -150,10 +150,10 @@ FOLDLINE_DEFAULT_ATTRS = {
 
 class line(figure):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(FOLDLINE_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys():
             plt.plot(self['x'], self['y'], **self._formats)
         else:
@@ -169,12 +169,12 @@ DOTLINE_DEFAULT_ATTRS = {
 }
 
 class dotline(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._dformats = {}
         self._lformats = {}
         self._init_with(DOTLINE_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys():
             self['x'] = np.array(self['x']).reshape(-1)
             self['y'] = np.array(self['y']).reshape(-1)
@@ -197,13 +197,13 @@ class dotline(figure):
             except:
                 raise RuntimeError('No data')
     
-    def dformat(self, **kwargs):
+    def dformat(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._dformats[kw] = kwargs[kw]
         self['format'] = True            
         return self
 
-    def lformat(self, **kwargs):
+    def lformat(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._lformats[kw] = kwargs[kw]
         self['format'] = True            
@@ -216,10 +216,10 @@ CONTOURF_DEFAULT_ATTRS = {
 }
 
 class contourf(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(CONTOURF_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys() and 'z' in self._attr.keys():
             try:
                 plt.contourf(self['x'], self['y'], self['z'], **self._formats)
@@ -240,7 +240,7 @@ class contourf(figure):
             except:
                 raise RuntimeError('No data')
 
-    def format_levelnumbers(self, x: int):
+    def format_levelnumbers(self, x: int) -> object:
         if 'z' in self._attr.keys():
             self._formats['levels'] = np.arange(np.min(self['z']), np.max(self['z']) + (np.max(self['z'])-np.min(self['z']))/float(x), (np.max(self['z'])-np.min(self['z']))/float(x))
         else:
@@ -255,10 +255,10 @@ CONTOUR_DEFAULT_ATTRS = {
 }
 
 class contour(figure):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(CONTOUR_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys() and 'z' in self._attr.keys():
             try:
                 if self['clabel']:
@@ -295,7 +295,7 @@ class contour(figure):
             except:
                 raise RuntimeError('No data')
 
-    def format_levelnumbers(self, x: int):
+    def format_levelnumbers(self, x: int) -> object:
         if 'z' in self._attr.keys():
             self._formats['levels'] = np.arange(np.min(self['z']), np.max(self['z']) + (np.max(self['z'])-np.min(self['z']))/float(x), (np.max(self['z'])-np.min(self['z']))/float(x))
         else:
@@ -303,7 +303,7 @@ class contour(figure):
                                                 , (np.max(self._args[2])-np.min(self._args[2]))/float(x))
         return self
 
-    def clabel(self, **kwargs):
+    def clabel(self, **kwargs) -> object:
         self['clabel'] = True
         self['clabel_format'] = kwargs
         return self
@@ -316,10 +316,10 @@ AXES_DEFAULT_ATTRS = {
 
 class axes(figure):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(AXES_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys():
             self['x'] = np.array(self['x']).reshape(-1)
             for x in self['x']:
@@ -347,10 +347,10 @@ LLS_DEFAULT_ATTRS = {
 
 class lls(figure):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(LLS_DEFAULT_ATTRS, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'lls' in self._attr.keys():
             self['lat'], self['long'] = self['lls'], self['lls']
         if self['lat']:
@@ -368,10 +368,10 @@ FILLRECT_DEFAULT_ATTRS = {
 
 class fillrect(figure):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._init_with(FILLRECT_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'c' in self._formats.keys():
             self._formats['color'] = self._formats['c']
             del self._formats['c']
@@ -394,13 +394,13 @@ TRACK_DEFAULT_LFORMATS = {
 
 class track(dotline):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._lformats = {}
         for kw in TRACK_DEFAULT_LFORMATS.keys():
             self._lformats[kw] = TRACK_DEFAULT_LFORMATS[kw]
         self._init_with(TRACK_DEFAULT_ATTRS, *args, **kwargs)
 
-    def __call__(self):
+    def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys():
             self['x'] = np.array(self['x']).reshape(-1)
             self['y'] = np.array(self['y']).reshape(-1)

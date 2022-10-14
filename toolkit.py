@@ -11,37 +11,37 @@ class Time:
     end_time = 0
 
 class perfcounter(Time):
-    def __init__(self):
+    def __init__(self) -> None:
         self.start_time = time.perf_counter()
 
-    def reset(self):
+    def reset(self) -> None:
         self.start_time = time.perf_counter()
 
-    def s(self):
+    def s(self) -> None:
         self.end_time = time.perf_counter()
         print(f'Time:\t{self.end_time - self.start_time} s')
 
-    def ms(self):
+    def ms(self) -> None:
         self.end_time = time.perf_counter()
         print(f'Time:\t{(self.end_time - self.start_time)*1000.} ms')
 
-    def min(self):
+    def min(self) -> None:
         self.end_time = time.perf_counter()
         print(f'Time:\t{(self.end_time - self.start_time)/60.} min')
 
-    def mins(self):
+    def mins(self) -> None:
         self.end_time = time.perf_counter()
         print(f'Time:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
 
-    def h(self):
+    def h(self) -> None:
         self.end_time = time.perf_counter()
         print(f'Time:\t{(self.end_time - self.start_time)/3600.} h')
 
-    def hms(self):
+    def hms(self) -> None:
         self.end_time = time.perf_counter()
         print(f'Time:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
 
-def fileout(path:str, mode:str, *content:Tuple[str]):
+def fileout(path:str, mode:str, *content:Tuple[str]) -> None:
     with open(path, mode) as theF:
         for c in content:
             theF.write(f'{c},\t')
@@ -52,7 +52,7 @@ def fold(table:Sequence, length:int) -> np.ndarray:
     for i in range(len(table)//length):
         r.append([])
         for j in range(length):
-            list.append(r[-1], table[i*length+j])
+            r[-1].append(table[i*length+j])
     return np.array(r)
 
 def npfold(table:np.ndarray, length:int) -> np.ndarray:

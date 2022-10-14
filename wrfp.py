@@ -21,10 +21,10 @@ class wrfout:
 
     ncfile = None
 
-    def __init__(self, path:str):
+    def __init__(self, path:str) -> None:
         self.ncfile = xr.open_dataset(path)
     
-    def extract(self, *keys:Tuple[str]):
+    def extract(self, *keys:Tuple[str]) -> object:
         return frame(self.ncfile, *keys)   
 
     def __getitem__(self, key:str) -> np.ndarray:
@@ -38,11 +38,12 @@ FRAME_DEFAULT_FLAGS = {
 }
 
 class frame:
+
     lat = None
     long = None
     time = None
 
-    def __init__(self, source:wrfout, *keys:Tuple[str]):
+    def __init__(self, source:wrfout, *keys:Tuple[str]) -> None:
         self._data = {}    
         self._flag = {}
         for flag in FRAME_DEFAULT_FLAGS.keys():
@@ -55,12 +56,12 @@ class frame:
         for key in keys:
             self._data[key] = aux.cp2d(np.array(source[key]).squeeze())
     
-    def load(self, source:wrfout, *keys:Tuple[str]):    
+    def load(self, source:wrfout, *keys:Tuple[str]) -> object:
         for key in keys:
             self._data[key] = aux.cp2d(np.array(source.ncfile[key]).squeeze())
         return self
 
-    def params(self):   
+    def params(self) -> list:
         _l = [x for x in self._data]
         print(_l)
         return _l
@@ -74,33 +75,33 @@ class frame:
     def getall(self):  
         return self._data
 
-    def set(self, key:str, value):  
+    def set(self, key:str, value) -> object:
         self._data[key] = value
         return self
     
-    def __setitem__(self, key:str, value):
+    def __setitem__(self, key:str, value) -> object:
         self._data[key] = value
         return self
     
-    def delete(self, key:str):  
+    def delete(self, key:str) -> object:
         del self._data[key]
         return self
     
-    def __delitem__(self, key:str):
+    def __delitem__(self, key:str) -> object:
         del self._data[key]
         return self
 
     def getflag(self, key:str):
         return self._flag[key]
 
-    def setflag(self, key:str, value):
+    def setflag(self, key:str, value) -> object:
         self._flag[key] = value
         return self
 
     def getchara(self, key:str):
         return self._chara[key]
 
-    def removewater(self):
+    def removewater(self) -> object:
         if not ('LANDMASK' in self._data.keys()):
             raise RuntimeError("'LANDMASK' has not been loaded to the data frame")
         ori = self.lat
@@ -207,7 +208,7 @@ class frame:
         r[:,:] = self[key][x-1:x+2,y-1:y+2]
         return r
 
-    def mean3x3(self):
+    def mean3x3(self) -> object:
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             if aux.is2d(self[key]):
@@ -231,7 +232,7 @@ class frame:
         r[:,:] = self[key][x-res//2:x+res//2+1,y-res//2:y+res//2+1]
         return r
 
-    def meannxn(self, res:int):
+    def meannxn(self, res:int) -> object:
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             if aux.is2d(self[key]):
@@ -250,7 +251,7 @@ class frame:
         r.label = self.label + f'MEAN{res}__'
         return r
 
-    def crop(self, interv:int=3, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
+    def crop(self, interv:int=3, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1) -> object:
         _r = voidFrame(aux.cp2d(self.lat[fromx:tox:interv, fromy:toy:interv]), aux.cp2d(self.long[fromx:tox:interv, fromy:toy:interv]), self.time)
         for key in self.getall().keys():
             _r[key] = aux.cp2d(self[key][fromx:tox:interv, fromy:toy:interv])
@@ -260,12 +261,12 @@ class frame:
         _r.label = self.label + f'CROP:{interv}__'
         return _r
 
-    def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
+    def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1) -> object:
         r = self.mean3x3()
         r = r.crop(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
         return r
 
-    def tail(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0):
+    def tail(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0) -> object:
         shp = self.lat.shape
         if all:
             fx, fy = all, all
@@ -280,13 +281,13 @@ class frame:
             r._flag[flag] = self._flag[flag]
         return r
 
-    def pseudo_lowres3(self):
+    def pseudo_lowres3(self) -> object:
         _r = self.mean3x3()
         _r = _r.tail(all=1)
         _r._flag['RES'] = 3
         return _r
 
-    def pseudo_lowres(self, res:int=3):
+    def pseudo_lowres(self, res:int=3) -> object:
         if not res % 2:
             raise RuntimeError('\'res\' should be a single number!')
         _r = self.meannxn(res)
@@ -318,7 +319,7 @@ class frame:
     def long1d(self) -> np.ndarray:
         return self.long[0,:]
 
-    def cut(self, interv:int, fromx:int, fromy:int):
+    def cut(self, interv:int, fromx:int, fromy:int) -> object:
         fx, fy = int(fromx), int(fromy)
         tx = int(fromx + interv)
         ty = int(fromy + interv)
@@ -332,7 +333,7 @@ class frame:
         r.label = self.label + f'CUT:{interv}@({fromx},{fromy})__'
         return r
 
-    def cutto(self, fromx:int, fromy:int, tox:int, toy:int):
+    def cutto(self, fromx:int, fromy:int, tox:int, toy:int) -> object:
         fx, fy, tx, ty = int(fromx), int(fromy), int(tox), int(toy)
         r = voidFrame(aux.cp2d(self.lat[fy:ty,fx:tx]), aux.cp2d(self.long[fy:ty,fx:tx]), self.time)
         for key in self.getall().keys():
@@ -375,27 +376,24 @@ class frame:
     def __str__(self) -> str:
         return self.label
 
-    def fileout(self, path:str, overw:bool=False):
+    def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):
             if overw:
                 shutil.rmtree(path)
                 os.mkdir(path)
         else:
             os.mkdir(path)
-
         kwargs = {'header': False, 'index': False}
         tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         tk.tocsv([[self.time]], path+f'\\TIME.csv', **kwargs)
-
         for key in self._data.keys():
             if len(self[key].shape) == 2:
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
-
         tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
 
 class voidFrame(frame):
-    def __init__(self, lat:np.ndarray, long:np.ndarray, time):
+    def __init__(self, lat:np.ndarray, long:np.ndarray, time) -> None:
         self.lat = aux.cp2d(lat)
         self.long = aux.cp2d(long)
         self.time = time
@@ -407,7 +405,7 @@ class voidFrame(frame):
         self._chara = {}   
 
 class nullFrame(frame):
-    def __init__(self):
+    def __init__(self) -> None:
         self.lat = None
         self.long = None
         self.time = None
@@ -454,7 +452,7 @@ def pseudo_correspond(odf:frame, lrdf:frame, lx:int, ly:int) -> Tuple[frame]:
 
 class filein(frame):
 
-    def __init__(self, path:str):
+    def __init__(self, path:str) -> None:
         paths = os.listdir(path)
         self.lat = aux.cp2d(app.csv(path+r'\LAT.csv', header=None)())
         self.long = aux.cp2d(app.csv(path+r'\LONG.csv', header=None)())
@@ -468,7 +466,7 @@ class filein(frame):
         self.to_flag(self._flag, aux.cp2d(app.csv(path+r'\FLAG.csv', header=None)()))
 
     @classmethod
-    def to_flag(self, _flag:dict, flaglist: np.ndarray):
+    def to_flag(self, _flag:dict, flaglist: np.ndarray) -> None:
         for f in flaglist:
             if f[1] == 'True':
                 _flag[f[0]] = True

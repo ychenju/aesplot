@@ -2,7 +2,6 @@ import urllib.request as req
 import re
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from . import basemap as apb
 from . import fig as apf
 from . import auxf as aux
@@ -92,7 +91,7 @@ def ace(track:np.ndarray) -> float:
     _r2 = np.array(_r)
     return (_r2**2).sum()/1e4
 
-def report(name:str, track:np.ndarray, path:str):
+def report(name:str, track:np.ndarray, path:str) -> None:
     _r = []
     for inten in track[3]:
         if inten > 34:
@@ -114,7 +113,7 @@ def coorproc(t, *args:Tuple[int]):
             tl[arg] = ''.join(_r)
     return t
 
-def readjtwc(ipath:str, opath:str):
+def readjtwc(ipath:str, opath:str) -> None:
     with open(ipath, 'r') as trf:
         trc = trf.read()
     trx = np.array(trc.split('\n'))

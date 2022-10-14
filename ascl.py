@@ -225,7 +225,7 @@ class tm:
 
 class dt:
 
-    def __init__(self, dtstr:str, tz:int=0):
+    def __init__(self, dtstr:str, tz:Union[int, float]=0) -> None:
         try:
             if len(dtstr) == 14:
                 self.Y = int(dtstr[:4])
@@ -310,7 +310,7 @@ class dt:
             return self.h-self._tz, self.m, self.s
 
     @property
-    def UTC(self):
+    def UTC(self) -> object:
         if not self._date or not self._time:
             raise RuntimeError('Invalid operation detected')
         if self.h-self._tz < 0:
@@ -329,7 +329,7 @@ class dt:
         else:
             return 'UTC'
 
-    def TZ(self, newtz):
+    def TZ(self, newtz:Union[int, float]) -> object:
         diff = self._tz - newtz
         if self.h-diff < 0:
             return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D-1):0>2d}{int(self.h-diff+24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
@@ -338,7 +338,7 @@ class dt:
         else:
             return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D):0>2d}{int(self.h-diff):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
 
-    def __sub__(self, other):
+    def __sub__(self, other:Union[int, float, object]) -> Union[int, float, object]:
         if isinstance(other, int) or isinstance(other, float):
             return self.__add__(-other, tz=self._tz)
         else:
@@ -349,7 +349,7 @@ class dt:
             elif self._time:
                 return tm.leap(*self.utc, *other.utc)
 
-    def __add__(self, period:float):
+    def __add__(self, period:float) -> object:
         if self._date and self._time:
             p_d = period // 1
             p_s = period % 1 * 86400.
@@ -503,7 +503,7 @@ class dt:
 
 class ud(dt):
 
-    def __init__(self, days:Union[int,float], tz:int=0):
+    def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcud(days)
             self._date = True
@@ -520,7 +520,7 @@ class ud(dt):
 
 class uds(dt):
 
-    def __init__(self, ss:float, tz:int=0):
+    def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
         obj = dt('19700101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -534,7 +534,7 @@ class uds(dt):
 
 class md(dt):
 
-    def __init__(self, days:Union[int,float], tz:int=0):
+    def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcmd(days)
             self._date = True
@@ -551,7 +551,7 @@ class md(dt):
 
 class mds(dt):
 
-    def __init__(self, ss:float, tz:int=0):
+    def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
         obj = dt('20000101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -565,7 +565,7 @@ class mds(dt):
 
 class mjd(dt):
 
-    def __init__(self, days:Union[int,float], tz:int=0):
+    def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcmjd(days)
             self._date = True
@@ -582,7 +582,7 @@ class mjd(dt):
 
 class mjds(dt):
 
-    def __init__(self, ss:float, tz:int=0):
+    def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
         obj = dt('18581116000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -596,7 +596,7 @@ class mjds(dt):
 
 class ad(dt):
 
-    def __init__(self, days:Union[int,float], tz:int=0):
+    def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcad(days)
             self._date = True
@@ -613,7 +613,7 @@ class ad(dt):
 
 class ads(dt):
 
-    def __init__(self, ss:float, tz:int=0):
+    def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
         obj = dt('00010101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -627,7 +627,7 @@ class ads(dt):
 
 class dts(dt):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs:dict) -> None:
         self._tz = 0
         self._date = False
         self._time = False
@@ -658,7 +658,7 @@ class dts(dt):
 
 class now(dt):
 
-    def __init__(self, tz=0):
+    def __init__(self, tz:Union[int, float]=0) -> None:
         obj = dt(system_time.strftime('%Y%m%d%H%M%S', system_time.localtime(system_time.time())))
         self.Y = obj.Y
         self.M = obj.M

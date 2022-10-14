@@ -7,7 +7,7 @@ from typing import Union, Sequence
 
 class csv:
 
-    def __init__(self, path:str, **kwargs):
+    def __init__(self, path:str, **kwargs) -> None:
         self._x = 'default'
         self._y = 'default'
         self._path = path
@@ -27,7 +27,7 @@ class csv:
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    def nhd(self):
+    def nhd(self) -> object:
         self._pdattrs['header'] = None
         return self
 
@@ -45,22 +45,21 @@ class csv:
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    def sub(self, index:Union[int, tuple]):
+    def sub(self, index:Union[int, tuple]) -> object:
         if isinstance(index, tuple):
             self._y, self._x = index
         else:
             self._y = index
         return self
 
-    def to_csv(self, path:str, **kwargs):
+    def to_csv(self, path:str, **kwargs) -> object:
         _df2 = pd.DataFrame(self())
         _df2.to_csv(path, **kwargs)
         return self
 
-
 class xls(csv):
 
-    def __init__(self, path:str, sheet:str):
+    def __init__(self, path:str, sheet:str) -> None:
         self._x = 'default'
         self._y = 'default'
         self._path = path
@@ -111,7 +110,7 @@ def yxz(xyz:Sequence) -> dict:
     xyz = np.array(xyz)
     return {'x': xyz[1], 'y': xyz[0], 'z': xyz[2]}
 
-def boundaries(lat:Sequence='None', long:Sequence='None', x:Sequence='None', y:Sequence='None', padding:float='None', padding_x:float=0, padding_y:float=0):
+def boundaries(lat:Sequence='None', long:Sequence='None', x:Sequence='None', y:Sequence='None', padding:float='None', padding_x:float=0, padding_y:float=0) -> dict:
     _r = {}
     if isinstance(padding, float) or isinstance(padding, int):
         padding_x = padding

@@ -8,7 +8,7 @@ from mpl_toolkits.basemap import Basemap
 class basemap:
 
     _base = Basemap()
-    def _init_with(self, dic:dict, **kwargs):
+    def _init_with(self, dic:dict, **kwargs) -> None:
         self._attr = {}
         self._formats = {}
         for kw in dic.keys():
@@ -19,11 +19,11 @@ class basemap:
     def __getitem__(self, key:str):
         return self._attr[key]
 
-    def __setitem__(self, key:str, value):
+    def __setitem__(self, key:str, value) -> object:
         self._attr[key] = value
         return self
 
-    def set(self, **kwargs):
+    def set(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
@@ -59,7 +59,7 @@ class basemap:
             self._base.etopo(scale=self._attr['clbgs'])
         return self._base
 
-    def lldraw(self):
+    def lldraw(self) -> None:
         if self['grid'] == 'grid':
             self._base.drawparallels(np.arange(self['latref'], self['latref2'], self['latinv']), labels=[1,0,0,0],
                                         color=self['gridc'], linewidth=self['gridlw'], fontsize=self['gfontsize'])
@@ -95,36 +95,34 @@ class basemap:
         self.ifcoast()
         self.lldraw()
 
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-    def grid(self, **kwargs):
+    def grid(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self['grid'] = 'grid'
         return self
 
-    def lls(self, inv:float, **kwargs):
+    def lls(self, inv:float, **kwargs) -> object:
         self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
         return self
     
-    def longs(self, inv:float, **kwargs):
+    def longs(self, inv:float, **kwargs) -> object:
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
-    def lats(self, inv:float, **kwargs):
+    def lats(self, inv:float, **kwargs) -> object:
         self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
-    def coastlines(self, **kwargs):
+    def coastlines(self, **kwargs) -> object:
         self._coastlines = {}
         for kw in COAST_DEFAULT_ATTRS.keys():
             self._attr[kw] = COAST_DEFAULT_ATTRS[kw]
@@ -156,7 +154,7 @@ BASIC_DEFAULT_ATTRS = {
 
 class blank(basemap):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(BASIC_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -175,7 +173,7 @@ COAST_DEFAULT_ATTRS = {
 
 class coast(basemap):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(BASIC_DEFAULT_ATTRS, **COAST_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -194,7 +192,7 @@ CLBG_DEFAULT_ATTRS = {
 
 class bluemarble(basemap):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -208,7 +206,7 @@ class bluemarble(basemap):
 
 class shadedrelief(basemap):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -222,7 +220,7 @@ class shadedrelief(basemap):
 
 class etopo(basemap):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -236,7 +234,7 @@ class etopo(basemap):
 
 class colorbg(basemap):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:

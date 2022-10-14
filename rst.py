@@ -97,11 +97,11 @@ class raster:
         return self.tolong(x), self.tolat(y)
 
     @property
-    def long(self):
+    def long(self) -> np.ndarray:
         return np.array([self.tolong(x) for x in range(self.cols)])
 
     @property
-    def lat(self):
+    def lat(self) -> np.ndarray:
         return np.array([self.tolat(x) for x in range(self.rows)])
 
     def llbc(self, inv:bool=False) -> Tuple[np.ndarray]:

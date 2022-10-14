@@ -3,7 +3,7 @@
 
 import numpy as np
 from . import ascl
-from typing import Union, Callable
+from typing import Sequence, Union, Callable
 
 SERIES_DEFAULT_ATTRS = {
     'ref': ascl.dt.udf
@@ -20,7 +20,7 @@ ADSF_ALIASES = ('as', 'AS', 'As', 'ads', 'ADs', 'ADS', 'ad_s', 'AD_s', 'ad_sec',
 
 class series:
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.time = []
         self.data = []
         self._attr = {}
@@ -52,7 +52,7 @@ class series:
             except:
                 raise RuntimeError('Target time not found in the series')
 
-    def __setitem__(self, t:Union[str, ascl.dt], values):
+    def __setitem__(self, t:Union[str, ascl.dt], values) -> None:
         if isinstance(t, ascl.dt):
             try:
                 _index = self.time.index(t())
@@ -70,7 +70,7 @@ class series:
                 self.data.append(values)
                 self.sort()
 
-    def sort(self):
+    def sort(self) -> object:
         indices = np.argsort(self.ntime)
         _r = list(zip(*np.array(list(zip(self.time, self.data)))[indices]))
         for i in range(len(_r[0])):
@@ -115,7 +115,7 @@ class series:
                 return self.time.index(t)
             except:
                 return -1
-
+    
     def period(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float]) -> list:
         if isinstance(start, str):
             start_ref = self.ref(ascl.dt(start))
@@ -146,7 +146,7 @@ class series:
             end_i = i + 1
         return [self.time[start_i:end_i], self.data[start_i:end_i]]
 
-    def sub(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], **kwargs):
+    def sub(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], **kwargs) -> object:
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
 
@@ -161,11 +161,11 @@ class series:
         _r = [f(d) for d in self.data]
         return _r
 
-    def operation(self, f:Callable=lambda x: x):
+    def operation(self, f:Callable=lambda x: x) -> object:
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
 
-    def opera(self, f:Callable=lambda x: x):
+    def opera(self, f:Callable=lambda x: x) -> object:
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
 
@@ -186,7 +186,7 @@ class series:
         _r = np.array([f(d) for d in _s.data])
         return _r
 
-    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x):
+    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> object:
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return series(time=_s.time, data=_r)
@@ -260,7 +260,7 @@ class array2(array):
 
 class gis(series):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.time = []
         self.data = []
         self._attr = {}
@@ -284,13 +284,13 @@ class gis(series):
         _r = self.period(start, end)
         return gis(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
 
-    def meanfield(self, f:Callable=lambda x: x, pack:bool=False):
+    def meanfield(self, f:Callable=lambda x: x, pack:bool=False) -> Union[Sequence[np.ndarray], np.ndarray]:
         _r = np.nanmean(np.array(self.iterate(f)), axis=0)
         return [self.long, self.lat, _r] if pack else _r
 
 class wpframe(gis):
 
-    def meanfield(self, var:str, pack:bool=False):
+    def meanfield(self, var:str, pack:bool=False) -> Union[Sequence[np.ndarray], np.ndarray]:
         _r = np.nanmean(np.array([d[var] for d in self.data]), axis=0)
         return [self.long, self.lat, _r] if pack else _r
 

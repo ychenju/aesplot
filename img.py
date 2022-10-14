@@ -17,7 +17,7 @@ IMG_DEFAULT_ATTRS = {
 
 class image:
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
             self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
@@ -37,7 +37,7 @@ class image:
         self._attr[key] = value
         return self._attr[key]
 
-    def reset(self, **kwargs):
+    def reset(self, **kwargs) -> object:
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
             self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
@@ -46,11 +46,11 @@ class image:
         self.preset()
         return self
 
-    def clear(self):
+    def clear(self) -> object:
         plt.clf()
         return self
 
-    def restart(self, **kwargs):
+    def restart(self, **kwargs) -> object:
         plt.clf()
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
@@ -60,7 +60,7 @@ class image:
         self.preset()
         return self
 
-    def preset(self, **kwargs):
+    def preset(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         if self['font'] != 'default':
@@ -82,12 +82,12 @@ class image:
         self['preset'] == True
         return self
 
-    def set(self, **kwargs):
+    def set(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
 
-    def add(self, *figs:tuple):
+    def add(self, *figs:tuple) -> object:
         for fig in figs:
             try:
                 fig()
@@ -95,7 +95,7 @@ class image:
                 print(f'Failed to add the object \'{fig}\'')
         return self
 
-    def addbasemap(self, *bmps:tuple):
+    def addbasemap(self, *bmps:tuple) -> object:
         for bmp in bmps:
             try:
                 bmp()
@@ -103,12 +103,12 @@ class image:
                 print(f'Failed to add the Basemap object \'{bmp}\'')
         return self
 
-    def addbaseNmask(self, bmp, mask):
+    def addbaseNmask(self, bmp, mask) -> object:
         self.addbasemap(bmp)
         self.add(mask)
         return self
 
-    def formatting(self, **kwargs):
+    def formatting(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self.setaxes()
@@ -116,7 +116,7 @@ class image:
         setf.grid(self)
         return self
 
-    def setaxes(self, **kwargs):
+    def setaxes(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         setf.xlim(self)
@@ -125,7 +125,7 @@ class image:
         setf.yticks(self)
         return self
 
-    def labels(self, **kwargs):
+    def labels(self, **kwargs) -> object:
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         setf.xlabel(self)
@@ -134,7 +134,7 @@ class image:
         setf.suptitle(self)
         return self
 
-    def save(self, path:str='\r\n'):
+    def save(self, path:str='\r\n') -> object:
         if path != '\r\n':
             self['saveas'] = path
         try:
@@ -143,19 +143,19 @@ class image:
             raise RuntimeError('Output path (\'saveas\' attr) required.')
         return self
 
-    def colorbar(self, *args, **kwargs):
+    def colorbar(self, *args, **kwargs) -> object:
         plt.colorbar(*args, **kwargs)
         return self
 
-    def legend(self, *args, **kwargs):
+    def legend(self, *args, **kwargs) -> object:
         plt.legend(*args, **kwargs)
         return self
 
-    def show(self):
+    def show(self) -> object:
         plt.show()
         return self
 
-    def subplot(self, *args:Tuple[int], **kwargs):
+    def subplot(self, *args:Tuple[int], **kwargs) -> object:
         if len(args) == 3:
             self['subplot'] = (args[0], args[1])
             self[f'ax_{args[2]}'] = plt.subplot(*args, **kwargs)
@@ -186,54 +186,54 @@ class image:
         else:
             return [f(self[f'ax_{arg}']) for arg in args]
 
-    def text(self, *args, **kwargs):
+    def text(self, *args, **kwargs) -> object:
         plt.text(*args, **kwargs)
         return self
 
 class setf:
 
     @staticmethod
-    def xlim(img:image):
+    def xlim(img:image) -> None:
         if 'xlim' in img._attr.keys():
             plt.xlim(*img['xlim'])
 
     @staticmethod
-    def ylim(img:image):
+    def ylim(img:image) -> None:
         if 'ylim' in img._attr.keys():
             plt.ylim(*img['ylim'])
 
     @staticmethod
-    def xticks(img:image):
+    def xticks(img:image) -> None:
         if 'xticks' in img._attr.keys():
             plt.xticks(img['xticks'])
 
     @staticmethod
-    def yticks(img:image):
+    def yticks(img:image) -> None:
         if 'yticks' in img._attr.keys():
             plt.yticks(img['yticks'])
 
     @staticmethod
-    def xlabel(img:image):
+    def xlabel(img:image) -> None:
         if 'xlabel' in img._attr.keys():
             plt.xlabel(img['xlabel'])
 
     @staticmethod
-    def ylabel(img:image):
+    def ylabel(img:image) -> None:
         if 'ylabel' in img._attr.keys():
             plt.ylabel(img['ylabel'])
 
     @staticmethod
-    def title(img:image):
+    def title(img:image) -> None:
         if 'title' in img._attr.keys():
             plt.title(img['title'])
 
     @staticmethod
-    def suptitle(img:image):
+    def suptitle(img:image) -> None:
         if 'suptitle' in img._attr.keys():
             plt.suptitle(img['suptitle'])
 
     @staticmethod
-    def grid(img:image):
+    def grid(img:image) -> None:
         if 'grc' in img._attr.keys() or 'grls' in img._attr.keys() or 'grlw' in img._attr.keys():
             _grattr = {}
             if 'grc' in img._attr.keys():
