@@ -48,7 +48,7 @@ class Grids:
                         kwargs = {}
                         for kw in self.kwargs.keys():
                             kwargs[kw] = self.kwargs[kw][index[0],index[1]]
-                        if self.data:
+                        if isinstance(self.data, np.ndarray):
                             return Grids(self.lat[index[0]], self.long[index[1]], self.data[index[0],index[1]], **kwargs)
                         else:
                             return Grids(self.lat[index[0], index[1]], self.long[index[0], index[1]], **kwargs)
@@ -106,7 +106,7 @@ class Grids:
         kwargs = {'header': False, 'index': False}
         tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
-        if self.data:
+        if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
 
         for key in self.kwargs.keys():

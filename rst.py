@@ -5,6 +5,7 @@ import os
 import osgeo.gdal as gdal
 import numpy as np
 from typing import Tuple
+from . import grid as apg
 
 def gettifs(path:str) -> list:
     paths = os.listdir(path)
@@ -118,3 +119,22 @@ class raster:
 
     def __call__(self) -> float:
         return self.values
+
+def raster_to_grid(raster:raster, kind='effective', data='') -> apg.Grids:
+    if not data:
+        if kind.lower() == 'effective':
+            return apg.Grids(*raster.llbc(), raster.effective)
+        elif kind.lower() == 'values':
+            return apg.Grids(*raster.llbc(), raster.values)
+        elif kind.lower() == 'array':
+            return apg.Grids(*raster.llbc(), raster.array)
+    else:
+        if kind.lower() == 'effective':
+            kwargs = {data: raster.effective}
+            return apg.Grids(*raster.llbc(), **kwargs)
+        elif kind.lower() == 'values':
+            kwargs = {data: raster.values}
+            return apg.Grids(*raster.llbc(), **kwargs)
+        elif kind.lower() == 'array':
+            kwargs = {data: raster.array}
+            return apg.Grids(*raster.llbc(), **kwargs)
