@@ -19,11 +19,11 @@ class basemap:
     def __getitem__(self, key:str):
         return self._attr[key]
 
-    def __setitem__(self, key:str, value) -> object:
+    def __setitem__(self, key:str, value):
         self._attr[key] = value
         return self
 
-    def set(self, **kwargs) -> object:
+    def set(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
@@ -95,34 +95,36 @@ class basemap:
         self.ifcoast()
         self.lldraw()
 
-    def grid(self, **kwargs) -> object:
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+    def grid(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self['grid'] = 'grid'
         return self
 
-    def lls(self, inv:float, **kwargs) -> object:
+    def lls(self, inv:float, **kwargs):
         self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
         return self
-    
-    def longs(self, inv:float, **kwargs) -> object:
+
+    def longs(self, inv:float, **kwargs):
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
-    def lats(self, inv:float, **kwargs) -> object:
+    def lats(self, inv:float, **kwargs):
         self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'latslongs'
         return self
 
-    def coastlines(self, **kwargs) -> object:
+    def coastlines(self, **kwargs):
         self._coastlines = {}
         for kw in COAST_DEFAULT_ATTRS.keys():
             self._attr[kw] = COAST_DEFAULT_ATTRS[kw]

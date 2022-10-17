@@ -37,7 +37,7 @@ class image:
         self._attr[key] = value
         return self._attr[key]
 
-    def reset(self, **kwargs) -> object:
+    def reset(self, **kwargs):
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
             self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
@@ -46,11 +46,11 @@ class image:
         self.preset()
         return self
 
-    def clear(self) -> object:
+    def clear(self):
         plt.clf()
         return self
 
-    def restart(self, **kwargs) -> object:
+    def restart(self, **kwargs):
         plt.clf()
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
@@ -60,7 +60,7 @@ class image:
         self.preset()
         return self
 
-    def preset(self, **kwargs) -> object:
+    def preset(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         if self['font'] != 'default':
@@ -82,12 +82,12 @@ class image:
         self['preset'] == True
         return self
 
-    def set(self, **kwargs) -> object:
+    def set(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
 
-    def add(self, *figs:tuple) -> object:
+    def add(self, *figs:tuple):
         for fig in figs:
             try:
                 fig()
@@ -95,7 +95,7 @@ class image:
                 print(f'Failed to add the object \'{fig}\'')
         return self
 
-    def addbasemap(self, *bmps:tuple) -> object:
+    def addbasemap(self, *bmps:tuple):
         for bmp in bmps:
             try:
                 bmp()
@@ -103,12 +103,12 @@ class image:
                 print(f'Failed to add the Basemap object \'{bmp}\'')
         return self
 
-    def addbaseNmask(self, bmp, mask) -> object:
+    def addbaseNmask(self, bmp, mask):
         self.addbasemap(bmp)
         self.add(mask)
         return self
 
-    def formatting(self, **kwargs) -> object:
+    def formatting(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self.setaxes()
@@ -116,7 +116,7 @@ class image:
         setf.grid(self)
         return self
 
-    def setaxes(self, **kwargs) -> object:
+    def setaxes(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         setf.xlim(self)
@@ -125,7 +125,7 @@ class image:
         setf.yticks(self)
         return self
 
-    def labels(self, **kwargs) -> object:
+    def labels(self, **kwargs):
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         setf.xlabel(self)
@@ -134,7 +134,7 @@ class image:
         setf.suptitle(self)
         return self
 
-    def save(self, path:str='\r\n') -> object:
+    def save(self, path:str='\r\n'):
         if path != '\r\n':
             self['saveas'] = path
         try:
@@ -143,19 +143,19 @@ class image:
             raise RuntimeError('Output path (\'saveas\' attr) required.')
         return self
 
-    def colorbar(self, *args, **kwargs) -> object:
+    def colorbar(self, *args, **kwargs):
         plt.colorbar(*args, **kwargs)
         return self
 
-    def legend(self, *args, **kwargs) -> object:
+    def legend(self, *args, **kwargs):
         plt.legend(*args, **kwargs)
         return self
 
-    def show(self) -> object:
+    def show(self):
         plt.show()
         return self
 
-    def subplot(self, *args:Tuple[int], **kwargs) -> object:
+    def subplot(self, *args:Tuple[int], **kwargs):
         if len(args) == 3:
             self['subplot'] = (args[0], args[1])
             self[f'ax_{args[2]}'] = plt.subplot(*args, **kwargs)
@@ -186,7 +186,7 @@ class image:
         else:
             return [f(self[f'ax_{arg}']) for arg in args]
 
-    def text(self, *args, **kwargs) -> object:
+    def text(self, *args, **kwargs):
         plt.text(*args, **kwargs)
         return self
 

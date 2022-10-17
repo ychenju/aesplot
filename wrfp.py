@@ -24,7 +24,7 @@ class wrfout:
     def __init__(self, path:str) -> None:
         self.ncfile = xr.open_dataset(path)
     
-    def extract(self, *keys:Tuple[str]) -> object:
+    def extract(self, *keys:Tuple[str]):
         return frame(self.ncfile, *keys)   
 
     def __getitem__(self, key:str) -> np.ndarray:
@@ -38,7 +38,6 @@ FRAME_DEFAULT_FLAGS = {
 }
 
 class frame:
-
     lat = None
     long = None
     time = None
@@ -56,7 +55,7 @@ class frame:
         for key in keys:
             self._data[key] = aux.cp2d(np.array(source[key]).squeeze())
     
-    def load(self, source:wrfout, *keys:Tuple[str]) -> object:
+    def load(self, source:wrfout, *keys:Tuple[str]):
         for key in keys:
             self._data[key] = aux.cp2d(np.array(source.ncfile[key]).squeeze())
         return self
@@ -75,33 +74,33 @@ class frame:
     def getall(self):  
         return self._data
 
-    def set(self, key:str, value) -> object:
+    def set(self, key:str, value):
         self._data[key] = value
         return self
     
-    def __setitem__(self, key:str, value) -> object:
+    def __setitem__(self, key:str, value):
         self._data[key] = value
         return self
     
-    def delete(self, key:str) -> object:
+    def delete(self, key:str):
         del self._data[key]
         return self
     
-    def __delitem__(self, key:str) -> object:
+    def __delitem__(self, key:str):
         del self._data[key]
         return self
 
     def getflag(self, key:str):
         return self._flag[key]
 
-    def setflag(self, key:str, value) -> object:
+    def setflag(self, key:str, value):
         self._flag[key] = value
         return self
 
     def getchara(self, key:str):
         return self._chara[key]
 
-    def removewater(self) -> object:
+    def removewater(self):
         if not ('LANDMASK' in self._data.keys()):
             raise RuntimeError("'LANDMASK' has not been loaded to the data frame")
         ori = self.lat
@@ -208,7 +207,7 @@ class frame:
         r[:,:] = self[key][x-1:x+2,y-1:y+2]
         return r
 
-    def mean3x3(self) -> object:
+    def mean3x3(self):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             if aux.is2d(self[key]):
@@ -232,7 +231,7 @@ class frame:
         r[:,:] = self[key][x-res//2:x+res//2+1,y-res//2:y+res//2+1]
         return r
 
-    def meannxn(self, res:int) -> object:
+    def meannxn(self, res:int):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             if aux.is2d(self[key]):
@@ -251,7 +250,7 @@ class frame:
         r.label = self.label + f'MEAN{res}__'
         return r
 
-    def crop(self, interv:int=3, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1) -> object:
+    def crop(self, interv:int=3, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
         _r = voidFrame(aux.cp2d(self.lat[fromx:tox:interv, fromy:toy:interv]), aux.cp2d(self.long[fromx:tox:interv, fromy:toy:interv]), self.time)
         for key in self.getall().keys():
             _r[key] = aux.cp2d(self[key][fromx:tox:interv, fromy:toy:interv])
@@ -261,12 +260,12 @@ class frame:
         _r.label = self.label + f'CROP:{interv}__'
         return _r
 
-    def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1) -> object:
+    def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
         r = self.mean3x3()
         r = r.crop(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
         return r
 
-    def tail(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0) -> object:
+    def tail(self, all:int=0, w:int=0, e:int=0, s:int=0, n:int=0):
         shp = self.lat.shape
         if all:
             fx, fy = all, all
@@ -281,13 +280,13 @@ class frame:
             r._flag[flag] = self._flag[flag]
         return r
 
-    def pseudo_lowres3(self) -> object:
+    def pseudo_lowres3(self):
         _r = self.mean3x3()
         _r = _r.tail(all=1)
         _r._flag['RES'] = 3
         return _r
 
-    def pseudo_lowres(self, res:int=3) -> object:
+    def pseudo_lowres(self, res:int=3):
         if not res % 2:
             raise RuntimeError('\'res\' should be a single number!')
         _r = self.meannxn(res)
@@ -319,7 +318,7 @@ class frame:
     def long1d(self) -> np.ndarray:
         return self.long[0,:]
 
-    def cut(self, interv:int, fromx:int, fromy:int) -> object:
+    def cut(self, interv:int, fromx:int, fromy:int):
         fx, fy = int(fromx), int(fromy)
         tx = int(fromx + interv)
         ty = int(fromy + interv)
@@ -333,7 +332,7 @@ class frame:
         r.label = self.label + f'CUT:{interv}@({fromx},{fromy})__'
         return r
 
-    def cutto(self, fromx:int, fromy:int, tox:int, toy:int) -> object:
+    def cutto(self, fromx:int, fromy:int, tox:int, toy:int):
         fx, fy, tx, ty = int(fromx), int(fromy), int(tox), int(toy)
         r = voidFrame(aux.cp2d(self.lat[fy:ty,fx:tx]), aux.cp2d(self.long[fy:ty,fx:tx]), self.time)
         for key in self.getall().keys():

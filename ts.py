@@ -70,7 +70,7 @@ class series:
                 self.data.append(values)
                 self.sort()
 
-    def sort(self) -> object:
+    def sort(self):
         indices = np.argsort(self.ntime)
         _r = list(zip(*np.array(list(zip(self.time, self.data)))[indices]))
         for i in range(len(_r[0])):
@@ -146,7 +146,7 @@ class series:
             end_i = i + 1
         return [self.time[start_i:end_i], self.data[start_i:end_i]]
 
-    def sub(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], **kwargs) -> object:
+    def sub(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], **kwargs):
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
 
@@ -161,11 +161,11 @@ class series:
         _r = [f(d) for d in self.data]
         return _r
 
-    def operation(self, f:Callable=lambda x: x) -> object:
+    def operation(self, f:Callable=lambda x: x):
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
 
-    def opera(self, f:Callable=lambda x: x) -> object:
+    def opera(self, f:Callable=lambda x: x):
         _r = [f(d) for d in self.data]
         return series(time=self.time, data=_r)
 
@@ -186,7 +186,7 @@ class series:
         _r = np.array([f(d) for d in _s.data])
         return _r
 
-    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> object:
+    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x):
         _s = self.sub(start, end)
         _r = np.array([f(d) for d in _s.data])
         return series(time=_s.time, data=_r)

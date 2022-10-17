@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import pandas as pd
-import xarray as xr
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 class figure:
@@ -36,14 +33,14 @@ class figure:
         self._attr[key] = value
         return self._attr[key]
 
-    def set(self, *args, **kwargs) -> object:
+    def set(self, *args, **kwargs):
         for arg in args:
             self._args.append(arg)
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
 
-    def format(self, **kwargs) -> object:
+    def format(self, **kwargs):
         for kw in kwargs.keys():
             self._formats[kw] = kwargs[kw]
         self['format'] = True            
@@ -89,7 +86,6 @@ class heat(figure):
                 plt.imshow(*self._args, **self._formats)
             except:
                 raise RuntimeError('No data')
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 SCATTER_DEFAULT_ATTRS = {
@@ -201,13 +197,13 @@ class dotline(figure):
             except:
                 raise RuntimeError('No data')
     
-    def dformat(self, **kwargs) -> object:
+    def dformat(self, **kwargs):
         for kw in kwargs.keys():
             self._dformats[kw] = kwargs[kw]
         self['format'] = True            
         return self
 
-    def lformat(self, **kwargs) -> object:
+    def lformat(self, **kwargs):
         for kw in kwargs.keys():
             self._lformats[kw] = kwargs[kw]
         self['format'] = True            
@@ -244,7 +240,7 @@ class contourf(figure):
             except:
                 raise RuntimeError('No data')
 
-    def format_levelnumbers(self, x: int) -> object:
+    def format_levelnumbers(self, x: int):
         if 'z' in self._attr.keys():
             self._formats['levels'] = np.arange(np.min(self['z']), np.max(self['z']) + (np.max(self['z'])-np.min(self['z']))/float(x), (np.max(self['z'])-np.min(self['z']))/float(x))
         else:
@@ -299,7 +295,7 @@ class contour(figure):
             except:
                 raise RuntimeError('No data')
 
-    def format_levelnumbers(self, x: int) -> object:
+    def format_levelnumbers(self, x: int):
         if 'z' in self._attr.keys():
             self._formats['levels'] = np.arange(np.min(self['z']), np.max(self['z']) + (np.max(self['z'])-np.min(self['z']))/float(x), (np.max(self['z'])-np.min(self['z']))/float(x))
         else:
@@ -307,7 +303,7 @@ class contour(figure):
                                                 , (np.max(self._args[2])-np.min(self._args[2]))/float(x))
         return self
 
-    def clabel(self, **kwargs) -> object:
+    def clabel(self, **kwargs):
         self['clabel'] = True
         self['clabel_format'] = kwargs
         return self
@@ -412,12 +408,10 @@ class rect(figure):
 TRACK_DEFAULT_ATTRS = {
     'zfargs': [],
 }
-
 TRACK_DEFAULT_LFORMATS = {
     'lw': .5,
     'c': 'w',
 }
-
 class track(dotline):
 
     def __init__(self, *args, **kwargs) -> None:

@@ -27,7 +27,7 @@ class csv:
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    def nhd(self) -> object:
+    def nhd(self):
         self._pdattrs['header'] = None
         return self
 
@@ -45,17 +45,18 @@ class csv:
             self._y = slice(0, _y)
         return _ar[self._y, self._x]
 
-    def sub(self, index:Union[int, tuple]) -> object:
+    def sub(self, index:Union[int, tuple]):
         if isinstance(index, tuple):
             self._y, self._x = index
         else:
             self._y = index
         return self
 
-    def to_csv(self, path:str, **kwargs) -> object:
+    def to_csv(self, path:str, **kwargs):
         _df2 = pd.DataFrame(self())
         _df2.to_csv(path, **kwargs)
         return self
+
 
 class xls(csv):
 

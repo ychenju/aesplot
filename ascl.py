@@ -310,7 +310,7 @@ class dt:
             return self.h-self._tz, self.m, self.s
 
     @property
-    def UTC(self) -> object:
+    def UTC(self):
         if not self._date or not self._time:
             raise RuntimeError('Invalid operation detected')
         if self.h-self._tz < 0:
@@ -329,7 +329,7 @@ class dt:
         else:
             return 'UTC'
 
-    def TZ(self, newtz:Union[int, float]) -> object:
+    def TZ(self, newtz:Union[int, float]):
         diff = self._tz - newtz
         if self.h-diff < 0:
             return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D-1):0>2d}{int(self.h-diff+24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
@@ -349,7 +349,7 @@ class dt:
             elif self._time:
                 return tm.leap(*self.utc, *other.utc)
 
-    def __add__(self, period:float) -> object:
+    def __add__(self, period:float):
         if self._date and self._time:
             p_d = period // 1
             p_s = period % 1 * 86400.

@@ -62,7 +62,7 @@ class Grids:
         except:
             raise RuntimeError('Inappropriate usage of Grids.__getitem__()')
 
-    def __setitem__(self, index:Union[int, str], value:np.ndarray) -> object:
+    def __setitem__(self, index:Union[int, str], value:np.ndarray):
         try:
             if not index:
                 self._data = value
@@ -112,6 +112,10 @@ class Grids:
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
 
+
+
+
+
     def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):
             if overw:
@@ -124,7 +128,6 @@ class Grids:
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
-
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
@@ -151,7 +154,6 @@ class Grid:
 class filein(Grids):
 
     def __init__(self, path:str) -> None:
-
         paths = os.listdir(path)
         self.lat = aux.cp2d(app.csv(path+r'\LAT.csv', header=None)())
         self.long = aux.cp2d(app.csv(path+r'\LONG.csv', header=None)())
