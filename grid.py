@@ -9,6 +9,8 @@ from . import prep as app
 from . import toolkit as tk
 from typing import Union, Tuple
 
+
+# 以下是第一种思路尝试，使用类封装类Grids对象，所有复制元素都直接传指针而不是cp2d深拷贝  
 class Grids:
     
     def __init__(self, *args, **kwargs) -> None:
@@ -112,10 +114,6 @@ class Grids:
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
 
-
-
-
-
     def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):
             if overw:
@@ -128,6 +126,7 @@ class Grids:
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
+
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 

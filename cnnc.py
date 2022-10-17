@@ -4,6 +4,7 @@
 import numpy as np
 import xarray as xr
 from . import wrfp as wp
+from . import grid
 from typing import Tuple
 
 class CNnc:
@@ -21,8 +22,8 @@ class CNnc:
         xlat = np.zeros((self.lat.shape[0], self.lon.shape[0]))
         for j, y in enumerate(self.lat):
             for i, x in enumerate(self.lon):
-                xlat[i][j] = y
-                xlong[i][j] = x
+                xlat[j][i] = y
+                xlong[j][i] = x
         return xlat, xlong
 
 class month_mean_temp(CNnc):
@@ -43,6 +44,11 @@ class month_mean_temp(CNnc):
     def to_wp_frames(self) -> Tuple[wp.frame]:
         _llbc = self.llbc()
         return [wp.voidFrame(*_llbc, time=None).set('TMP', tmp_conv(self.tmps[i])) for i in range(len(self.tmps))]
+
+    def to_grids(self, month:int) -> grid.Grids:
+        _llbc = self.llbc()
+        _r = grid.Grids(*_llbc, self.tmps[month-1])
+        return _r
 
 
 def tmp_conv(tmp:float) -> float:
