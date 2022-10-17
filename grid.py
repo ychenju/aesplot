@@ -96,6 +96,22 @@ class Grids:
         '''
         '''
 
+    def map(self, target:object) -> object:
+        _d = np.zeros(list(target.lat.shape)+list(self.lat.shape))
+        _md = np.zeros(list(target.lat.shape)+[2], dtype=np.int16)
+        for i in range(target.lat.shape[0]):
+            for j in range(target.lat.shape[1]):
+                _d[i,j,:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                _md[i,j] = (np.array([np.argmin(_d[i,j])//target.lat.shape[1], np.argmin(_d[i,j])%target.lat.shape[1]]))
+        _r = Grids(target.lat, target.long)
+        if isinstance(self._data, np.ndarray):
+            _r[0] = np.zeros_like(self.data)
+            _r[0][:,:] = self.data[_md[:,:,0],_md[:,:,1]]
+        for kw in self.kwargs:
+            _r[kw] = np.zeros_like(self[kw])
+            _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
+        return _r
+
     def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):
             if overw:
@@ -135,6 +151,7 @@ class Grid:
 class filein(Grids):
 
     def __init__(self, path:str) -> None:
+
         paths = os.listdir(path)
         self.lat = aux.cp2d(app.csv(path+r'\LAT.csv', header=None)())
         self.long = aux.cp2d(app.csv(path+r'\LONG.csv', header=None)())
