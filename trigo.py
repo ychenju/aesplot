@@ -150,3 +150,21 @@ class tri:
 
     def __str__(self) -> str:
         return f's1:\t{self.s1}\n' + f's2:\t{self.s2}\n' + f's3:\t{self.s3}\n' + f'a12:\t{self.a12}\n' + f'a23:\t{self.a23}\n' + f'a13:\t{self.a13}\n'
+
+def nmtokm(value:float) -> float:
+    return 10000./5400.*value
+
+def kmtonm(value:float) -> float:
+    return 5400./10000.*value
+
+def lattokm(value:float) -> float:
+    return 60.*nmtokm(value)
+
+def kmtolat(value:float) -> float:
+    return kmtonm(value)/60.
+
+def longtokm(long:float, lat:float) -> float:
+    return lattokm(long)*cosd(lat)
+
+def kmtolong(km:float, lat:float) -> float:
+    return kmtolat(km)/cosd(lat)

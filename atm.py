@@ -17,6 +17,12 @@ def mps_to_beaufort(windspeed:float) -> int:
             return i
     return 18
 
+# solar elevation angle
+# sin h = sin φ sin δ + cos φ cos δ cos t
+# h: SEA
+# φ: latitude
+# δ: declination
+# t: time angle
 def sea(lat:float, long:float, date:Union[str, ascl.dt]) -> float:
     return tr.arcsind(tr.sind(lat)*tr.sind(declination(date)) + tr.cosd(lat)*tr.cosd(declination(date))*tr.cosd(timeangle(date, long)))
 

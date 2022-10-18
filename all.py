@@ -1,6 +1,12 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import pandas as pd
+import xarray as xr
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
 from .rst import *
 
 from .ascl import *
@@ -8,11 +14,11 @@ from .atm import *
 from .basemap import *
 from .cnnc import *
 from .gc import *
+from .grid import *
 from .fig import *
 from .filter import *
 from .img import *
 from .prep import *
-
 from .stat import *
 from .tc import *
 from .toolkit import *
@@ -33,6 +39,7 @@ from .wrfp import *
 #   fig         0.1.0   figure objects
 #   filter      0.3.0   filter objects
 #   gc          0.4.7   GeosChem functions
+#   grid        0.5.26  grid-like data processing
 #   img         0.1.0   main part (imported with the package)
 #   prep        0.2.1   data preprocessing
 #   rst         0.5.21  raster processing
@@ -41,6 +48,6 @@ from .wrfp import *
 #   tc          0.2.0   tropical cyclone track processing module
 #   templates   0.4.12  templates
 #   toolkit     0.2.0   useful tool functions for programming (FOR EXTERNAL USAGE)
-#   trigo       0.5.6   trigometry module
+#   trigo       0.5.6   trigometry and geometrics module
 #   ts          0.4.5   time series module
 #   wrfp        0.3.0   WRFout processing module

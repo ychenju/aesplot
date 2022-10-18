@@ -7,6 +7,7 @@ import numpy as np
 from . import auxf as aux
 from . import prep as app
 from . import toolkit as tk
+from . import trigo as atri
 from typing import Union, Tuple
 from tqdm import tqdm
 
@@ -93,6 +94,10 @@ class Grids:
     def step(self) -> Tuple[float]:
         return np.mean(self.lat[1:,0]-self.lat[:-1,0]), np.mean(self.long[0,1:]-self.long[0,:-1])
 
+    @property
+    def resy(self) -> float:
+        return atri.lattokm(np.mean(self.lat[1:,0]-self.lat[:-1,0]))
+
     def cast(self, target:object) -> object:
         '''
         '''
@@ -101,16 +106,16 @@ class Grids:
         '''
         '''
 
-    def map(self, target:object, verbose:bool=False) -> object:
-        _d = np.zeros(list(target.lat.shape)+list(self.lat.shape))
+    def map(self, target:object, verbose:bool=True, dtype=np.float32) -> object:
         _md = np.zeros(list(target.lat.shape)+[2], dtype=np.int16)
         if verbose:
             try:
-                with tqdm(range(target.lat.shape[0]), desc='grid.Grid.map()') as _tqdm:
+                with tqdm(range(target.lat.shape[0]), desc='grid.Grids.map()') as _tqdm:
                     for i in _tqdm:
                         for j in range(target.lat.shape[1]):
-                            _d[i,j,:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
-                            _md[i,j] = (np.array([np.argmin(_d[i,j])//target.lat.shape[1], np.argmin(_d[i,j])%target.lat.shape[1]]))
+                            _d = np.zeros(self.lat.shape)
+                            _d[:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                            _md[i,j] = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
             except KeyboardInterrupt:
                 _tqdm.close()
                 raise
@@ -118,14 +123,15 @@ class Grids:
         else:
             for i in range(target.lat.shape[0]):
                 for j in range(target.lat.shape[1]):
-                    _d[i,j,:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
-                    _md[i,j] = (np.array([np.argmin(_d[i,j])//target.lat.shape[1], np.argmin(_d[i,j])%target.lat.shape[1]]))
+                    _d = np.zeros(self.lat.shape)
+                    _d[:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                    _md[i,j] = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
         _r = Grids(target.lat, target.long)
         if isinstance(self._data, np.ndarray):
-            _r[0] = np.zeros_like(self.data)
-            _r[0][:,:] = self.data[_md[:,:,0],_md[:,:,1]]
+            _r._data = np.zeros(target.lat.shape)
+            _r._data[:,:] = self._data[_md[:,:,0],_md[:,:,1]]
         for kw in self.kwargs:
-            _r[kw] = np.zeros_like(self[kw])
+            _r[kw] = np.zeros(self[kw].shape)
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
 
@@ -172,6 +178,45 @@ class Grids:
             _r._data = self._data[indices]
         for kw in self.kwargs:
             _r.kwargs[kw] = self.kwargs[kw][indices]
+        return _r
+    
+    def lowres3(self, verbose:bool=False):
+        indices = (slice(None,self.lat.shape[0]//3*3), slice(None,self.lat.shape[1]//3*3))
+        _r = Grids(self.lat[indices], self.long[indices])
+        if isinstance(self._data, np.ndarray):
+            _r._data = self._data[indices]
+        for kw in self.kwargs:
+            _r.kwargs[kw] = self.kwargs[kw][indices]
+        if verbose:
+            try:
+                with tqdm(range(1,_r.lat.shape[0], 3), desc='grid.Grids.lowres3()') as _tqdm:
+                    for i in _tqdm:
+                        for j in range(1, _r.lat.shape[1], 3):
+                            _r.lat[i,j] = np.nanmean(_r.lat[i-1:i+2,j-1:j+2])
+                            _r.long[i,j] = np.nanmean(_r.long[i-1:i+2,j-1:j+2])
+                            if isinstance(_r._data, np.ndarray):
+                                _r._data[i,j] = np.nanmean(_r._data[i-1:i+2,j-1:j+2])
+                            for kw in self.kwargs:
+                                _r.kwargs[kw][i,j] = np.nanmean(_r.kwargs[kw][i-1:i+2,j-1:j+2])
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for i in range(1,_r.lat.shape[0], 3):
+                for j in range(1, _r.lat.shape[1], 3):
+                    _r.lat[i,j] = np.nanmean(_r.lat[i-1:i+2,j-1:j+2])
+                    _r.long[i,j] = np.nanmean(_r.long[i-1:i+2,j-1:j+2])
+                    if isinstance(_r._data, np.ndarray):
+                        _r._data[i,j] = np.nanmean(_r._data[i-1:i+2,j-1:j+2])
+                    for kw in self.kwargs:
+                        _r.kwargs[kw][i,j] = np.nanmean(_r.kwargs[kw][i-1:i+2,j-1:j+2])
+        _r.lat = _r.lat[1::3,1::3]
+        _r.long = _r.long[1::3,1::3]
+        if isinstance(self._data, np.ndarray):
+            _r._data = self._data[1::3,1::3]
+        for kw in self.kwargs:
+            _r.kwargs[kw] = self.kwargs[kw][1::3,1::3]
         return _r
 
     def fileout(self, path:str, overw:bool=False) -> None:
