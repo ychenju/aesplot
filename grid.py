@@ -89,6 +89,10 @@ class Grids:
             yb = (self[y-1,x].lat + self[y,x].lat)/2, (3*self[y,x].lat - self[y-1,x].lat)/2
         return yb, xb
 
+    @property
+    def step(self) -> Tuple[float]:
+        return np.mean(self.lat[1:,0]-self.lat[:-1,0]), np.mean(self.long[0,1:]-self.long[0,:-1])
+
     def cast(self, target:object) -> object:
         '''
         '''
@@ -125,11 +129,50 @@ class Grids:
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
 
-    def restrict(self, x=[-1,-1], y=[-1,-1], buffer=0):
-        '''
-        '''
-
-
+    def restrict(self, lat:list, long:list, buffer:float=0):
+        ddlat = (self.lat[1,0]-self.lat[0,0])/np.abs(self.lat[1,0]-self.lat[0,0])
+        ddlong = (self.long[0,1]-self.long[0,0])/np.abs(self.long[0,1]-self.long[0,0])
+        latis = [0,self.lat.shape[0]]
+        longis = [0,self.long.shape[1]]
+        if ddlat > 0:
+            if self.lat[-1,0] < lat[0]-buffer or self.lat[0,0] > lat[1]+buffer:
+                    raise RuntimeError('grid.Girds.restrict(): No Data in the area given')
+            for i in range(self.lat.shape[0]-1):
+                if self.lat[i,0] < lat[0]-buffer and self.lat[i+1,0] >= lat[0]-buffer:
+                    latis[0] = i+1
+                if self.lat[self.lat.shape[0]-i-1,0] > lat[1]+buffer and self.lat[self.lat.shape[0]-i-2,0] <= lat[1]+buffer:
+                    latis[1] = self.lat.shape[0]-i-1
+        elif ddlat < 0:
+            if self.lat[0,0] < lat[0]-buffer or self.lat[-1,0] > lat[1]+buffer:
+                    raise RuntimeError('grid.Girds.restrict(): No Data in the area given')
+            for i in range(self.lat.shape[0]-1):
+                if self.lat[i,0] > lat[1]+buffer and self.lat[i+1,0] <= lat[1]+buffer:
+                    latis[0] = i+1
+                if self.lat[self.lat.shape[0]-i-1,0] < lat[0]-buffer and self.lat[self.lat.shape[0]-i-2,0] >= lat[0]-buffer:
+                    latis[1] = self.lat.shape[0]-i-1
+        if ddlong > 0:
+            if self.long[0,-1] < long[0]-buffer or self.long[0,0] > long[1]+buffer:
+                    raise RuntimeError('grid.Girds.restrict(): No Data in the area given')
+            for i in range(self.long.shape[1]-1):
+                if self.long[0,i] < long[0]-buffer and self.long[0,i+1] >= long[0]-buffer:
+                    longis[0] = i+1
+                if self.long[0,self.long.shape[1]-i-1] > long[1]+buffer and self.long[0,self.long.shape[1]-i-2] <= long[1]+buffer:
+                    longis[1] = self.long.shape[1]-i-1
+        elif ddlong < 0:
+            if self.long[0,0] < long[0]-buffer or self.long[0,-1] > long[1]+buffer:
+                    raise RuntimeError('grid.Girds.restrict(): No Data in the area given')
+            for i in range(self.long.shape[-1]-1):
+                if self.long[0,i] > long[1]+buffer and self.long[0,i+1] <= long[1]+buffer:
+                    longis[0] = i+1
+                if self.long[0,self.long.shape[1]-i-1] < long[0]-buffer and self.long[0,self.long.shape[1]-i-2] >= long[0]-buffer:
+                    longis[1] = self.long.shape[1]-i-1
+        indices = (slice(*latis), slice(*longis))
+        _r = Grids(self.lat[indices], self.long[indices])
+        if isinstance(self._data, np.ndarray):
+            _r._data = self._data[indices]
+        for kw in self.kwargs:
+            _r.kwargs[kw] = self.kwargs[kw][indices]
+        return _r
 
     def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):

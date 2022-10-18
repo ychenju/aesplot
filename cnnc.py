@@ -60,14 +60,13 @@ class month_mean_temp(CNnc):
 
     def to_grids(self, month:int) -> grid.Grids:
         _llbc = self.llbc()
-        _r = grid.Grids(*_llbc, self.tmps[month-1])
+        _r = grid.Grids(*_llbc, tmp_conv(self.tmps[month-1]))
         return _r
 
 
 def tmp_conv(tmp:float) -> float:
     return tmp/10.+273.15
 
-# lat-lon broadcasting
 def llbc(data:CNnc, verbose:bool=False) -> Tuple[np.ndarray]:
     xlong = np.zeros((data.lat.shape[0], data.lon.shape[0]))
     xlat = np.zeros((data.lat.shape[0], data.lon.shape[0]))
