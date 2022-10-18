@@ -4,6 +4,7 @@
 import numpy as np
 from . import ascl
 from typing import Sequence, Union, Callable
+from tqdm import tqdm
 
 SERIES_DEFAULT_ATTRS = {
     'ref': ascl.dt.udf
@@ -145,7 +146,6 @@ class series:
                 break
             end_i = i + 1
         return [self.time[start_i:end_i], self.data[start_i:end_i]]
-
     def sub(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], **kwargs):
         _r = self.period(start, end)
         return series(time=_r[0], data=_r[1], **kwargs)
@@ -153,57 +153,57 @@ class series:
     def split(self, n:int) -> list:
         return [series(time=self.time[i::n], data=self.data[i::n]) for i in range(n)]
 
-    def iterate(self, f:Callable=lambda x: x) -> list:
-        _r = [f(d) for d in self.data]
+    def iterate(self, f:Callable=lambda x: x, verbose:bool=False) -> list:
+        _r = [f(d) for d in self.data] if not verbose else [f(d) for d in tqdm(self.data, desc='tc.series.iterate()')]
         return _r
 
-    def iter(self, f:Callable=lambda x: x) -> list:
-        _r = [f(d) for d in self.data]
+    def iter(self, f:Callable=lambda x: x, verbose:bool=False) -> list:
+        _r = [f(d) for d in self.data] if not verbose else [f(d) for d in tqdm(self.data, desc='tc.series.iter()')]
         return _r
 
-    def operation(self, f:Callable=lambda x: x):
-        _r = [f(d) for d in self.data]
+    def operation(self, f:Callable=lambda x: x, verbose:bool=False):
+        _r = [f(d) for d in self.data] if not verbose else [f(d) for d in tqdm(self.data, desc='tc.series.operation()')]
         return series(time=self.time, data=_r)
 
-    def opera(self, f:Callable=lambda x: x):
-        _r = [f(d) for d in self.data]
+    def opera(self, f:Callable=lambda x: x, verbose:bool=False):
+        _r = [f(d) for d in self.data] if not verbose else [f(d) for d in tqdm(self.data, desc='tc.series.opera()')]
         return series(time=self.time, data=_r)
 
-    def sum(self, f:Callable=lambda x: x) -> float:
-        _r = np.array([f(d) for d in self.data])
+    def sum(self, f:Callable=lambda x: x, verbose:bool=False) -> float:
+        _r = np.array([f(d) for d in self.data]) if not verbose else np.array([f(d) for d in tqdm(self.data, desc='tc.series.sum()')])
         return np.sum(_r)
 
-    def mean(self, f:Callable=lambda x: x) -> float:
-        _r = np.array([f(d) for d in self.data])
+    def mean(self, f:Callable=lambda x: x, verbose:bool=False) -> float:
+        _r = np.array([f(d) for d in self.data]) if not verbose else np.array([f(d) for d in tqdm(self.data, desc='tc.series.mean()')])
         return np.mean(_r)
 
-    def nanmean(self, f:Callable=lambda x: x) -> float:
-        _r = np.array([f(d) for d in self.data])
+    def nanmean(self, f:Callable=lambda x: x, verbose:bool=False) -> float:
+        _r = np.array([f(d) for d in self.data]) if not verbose else np.array([f(d) for d in tqdm(self.data, desc='tc.series.nanmean()')])
         return np.nanmean(_r)
 
-    def subiterate(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> list:
+    def subiterate(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x, verbose:bool=False) -> list:
         _s = self.sub(start, end)
-        _r = np.array([f(d) for d in _s.data])
+        _r = np.array([f(d) for d in _s.data]) if not verbose else np.array([f(d) for d in tqdm(_s.data, desc='tc.series.subiterate()')])
         return _r
 
-    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x):
+    def suboperation(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x, verbose:bool=False):
         _s = self.sub(start, end)
-        _r = np.array([f(d) for d in _s.data])
+        _r = np.array([f(d) for d in _s.data]) if not verbose else np.array([f(d) for d in tqdm(_s.data, desc='tc.series.suboperation()')])
         return series(time=_s.time, data=_r)
 
-    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
+    def subsum(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x, verbose:bool=False) -> float:
         _s = self.sub(start, end)
-        _r = np.array([f(d) for d in _s.data])
+        _r = np.array([f(d) for d in _s.data]) if not verbose else np.array([f(d) for d in tqdm(_s.data, desc='tc.series.subsum()')])
         return np.sum(_r)
 
-    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
+    def submean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x, verbose:bool=False) -> float:
         _s = self.sub(start, end)
-        _r = np.array([f(d) for d in _s.data])
+        _r = np.array([f(d) for d in _s.data]) if not verbose else np.array([f(d) for d in tqdm(_s.data, desc='tc.series.submean()')])
         return np.mean(_r)
 
-    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x) -> float:
+    def subnanmean(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], f:Callable=lambda x: x, verbose:bool=False) -> float:
         _s = self.sub(start, end)
-        _r = np.array([f(d) for d in _s.data])
+        _r = np.array([f(d) for d in _s.data]) if not verbose else np.array([f(d) for d in tqdm(_s.data, desc='tc.series.subnanmean()')])
         return np.nanmean(_r)
 
 class val(series):
@@ -284,18 +284,18 @@ class gis(series):
         _r = self.period(start, end)
         return gis(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
 
-    def meanfield(self, f:Callable=lambda x: x, pack:bool=False) -> Union[Sequence[np.ndarray], np.ndarray]:
-        _r = np.nanmean(np.array(self.iterate(f)), axis=0)
+    def meanfield(self, f:Callable=lambda x: x, pack:bool=False, verbose:bool=False) -> Union[Sequence[np.ndarray], np.ndarray]:
+        _r = np.nanmean(np.array(self.iterate(f, verbose=verbose)), axis=0)
         return [self.long, self.lat, _r] if pack else _r
 
 class wpframe(gis):
 
-    def meanfield(self, var:str, pack:bool=False) -> Union[Sequence[np.ndarray], np.ndarray]:
-        _r = np.nanmean(np.array([d[var] for d in self.data]), axis=0)
+    def meanfield(self, var:str, pack:bool=False, verbose:bool=False) -> Union[Sequence[np.ndarray], np.ndarray]:
+        _r = np.nanmean(np.array([d[var] for d in self.data]), axis=0) if not verbose else np.nanmean(np.array([d[var] for d in tqdm(self.data, desc='ts.wpframe.meanfield()')]), axis=0)
         return [self.long, self.lat, _r] if pack else _r
 
-    def subvar(self, var:str, **kwargs) -> array2:
-        _r = [d[var] for d in self.data]
+    def subvar(self, var:str, verbose:bool=False, **kwargs) -> array2:
+        _r = [d[var] for d in self.data] if not verbose else [d[var] for d in tqdm(self.data, desc='ts.wpframe.subvar()')]
         return array2(time=self.time, data=_r, **kwargs)
 
     def subwpf(self, start:Union[str, ascl.dt], end:Union[str, ascl.dt, int, float], **kwargs) -> series:
@@ -303,7 +303,7 @@ class wpframe(gis):
         return wpframe(time=_r[0], data=_r[1], lat=self.lat, long=self.long, **kwargs)
 
     def sum(self, var:str) -> np.ndarray:
-        return np.sum(np.array([d[var] for d in self.data]), axis=0)
+        return np.sum(np.array([d[var] for d in self.data]), axis=0) 
 
     def mean(self, var:str) -> np.ndarray:
         return np.mean(np.array([d[var] for d in self.data]), axis=0)

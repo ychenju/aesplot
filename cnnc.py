@@ -6,6 +6,7 @@ import xarray as xr
 from . import wrfp as wp
 from . import grid
 from typing import Tuple
+from tqdm import tqdm
 
 class CNnc:
     
@@ -17,13 +18,25 @@ class CNnc:
     def __getitem__(self, key:str) -> np.ndarray:
         return np.array(self.ncfile[key])
 
-    def llbc(self) -> Tuple[np.ndarray]:
+    def llbc(self, verbose:bool=False) -> Tuple[np.ndarray]:
         xlong = np.zeros((self.lat.shape[0], self.lon.shape[0]))
         xlat = np.zeros((self.lat.shape[0], self.lon.shape[0]))
-        for j, y in enumerate(self.lat):
-            for i, x in enumerate(self.lon):
-                xlat[j][i] = y
-                xlong[j][i] = x
+        if verbose:
+            try:
+                with tqdm(enumerate(self.lat), desc='cnnc.CNnc.llbc():') as _tqdm:
+                    for j, y in _tqdm:
+                        for i, x in enumerate(self.lon):
+                            xlat[j][i] = y
+                            xlong[j][i] = x
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for j, y in enumerate(self.lat):
+                for i, x in enumerate(self.lon):
+                    xlat[j][i] = y
+                    xlong[j][i] = x
         return xlat, xlong
 
 class month_mean_temp(CNnc):
@@ -54,13 +67,24 @@ class month_mean_temp(CNnc):
 def tmp_conv(tmp:float) -> float:
     return tmp/10.+273.15
 
-def llbc(data:CNnc) -> Tuple[np.ndarray]:
-    lon = np.array(data['lon'])
-    lat = np.array(data['lat'])
-    xlong = np.zeros((lat.shape[0], lon.shape[0]))
-    xlat = np.zeros((lat.shape[0], lon.shape[0]))
-    for i, x in enumerate(lat):
-        for j, y in enumerate(lon):
-            xlat[i][j] = x
-            xlong[i][j] = y
+# lat-lon broadcasting
+def llbc(data:CNnc, verbose:bool=False) -> Tuple[np.ndarray]:
+    xlong = np.zeros((data.lat.shape[0], data.lon.shape[0]))
+    xlat = np.zeros((data.lat.shape[0], data.lon.shape[0]))
+    if verbose:
+        try:
+            with tqdm(enumerate(data.lat), desc='cnnc.llbc():') as _tqdm:
+                for j, y in _tqdm:
+                    for i, x in enumerate(data.lon):
+                        xlat[j][i] = y
+                        xlong[j][i] = x
+        except KeyboardInterrupt:
+            _tqdm.close()
+            raise
+        _tqdm.close()
+    else:
+        for j, y in enumerate(data.lat):
+            for i, x in enumerate(data.lon):
+                xlat[j][i] = y
+                xlong[j][i] = x
     return xlat, xlong

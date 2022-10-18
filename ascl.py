@@ -89,7 +89,7 @@ class gc:
                             return -10
         else:
             return 0
-    
+
     @staticmethod
     def toyd(year:int, month:int, day:int) -> YearD:
         return gc.toyd_normal(year, month, day)[0], gc.toyd_normal(year, month, day)[1] + gc.dfix(year, month, day)
@@ -340,7 +340,7 @@ class dt:
 
     def __sub__(self, other:Union[int, float, object]) -> Union[int, float, object]:
         if isinstance(other, int) or isinstance(other, float):
-            return self.__add__(-other, tz=self._tz)
+            return self.__add__(-other)
         else:
             if self._date and self._time:
                 return gc.leap(*self.date, *other.date) + tm.leap(*self.utc, *other.utc)/86400.

@@ -16,6 +16,7 @@ from . import toolkit as tk
 from . import ascl
 from . import ts as apts
 from typing import Sequence, Tuple, Union
+from tqdm import tqdm
 
 class wrfout:
 
@@ -38,6 +39,7 @@ FRAME_DEFAULT_FLAGS = {
 }
 
 class frame:
+
     lat = None
     long = None
     time = None
@@ -207,19 +209,34 @@ class frame:
         r[:,:] = self[key][x-1:x+2,y-1:y+2]
         return r
 
-    def mean3x3(self):
+    def mean3x3(self, verbose:bool=False):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             if aux.is2d(self[key]):
                 d = np.zeros(self[key].shape)
                 d[:,:] = self[key][:,:]
-                for i in range(1, d.shape[0]-1):
-                    for j in range(1, d.shape[1]-1):
-                        g = self[key][i-1:i+2,j-1:j+2]
-                        if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
-                            d[i,j] = np.nanmean(g)
-                        else:
-                            d[i,j] = np.nan
+                if verbose:
+                    try:
+                        with tqdm(range(1, d.shape[0]-1), desc='wrfp.frame.mean3x3()') as _tqdm:
+                            for i in _tqdm:
+                                for j in range(1, d.shape[1]-1):
+                                    g = self[key][i-1:i+2,j-1:j+2]
+                                    if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                                        d[i,j] = np.nanmean(g)
+                                    else:
+                                        d[i,j] = np.nan
+                    except KeyboardInterrupt:
+                        _tqdm.close()
+                        raise
+                    _tqdm.close()
+                else:
+                    for i in range(1, d.shape[0]-1):
+                        for j in range(1, d.shape[1]-1):
+                            g = self[key][i-1:i+2,j-1:j+2]
+                            if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                                d[i,j] = np.nanmean(g)
+                            else:
+                                d[i,j] = np.nan
                 r[key] = d
         for flag in self._flag.keys():
             r._flag[flag] = self._flag[flag]
@@ -231,19 +248,34 @@ class frame:
         r[:,:] = self[key][x-res//2:x+res//2+1,y-res//2:y+res//2+1]
         return r
 
-    def meannxn(self, res:int):
+    def meannxn(self, res:int, verbose:bool=False):
         r = voidFrame(self.lat, self.long, self.time)
         for key in self.getall().keys():
             if aux.is2d(self[key]):
                 d = np.zeros(self[key].shape)
                 d[:,:] = self[key][:,:]
-                for i in range(res//2, d.shape[0]-res//2):
-                    for j in range(res//2, d.shape[1]-res//2):
-                        g = self[key][i-res//2:i+res//2+1,j-res//2:j+res//2+1]
-                        if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
-                            d[i,j] = np.nanmean(g)
-                        else:
-                            d[i,j] = np.nan
+                if verbose:
+                    try:
+                        with tqdm(range(res//2, d.shape[0]-res//2), desc='wrfp.frame.meannxn()') as _tqdm:
+                            for i in _tqdm:
+                                for j in range(res//2, d.shape[1]-res//2):
+                                    g = self[key][i-res//2:i+res//2+1,j-res//2:j+res//2+1]
+                                    if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                                        d[i,j] = np.nanmean(g)
+                                    else:
+                                        d[i,j] = np.nan
+                    except KeyboardInterrupt:
+                        _tqdm.close()
+                        raise
+                    _tqdm.close()
+                else:
+                    for i in range(res//2, d.shape[0]-res//2):
+                        for j in range(res//2, d.shape[1]-res//2):
+                            g = self[key][i-res//2:i+res//2+1,j-res//2:j+res//2+1]
+                            if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                                d[i,j] = np.nanmean(g)
+                            else:
+                                d[i,j] = np.nan
                 r[key] = np.array(d)
         for flag in self._flag.keys():
             r._flag[flag] = self._flag[flag]
@@ -260,8 +292,8 @@ class frame:
         _r.label = self.label + f'CROP:{interv}__'
         return _r
 
-    def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1):
-        r = self.mean3x3()
+    def lowres3(self, fromx:int=1, tox:int=-1, fromy:int=1, toy:int=-1, verbose:bool=False):
+        r = self.mean3x3(verbose=verbose)
         r = r.crop(3, fromx=fromx, tox=tox, fromy=fromy, toy=toy)
         return r
 
@@ -280,16 +312,16 @@ class frame:
             r._flag[flag] = self._flag[flag]
         return r
 
-    def pseudo_lowres3(self):
-        _r = self.mean3x3()
+    def pseudo_lowres3(self, verbose:bool=False):
+        _r = self.mean3x3(verbose=verbose)
         _r = _r.tail(all=1)
         _r._flag['RES'] = 3
         return _r
 
-    def pseudo_lowres(self, res:int=3):
+    def pseudo_lowres(self, res:int=3, verbose:bool=False):
         if not res % 2:
             raise RuntimeError('\'res\' should be a single number!')
-        _r = self.meannxn(res)
+        _r = self.meannxn(res, verbose=verbose)
         _r = _r.tail(all=res//2)
         _r._flag['RES'] = res
         return _r
@@ -345,23 +377,43 @@ class frame:
         r.label = self.label + f'CUT:X[{fx}:{tx}]Y[{fy}:{ty}]__'
         return r
     
-    def cutup(self, interv:int) -> list: 
+    def cutup(self, interv:int, verbose:bool=False) -> list: 
         coorlist = []
         for i in range(self.lat.shape[0]//interv):
             for j in range(self.long.shape[1]//interv):
                 coorlist.append((i*interv, j*interv))
         r = []
-        for coor in coorlist:
-            r.append(self.cut(interv, coor[1], coor[0]))
+        if verbose:
+            try:
+                with tqdm(coorlist, desc='wrfp.frame.cutup()') as _tqdm:
+                    for coor in _tqdm:
+                        r.append(self.cut(interv, coor[1], coor[0]))
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for coor in coorlist:
+                r.append(self.cut(interv, coor[1], coor[0]))
         return r
 
-    def cut3nup(self) -> list:
+    def cut3nup(self, verbose:bool=False) -> list:
         ilist = []
         while 3**(len(ilist)+1) < np.min(self.lat.shape) and 3**(len(ilist)+1) < np.min(self.long.shape):
             ilist.append(3**(len(ilist)+1))
         r = []
-        for interv in ilist:
-            r.append(self.cutup(interv))
+        if verbose:
+            try:
+                with tqdm(ilist, desc='wrfp.frame.cut3nup()') as _tqdm:
+                    for interv in _tqdm:
+                        r.append(self.cutup(interv))
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for interv in ilist:
+                r.append(self.cutup(interv))
         return r
 
     @property

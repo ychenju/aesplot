@@ -6,6 +6,7 @@ import osgeo.gdal as gdal
 import numpy as np
 from typing import Tuple
 from . import grid as apg
+from tqdm import tqdm
 
 def gettifs(path:str) -> list:
     paths = os.listdir(path)
@@ -105,13 +106,25 @@ class raster:
     def lat(self) -> np.ndarray:
         return np.array([self.tolat(x) for x in range(self.rows)])
 
-    def llbc(self, inv:bool=False) -> Tuple[np.ndarray]:
+    def llbc(self, inv:bool=False, verbose:bool=False) -> Tuple[np.ndarray]:
         xlong = np.zeros((self.lat.shape[0], self.long.shape[0]))
         xlat = np.zeros((self.lat.shape[0], self.long.shape[0]))
-        for i, y in enumerate(self.lat):
-            for j, x in enumerate(self.long):
-                xlat[i][j] = y
-                xlong[i][j] = x
+        if verbose:
+            try:
+                with tqdm(enumerate(self.lat), desc='rst.raster.llbc():') as _tqdm:
+                    for i, y in _tqdm:
+                        for j, x in enumerate(self.long):
+                            xlat[i][j] = y
+                            xlong[i][j] = x
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for i, y in enumerate(self.lat):
+                for j, x in enumerate(self.long):
+                    xlat[i][j] = y
+                    xlong[i][j] = x
         self.lls = (xlat, xlong)
         if inv:
             return xlong, xlat

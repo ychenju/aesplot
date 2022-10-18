@@ -17,29 +17,29 @@ class perfcounter(Time):
     def reset(self) -> None:
         self.start_time = time.perf_counter()
 
-    def s(self) -> None:
+    def s(self, label='Time') -> None:
         self.end_time = time.perf_counter()
-        print(f'Time:\t{self.end_time - self.start_time} s')
+        print(f'{label}:\t{self.end_time - self.start_time} s')
 
-    def ms(self) -> None:
+    def ms(self, label='Time') -> None:
         self.end_time = time.perf_counter()
-        print(f'Time:\t{(self.end_time - self.start_time)*1000.} ms')
+        print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
 
-    def min(self) -> None:
+    def min(self, label='Time') -> None:
         self.end_time = time.perf_counter()
-        print(f'Time:\t{(self.end_time - self.start_time)/60.} min')
+        print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
 
-    def mins(self) -> None:
+    def mins(self, label='Time') -> None:
         self.end_time = time.perf_counter()
-        print(f'Time:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
+        print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
 
-    def h(self) -> None:
+    def h(self, label='Time') -> None:
         self.end_time = time.perf_counter()
-        print(f'Time:\t{(self.end_time - self.start_time)/3600.} h')
+        print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
 
-    def hms(self) -> None:
+    def hms(self, label='Time') -> None:
         self.end_time = time.perf_counter()
-        print(f'Time:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
+        print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
 
 def fileout(path:str, mode:str, *content:Tuple[str]) -> None:
     with open(path, mode) as theF:

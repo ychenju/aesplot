@@ -8,9 +8,8 @@ from . import auxf as aux
 from . import prep as app
 from . import toolkit as tk
 from typing import Union, Tuple
+from tqdm import tqdm
 
-
-# 以下是第一种思路尝试，使用类封装类Grids对象，所有复制元素都直接传指针而不是cp2d深拷贝  
 class Grids:
     
     def __init__(self, *args, **kwargs) -> None:
@@ -98,13 +97,25 @@ class Grids:
         '''
         '''
 
-    def map(self, target:object) -> object:
+    def map(self, target:object, verbose:bool=False) -> object:
         _d = np.zeros(list(target.lat.shape)+list(self.lat.shape))
         _md = np.zeros(list(target.lat.shape)+[2], dtype=np.int16)
-        for i in range(target.lat.shape[0]):
-            for j in range(target.lat.shape[1]):
-                _d[i,j,:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
-                _md[i,j] = (np.array([np.argmin(_d[i,j])//target.lat.shape[1], np.argmin(_d[i,j])%target.lat.shape[1]]))
+        if verbose:
+            try:
+                with tqdm(range(target.lat.shape[0]), desc='grid.Grid.map()') as _tqdm:
+                    for i in _tqdm:
+                        for j in range(target.lat.shape[1]):
+                            _d[i,j,:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                            _md[i,j] = (np.array([np.argmin(_d[i,j])//target.lat.shape[1], np.argmin(_d[i,j])%target.lat.shape[1]]))
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for i in range(target.lat.shape[0]):
+                for j in range(target.lat.shape[1]):
+                    _d[i,j,:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                    _md[i,j] = (np.array([np.argmin(_d[i,j])//target.lat.shape[1], np.argmin(_d[i,j])%target.lat.shape[1]]))
         _r = Grids(target.lat, target.long)
         if isinstance(self._data, np.ndarray):
             _r[0] = np.zeros_like(self.data)
@@ -113,6 +124,12 @@ class Grids:
             _r[kw] = np.zeros_like(self[kw])
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
+
+    def restrict(self, x=[-1,-1], y=[-1,-1], buffer=0):
+        '''
+        '''
+
+
 
     def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):
