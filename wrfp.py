@@ -442,6 +442,17 @@ class frame:
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
         tk.tocsv([[key, self._flag[key]] for key in self._flag.keys()], path+f'\\FLAG.csv', **kwargs)
 
+    def plmatch(self, res:int, y:int, x:int):
+        indices = (slice(y,y+res),slice(x,x+res))
+        r = voidFrame(lat=self.lat[indices], long=self.long[indices], time=self.time)
+        for key in self.getall().keys():
+            if aux.is2d(self[key]):
+                r[key] = self[key][indices]
+        for flag in self._flag.keys():
+            r._flag[flag] = self._flag[flag]
+        r.label = self.label + f'PLMATCH{res}__'
+        return r
+
 class voidFrame(frame):
     def __init__(self, lat:np.ndarray, long:np.ndarray, time) -> None:
         self.lat = aux.cp2d(lat)
