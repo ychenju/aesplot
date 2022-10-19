@@ -40,6 +40,15 @@ class Grids:
         return self._data
 
     def __getitem__(self, index:Union[str, Tuple[int, str, slice]]) -> Union[object, np.ndarray]:
+        '''
+        <del>索引为整数时，返回args中的数据。</del>索引为字符串时，返回kwargs中的数据。  
+        <del>多个索引时，返回多个数据</del>  
+        两个索引时，应该返回[y,x]坐标点的数据
+
+        【更新】
+        不再接受单个整数作为索引
+        索引为纯整数Tuple时，返回[y,x]坐标点的数据对应的Grid，索引中有切片对象时，返回子Grids
+        '''
         try:
             if isinstance(index, str):
                 return self.kwargs[index]
@@ -240,7 +249,6 @@ class Grids:
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
-
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
@@ -307,4 +315,4 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
                     d[i,j] = np.nanmean(g)
                 else:
                     d[i,j] = np.nan
-    return d[res//2:-res//2,res//2:-res//2]
+    return d[res//2:-(res//2),res//2:-(res//2)]
