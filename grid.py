@@ -5,6 +5,7 @@ import os
 import shutil
 import numpy as np
 from . import auxf as aux
+from . import filter as apfilter
 from . import prep as app
 from . import toolkit as tk
 from . import trigo as atri
@@ -219,6 +220,14 @@ class Grids:
             _r.kwargs[kw] = self.kwargs[kw][1::3,1::3]
         return _r
 
+    def pseudolowres(self, res:int):
+        _r = Grids(pseudo_lowres(self.lat, res), pseudo_lowres(self.long, res))
+        if isinstance(self._data, np.ndarray):
+            _r._data = pseudo_lowres(self._data, res)
+        for kw in self.kwargs:
+            _r.kwargs[kw] = pseudo_lowres(self.kwargs[kw], res)
+        return _r
+
     def fileout(self, path:str, overw:bool=False) -> None:
         if os.path.exists(path):
             if overw:
@@ -270,3 +279,32 @@ class filein(Grids):
         for p in paths:
             if p[:5] == 'DATA_':
                 self.kwargs[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
+
+def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
+    if res == 1:
+        return arr
+    d = np.zeros(arr.shape)
+    d[:,:] = arr[:,:]
+    if verbose:
+        try:
+            with tqdm(range(res//2, d.shape[0]-res//2), desc='grid.pseudo_lowres()') as _tqdm:
+                for i in _tqdm:
+                    for j in range(res//2, d.shape[1]-res//2):
+                        g = arr[i-res//2:i+res//2+1,j-res//2:j+res//2+1]
+                        if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                            d[i,j] = np.nanmean(g)
+                        else:
+                            d[i,j] = np.nan
+        except KeyboardInterrupt:
+            _tqdm.close()
+            raise
+        _tqdm.close()
+    else:
+        for i in range(res//2, d.shape[0]-res//2):
+            for j in range(res//2, d.shape[1]-res//2):
+                g = arr[i-res//2:i+res//2+1,j-res//2:j+res//2+1]
+                if np.mean(apfilter.map(apfilter.isnan, g)) < 0.5:
+                    d[i,j] = np.nanmean(g)
+                else:
+                    d[i,j] = np.nan
+    return d[res//2:-res//2,res//2:-res//2]

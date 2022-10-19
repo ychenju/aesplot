@@ -39,7 +39,6 @@ FRAME_DEFAULT_FLAGS = {
 }
 
 class frame:
-
     lat = None
     long = None
     time = None
@@ -514,7 +513,7 @@ class filein(frame):
         for p in paths:
             if p[:5] == 'DATA_':
                 self._data[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
-        self.to_flag(self._flag, aux.cp2d(app.csv(path+r'\FLAG.csv', header=None)()))
+        self.to_flag(self._flag, aux.cp2dlist(app.csv(path+r'\FLAG.csv', header=None)()))
 
     @classmethod
     def to_flag(self, _flag:dict, flaglist: np.ndarray) -> None:

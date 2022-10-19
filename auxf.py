@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
 from . import filter as apfilter
 from typing import Sequence, Tuple
 
@@ -20,6 +21,14 @@ def cp2d(attr:np.ndarray) -> np.ndarray:
     r = np.zeros(attr.shape)
     r[:,:] = attr[:,:]
     return r
+
+def cp2dlist(attr:np.ndarray) -> np.ndarray:
+    r = []
+    for i in range(attr.shape[0]):
+        r.append([])
+        for j in range(attr.shape[1]):
+            list.append(r[-1], attr[i,j])
+    return np.array(r)
 
 def isnantable(table:np.ndarray) -> bool:
     r = np.array(list(filter(apfilter.isnotnan, table.reshape(-1))))
