@@ -1,6 +1,8 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import re
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -67,3 +69,25 @@ def tocsv(table:np.ndarray, path:str, **kwargs) -> pd.DataFrame:
     _df = pd.DataFrame(table)
     _df.to_csv(path, **kwargs)
     return _df
+
+def listdirfull(path: str) -> Sequence[str]:
+    paths = os.listdir(path)
+    return [f'{path}\\{p}' for p in paths]
+
+def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence[str]:
+    paths = os.listdir(path)
+    if in_os.lower() == 'windows':
+        rp = []
+        for p in paths:
+            if re.search(pattern, p, re.I):
+                rp.append(p)
+    elif in_os.lower() == 'linux':
+        rp = []
+        for p in paths:
+            if re.search(pattern, p):
+                rp.append(p)
+    if not full:
+        return rp
+    else:
+        rp2 = [f'{path}\\{p}' for p in rp]
+        return rp2
