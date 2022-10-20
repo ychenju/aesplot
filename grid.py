@@ -136,7 +136,7 @@ class Grids:
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
 
-    def maps(self, targets:Sequence(object), verbose:bool=True, dtype=np.float32) -> object:
+    def maps(self, targets:Sequence[object], verbose:bool=True, dtype=np.float32) -> object:
         '''
         '''
 
@@ -244,7 +244,6 @@ class Grids:
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
-
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
@@ -323,9 +322,6 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
     return d[res//2:-(res//2),res//2:-(res//2)]
 
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
-    '''
-    [FIXME]
-    '''
     if len(targets) == 1:
         return targets[0]
     _r = [GridsCopy(targets[0])]
@@ -335,9 +331,6 @@ def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: 
     return _r
 
 def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
-    '''
-    [XXX]
-    '''
     _o = GridsCopy(obj)
     _s = GridsCopy(subj)
     mapchart = np.zeros(list(subj.lat.shape)+[2])

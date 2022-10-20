@@ -23,8 +23,8 @@ class CNnc:
         xlat = np.zeros((self.lat.shape[0], self.lon.shape[0]))
         if verbose:
             try:
-                with tqdm(enumerate(self.lat), desc='cnnc.CNnc.llbc():') as _tqdm:
-                    for j, y in _tqdm:
+                with tqdm(self.lat, desc='cnnc.CNnc.llbc():') as _tqdm:
+                    for j, y in enumerate(_tqdm):
                         for i, x in enumerate(self.lon):
                             xlat[j][i] = y
                             xlong[j][i] = x
@@ -72,8 +72,8 @@ def llbc(data:CNnc, verbose:bool=False) -> Tuple[np.ndarray]:
     xlat = np.zeros((data.lat.shape[0], data.lon.shape[0]))
     if verbose:
         try:
-            with tqdm(enumerate(data.lat), desc='cnnc.llbc():') as _tqdm:
-                for j, y in _tqdm:
+            with tqdm(data.lat, desc='cnnc.llbc():') as _tqdm:
+                for j, y in enumerate(_tqdm):
                     for i, x in enumerate(data.lon):
                         xlat[j][i] = y
                         xlong[j][i] = x

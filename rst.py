@@ -106,13 +106,13 @@ class raster:
     def lat(self) -> np.ndarray:
         return np.array([self.tolat(x) for x in range(self.rows)])
 
-    def llbc(self, inv:bool=False, verbose:bool=False) -> Tuple[np.ndarray]:
-        xlong = np.zeros((self.lat.shape[0], self.long.shape[0]))
-        xlat = np.zeros((self.lat.shape[0], self.long.shape[0]))
+    def llbc(self, inv:bool=False, verbose:bool=False, dtype=np.float32) -> Tuple[np.ndarray]:
+        xlong = np.zeros((self.lat.shape[0], self.long.shape[0]), dtype=dtype)
+        xlat = np.zeros((self.lat.shape[0], self.long.shape[0]), dtype=dtype)
         if verbose:
             try:
-                with tqdm(enumerate(self.lat), desc='rst.raster.llbc():') as _tqdm:
-                    for i, y in _tqdm:
+                with tqdm(self.lat, desc='rst.raster.llbc():') as _tqdm:
+                    for i, y in enumerate(_tqdm):
                         for j, x in enumerate(self.long):
                             xlat[i][j] = y
                             xlong[i][j] = x
@@ -133,21 +133,21 @@ class raster:
     def __call__(self) -> float:
         return self.values
 
-def raster_to_grid(raster:raster, kind='effective', data='') -> apg.Grids:
+def raster_to_grid(raster:raster, kind='effective', data='', verbose:bool=False, dtype=np.float32) -> apg.Grids:
     if not data:
         if kind.lower() == 'effective':
-            return apg.Grids(*raster.llbc(), raster.effective)
+            return apg.Grids(*raster.llbc(verbose=verbose, dtype=dtype), raster.effective)
         elif kind.lower() == 'values':
-            return apg.Grids(*raster.llbc(), raster.values)
+            return apg.Grids(*raster.llbc(verbose=verbose, dtype=dtype), raster.values)
         elif kind.lower() == 'array':
-            return apg.Grids(*raster.llbc(), raster.array)
+            return apg.Grids(*raster.llbc(verbose=verbose, dtype=dtype), raster.array)
     else:
         if kind.lower() == 'effective':
             kwargs = {data: raster.effective}
-            return apg.Grids(*raster.llbc(), **kwargs)
+            return apg.Grids(*raster.llbc(verbose=verbose, dtype=dtype), **kwargs)
         elif kind.lower() == 'values':
             kwargs = {data: raster.values}
-            return apg.Grids(*raster.llbc(), **kwargs)
+            return apg.Grids(*raster.llbc(verbose=verbose, dtype=dtype), **kwargs)
         elif kind.lower() == 'array':
             kwargs = {data: raster.array}
-            return apg.Grids(*raster.llbc(), **kwargs)
+            return apg.Grids(*raster.llbc(verbose=verbose, dtype=dtype), **kwargs)
