@@ -29,6 +29,7 @@ class megan:
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+
     @staticmethod
     def emis(**kwargs):
         _r = 1.
@@ -209,6 +210,7 @@ class megan:
         else:
             return [GC_MEGAN_EM_FRAC[category][c-1] for c in efx]
 
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     @staticmethod
@@ -242,6 +244,8 @@ class megan:
 
     @staticmethod
     def get_gamma_a(cmlai:float, pmlai:float, dbtwn:float, tt:float, an:float, ag:float, am:float, ao:float) -> float:
+        if np.isnan(cmlai) or np.isnan(pmlai) or np.isnan(dbtwn) or np.isnan(tt):
+            return np.nan
         if tt <= 303.0 :
             ti = 5.0 + 0.7*(300.0 - tt)
         elif tt >  303.0:
@@ -272,6 +276,7 @@ class megan:
             _gamma_age = max(_gamma_age, 0.)
             return _gamma_age
 
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     @staticmethod
@@ -296,7 +301,9 @@ class megan:
             return np.array(_gt)
 
     @staticmethod
-    def get_gamma_sm(gwetroot:float, species:str) -> float:
+    def get_gamma_sm(gwetroot:float, species:str) -> float:        
+        if np.isnan(gwetroot):
+            return np.nan 
         _gamma_sm = 1.
         gwetroot = min(max(gwetroot,0.),1.)
         if species == 'ALD2' or species == 'EOH':
@@ -328,6 +335,8 @@ class megan:
 
     @staticmethod
     def get_gamma_lai(cmlai:float, bidirexch:bool) -> float:
+        if np.isnan(cmlai):
+            return np.nan 
         if  bidirexch:
             if  cmlai <= 6.:
                 if  cmlai <= 2.:
@@ -390,11 +399,17 @@ class megan:
 
     @staticmethod
     def get_gamma_t_li(t:float, beta:float) -> float:
+        if np.isnan(t):
+            return np.nan
+
         _gamma_t_li = np.exp(beta*(t - MEGAN_T_STANDARD))
         return _gamma_t_li
 
     @staticmethod
     def get_gamma_t_ld(t:float, pt_15:float, ct1:float, ceo:float) -> float:
+        if np.isnan(t) or np.isnan(pt_15):
+            return np.nan
+
         e_opt = ceo * np.exp(0.08*(pt_15 - 2.97e2))
         t_opt = 3.13e2 + (6.0e-1 * (pt_15 - 2.97e2))
         CT2 = 200.0
@@ -439,6 +454,8 @@ class megan:
 
     @staticmethod
     def get_gamma_p(q_dir_2:float, q_diff_2:float, pardr_avg_sim:float, pardf_avg_sim:float, timeobj:ascl.dt, lat:float, long:float) -> float:
+        if np.isnan(q_dir_2) or np.isnan(q_diff_2) or np.isnan(pardr_avg_sim) or np.isnan(pardf_avg_sim) or np.isnan(lat) or np.isnan(long):
+            return np.nan
         ptoa   = 0.0
         mm_pardr_daily = pardr_avg_sim  * WM2_TO_UMOLM2S
         mm_pardf_daily = pardf_avg_sim  * WM2_TO_UMOLM2S
@@ -489,6 +506,8 @@ class megan:
 
     @staticmethod
     def get_gamma_CO2_ISOP(CO2a:float, CO2_inhibition_scheme:str='lpossell') -> float:
+        if np.isnan(CO2a):
+            return np.nan
         if CO2_inhibition_scheme.upper() == 'LPOSSELL':
             LPOSSELL    = True
             LWILKINSON  = False
@@ -525,7 +544,7 @@ class megan:
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     SPECIES_LIST = (
-        'ISOP',
+        'ISOP', 
         'MBOX',
         'MYRC',
         'SABI',
