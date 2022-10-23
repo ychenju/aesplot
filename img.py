@@ -1,10 +1,14 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import pandas as pd
+import xarray as xr
+import matplotlib as mpl
 import matplotlib.axes as mplaxes
 import matplotlib.pyplot as plt
 from . import settings
-from typing import Sequence, Tuple, Callable, Union
+from typing import Sequence, Tuple, Callable, Union, Any
 
 IMG_DEFAULT_ATTRS = {
     'font': 'default',
@@ -215,22 +219,34 @@ class setf:
     @staticmethod
     def xlabel(img:image) -> None:
         if 'xlabel' in img._attr.keys():
-            plt.xlabel(img['xlabel'])
+            if 'xlabel_fs' in img._attr.keys():
+                plt.title(img['xlabel'], fontsize=img['xlabel_fs'])
+            else:
+                plt.xlabel(img['xlabel'])
 
     @staticmethod
     def ylabel(img:image) -> None:
         if 'ylabel' in img._attr.keys():
-            plt.ylabel(img['ylabel'])
+            if 'ylabel_fs' in img._attr.keys():
+                plt.title(img['ylabel'], fontsize=img['ylabel_fs'])
+            else:
+                plt.ylabel(img['ylabel'])
 
     @staticmethod
     def title(img:image) -> None:
         if 'title' in img._attr.keys():
-            plt.title(img['title'])
+            if 'title_fs' in img._attr.keys():
+                plt.title(img['title'], fontsize=img['title_fs'])
+            else:
+                plt.title(img['title'])
 
     @staticmethod
     def suptitle(img:image) -> None:
         if 'suptitle' in img._attr.keys():
-            plt.suptitle(img['suptitle'])
+            if 'suptitle_fs' in img._attr.keys():
+                plt.title(img['suptitle'], fontsize=img['suptitle_fs'])
+            else:
+                plt.suptitle(img['suptitle'])
 
     @staticmethod
     def grid(img:image) -> None:

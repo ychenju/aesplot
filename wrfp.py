@@ -61,9 +61,10 @@ class frame:
             self._data[key] = aux.cp2d(np.array(source.ncfile[key]).squeeze())
         return self
 
-    def params(self) -> list:
+    def params(self, verbose:bool=False) -> list:
         _l = [x for x in self._data]
-        print(_l)
+        if verbose:
+            print(_l)
         return _l
     
     def get(self, key:str): 

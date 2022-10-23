@@ -91,3 +91,14 @@ def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence
     else:
         rp2 = [f'{path}\\{p}' for p in rp]
         return rp2
+
+def ref(pattern:re.Pattern, strs:str, reI:bool=True) -> Sequence[str]:
+    rp = []
+    for p in strs:
+        if reI:
+            if re.search(pattern, p, re.I):
+                rp.append(p)
+        else:
+            if re.search(pattern, p):
+                rp.append(p)
+    return rp
