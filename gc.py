@@ -9,7 +9,6 @@ from . import trigo
 from typing import Sequence, Tuple, Union
 
 R = 8.3144598e-3
-
 MEGAN_T_STANDARD = 303.
 WM2_TO_UMOLM2S = 4.766
 
@@ -29,9 +28,10 @@ class megan:
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-
     @staticmethod
     def emis(**kwargs):
+        '''
+        '''
         _r = 1.
         _sub = 1.
         _r *= megan.norm_fac() if megan.ENABLE['norm_fac'] else 1.
@@ -50,10 +50,15 @@ class megan:
 
     @staticmethod
     def norm_fac() -> float:
+        '''
+        '''
         return megan.get_norm_fac()
 
     @staticmethod
     def get_norm_fac() -> float:
+        '''
+        Calculate the normalization factor of MEGAN standard state
+        '''
         PAC_DAILY = 400.0
         PHI       = 0.6
         BBB       = 1.0 + 0.0005 *( PAC_DAILY - 400.0 )
@@ -82,13 +87,16 @@ class megan:
 
     @staticmethod
     def aef_args(**kwargs) -> dict:
+        '''
+        '''
         pass
 
     @staticmethod
     def aef():
+        '''
+        '''
         pass
 
-        # - FIXME - * - FIXME - * - FIXME - * - FIXME - * - #
     @staticmethod
     def get_aef():
         """
@@ -198,6 +206,8 @@ class megan:
 
     @staticmethod
     def pft_ef(category:str, *efx:Tuple[int]) -> Union[float, Sequence[float]]:
+        '''
+        '''
         if len(efx) == 1:
             return GC_MEGAN_PFT_EF[category][efx[0]-1]
         else:
@@ -205,6 +215,8 @@ class megan:
 
     @staticmethod
     def em_frac(category:str, *efx:Tuple[int]) -> Union[float, Sequence[float]]:
+        '''
+        '''
         if len(efx) == 1:
             return GC_MEGAN_EM_FRAC[category][efx[0]-1]
         else:
@@ -215,6 +227,8 @@ class megan:
 
     @staticmethod
     def gamma_a_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 'cmlai':
@@ -232,6 +246,8 @@ class megan:
     @staticmethod
     def gamma_a(cmlai:Union[float, np.ndarray], pmlai:Union[float, np.ndarray], dbtwn:Union[float, np.ndarray], tt:Union[float, np.ndarray],
                  species:str='ISOP') -> Union[float, np.ndarray]:
+        '''
+        '''
         _r = megan.get_const(species, 'anew', 'agro', 'amat', 'aold')
         if not isinstance(cmlai, np.ndarray):
             return megan.get_gamma_a(cmlai, pmlai, dbtwn, tt, *_r)
@@ -244,8 +260,10 @@ class megan:
 
     @staticmethod
     def get_gamma_a(cmlai:float, pmlai:float, dbtwn:float, tt:float, an:float, ag:float, am:float, ao:float) -> float:
+        '''
+        '''
         if np.isnan(cmlai) or np.isnan(pmlai) or np.isnan(dbtwn) or np.isnan(tt):
-            return np.nan
+            return np.nan            
         if tt <= 303.0 :
             ti = 5.0 + 0.7*(300.0 - tt)
         elif tt >  303.0:
@@ -272,15 +290,16 @@ class megan:
             fgro = 0.
             fold = (pmlai - cmlai)/pmlai
             fmat = 1. - fold
-            _gamma_age = fnew * an + fgro * ag + fmat * am + fold * ao
-            _gamma_age = max(_gamma_age, 0.)
-            return _gamma_age
-
+        _gamma_age = fnew * an + fgro * ag + fmat * am + fold * ao
+        _gamma_age = max(_gamma_age, 0.)
+        return _gamma_age
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     @staticmethod
     def gamma_sm_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 'gwetroot':
@@ -291,6 +310,8 @@ class megan:
 
     @staticmethod
     def gamma_sm(gwetroot:Union[float, np.ndarray], species:str='ISOP') -> Union[float, np.ndarray]:
+        '''
+        '''
         if not isinstance(gwetroot, np.ndarray):
             return megan.get_gamma_sm(gwetroot, species)
         elif isinstance(gwetroot, np.ndarray):
@@ -301,7 +322,9 @@ class megan:
             return np.array(_gt)
 
     @staticmethod
-    def get_gamma_sm(gwetroot:float, species:str) -> float:        
+    def get_gamma_sm(gwetroot:float, species:str) -> float:  
+        '''
+        '''      
         if np.isnan(gwetroot):
             return np.nan 
         _gamma_sm = 1.
@@ -314,6 +337,8 @@ class megan:
 
     @staticmethod
     def gamma_lai_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 'cmlai':
@@ -324,6 +349,8 @@ class megan:
 
     @staticmethod
     def gamma_lai(cmlai:Union[float, np.ndarray], species:str='ISOP') -> Union[float, np.ndarray]:
+        '''
+        '''
         if not isinstance(cmlai, np.ndarray):
             return megan.get_gamma_lai(cmlai, megan.get_const(species, 'BI'))
         elif isinstance(cmlai, np.ndarray):
@@ -335,6 +362,8 @@ class megan:
 
     @staticmethod
     def get_gamma_lai(cmlai:float, bidirexch:bool) -> float:
+        '''
+        '''
         if np.isnan(cmlai):
             return np.nan 
         if  bidirexch:
@@ -353,6 +382,8 @@ class megan:
 
     @staticmethod
     def gamma_t_li_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 't':
@@ -363,6 +394,8 @@ class megan:
 
     @staticmethod
     def gamma_t_ld_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 't':
@@ -375,6 +408,8 @@ class megan:
 
     @staticmethod
     def gamma_t_li(t:Union[float, np.ndarray], species:str='ISOP') -> Union[float, np.ndarray]:
+        '''
+        '''
         _r = megan.get_const(species, 'beta', 'ldf')
         if not isinstance(t, np.ndarray):
             return (1.-_r[1])*megan.get_gamma_t_li(t, _r[0])
@@ -387,6 +422,8 @@ class megan:
 
     @staticmethod
     def gamma_t_ld(t:Union[float, np.ndarray], pt_15:Union[float, np.ndarray], species:str='ISOP') -> Union[float, np.ndarray]:
+        '''
+        '''
         _r = megan.get_const(species, 'ldf', 'ct1', 'ceo')
         if not isinstance(t, np.ndarray) and not isinstance(pt_15, np.ndarray):
             return _r[0]*megan.get_gamma_t_ld(t, pt_15, _r[1], _r[2])
@@ -399,14 +436,17 @@ class megan:
 
     @staticmethod
     def get_gamma_t_li(t:float, beta:float) -> float:
+        '''
+        '''
         if np.isnan(t):
             return np.nan
-
         _gamma_t_li = np.exp(beta*(t - MEGAN_T_STANDARD))
         return _gamma_t_li
 
     @staticmethod
     def get_gamma_t_ld(t:float, pt_15:float, ct1:float, ceo:float) -> float:
+        '''
+        '''
         if np.isnan(t) or np.isnan(pt_15):
             return np.nan
 
@@ -422,6 +462,8 @@ class megan:
 
     @staticmethod
     def gamma_p_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 'q_dir_2':
@@ -443,6 +485,8 @@ class megan:
     @staticmethod
     def gamma_p(q_dir_2:Union[float, np.ndarray], q_diff_2:Union[float, np.ndarray], pardr_avg_sim:Union[float, np.ndarray], pardf_avg_sim:Union[float, np.ndarray],
                 timeobj:Union[ascl.dt, np.ndarray], lat:Union[float, np.ndarray], long:Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        '''
+        '''
         if not isinstance(q_dir_2, np.ndarray):
             return megan.get_gamma_p(q_dir_2, q_diff_2, pardr_avg_sim, pardf_avg_sim, timeobj, lat, long)
         elif isinstance(q_dir_2, np.ndarray):
@@ -454,6 +498,8 @@ class megan:
 
     @staticmethod
     def get_gamma_p(q_dir_2:float, q_diff_2:float, pardr_avg_sim:float, pardf_avg_sim:float, timeobj:ascl.dt, lat:float, long:float) -> float:
+        '''
+        '''
         if np.isnan(q_dir_2) or np.isnan(q_diff_2) or np.isnan(pardr_avg_sim) or np.isnan(pardf_avg_sim) or np.isnan(lat) or np.isnan(long):
             return np.nan
         ptoa   = 0.0
@@ -481,6 +527,8 @@ class megan:
 
     @staticmethod
     def gamma_CO2_args(**kwargs) -> dict:
+        '''
+        '''
         _r = {}
         for kw in kwargs.keys():
             if kw == 'CO2a':
@@ -491,6 +539,8 @@ class megan:
 
     @staticmethod
     def gamma_CO2(CO2a:Union[float, np.ndarray], species:str='ISOP') -> Union[float, np.ndarray]:
+        '''
+        '''
         if not isinstance(CO2a, np.ndarray):
             return megan.get_gamma_CO2(species, CO2a)
         elif isinstance(CO2a, np.ndarray):
@@ -502,10 +552,14 @@ class megan:
 
     @staticmethod
     def get_gamma_CO2(species:float, *args, **kwargs) -> float:
+        '''
+        '''
         return megan.get_gamma_CO2_ISOP(*args, **kwargs) if species == 'ISOP' else 1
 
     @staticmethod
     def get_gamma_CO2_ISOP(CO2a:float, CO2_inhibition_scheme:str='lpossell') -> float:
+        '''
+        '''
         if np.isnan(CO2a):
             return np.nan
         if CO2_inhibition_scheme.upper() == 'LPOSSELL':
@@ -544,7 +598,7 @@ class megan:
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     SPECIES_LIST = (
-        'ISOP', 
+        'ISOP',
         'MBOX',
         'MYRC',
         'SABI',
@@ -572,6 +626,8 @@ class megan:
 
     @staticmethod
     def get_const(species:str, *const:Tuple[str]) -> Union[float, bool, Sequence[Union[float, bool]]]:
+        '''
+        '''
         if len(const) == 1:
             return GC_MEGAN_SPECIES_CONST[species][const[0]]
         else:

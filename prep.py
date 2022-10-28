@@ -8,6 +8,8 @@ from typing import Union, Sequence
 class csv:
 
     def __init__(self, path:str, **kwargs) -> None:
+        '''
+        '''
         self._x = 'default'
         self._y = 'default'
         self._path = path
@@ -16,6 +18,8 @@ class csv:
             self._pdattrs[kw] = kwargs[kw]
 
     def __call__(self, **kwargs) -> np.ndarray:
+        '''
+        '''
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
         _df:pd.DataFrame = pd.read_csv(self._path, **self._pdattrs)
@@ -28,6 +32,8 @@ class csv:
         return _ar[self._y, self._x]
 
     def nhd(self):
+        '''
+        '''
         self._pdattrs['header'] = None
         return self
 
@@ -46,6 +52,8 @@ class csv:
         return _ar[self._y, self._x]
 
     def sub(self, index:Union[int, tuple]):
+        '''
+        '''
         if isinstance(index, tuple):
             self._y, self._x = index
         else:
@@ -53,6 +61,8 @@ class csv:
         return self
 
     def to_csv(self, path:str, **kwargs):
+        '''
+        '''
         _df2 = pd.DataFrame(self())
         _df2.to_csv(path, **kwargs)
         return self
@@ -61,12 +71,16 @@ class csv:
 class xls(csv):
 
     def __init__(self, path:str, sheet:str) -> None:
+        '''
+        '''
         self._x = 'default'
         self._y = 'default'
         self._path = path
         self._pdattrs = {'sheet_name': sheet}
 
     def __call__(self, **kwargs) -> np.ndarray:
+        '''
+        '''
         for kw in kwargs.keys():
             self._pdattrs[kw] = kwargs[kw]
         _df:pd.DataFrame = pd.read_excel(self._path, **self._pdattrs)
@@ -96,22 +110,32 @@ class xlsx(xls):
     pass
 
 def xy(xy:Sequence) -> dict:
+    '''
+    '''
     xy = np.array(xy)
     return {'x': xy[0], 'y': xy[1]}
 
 def yx(xy:Sequence) -> dict:
+    '''
+    '''
     xy = np.array(xy)
     return {'x': xy[1], 'y': xy[0]}
 
 def xyz(xyz:Sequence) -> dict:
+    '''
+    '''
     xyz = np.array(xyz)
     return {'x': xyz[0], 'y': xyz[1], 'z': xyz[2]}
 
 def yxz(xyz:Sequence) -> dict:
+    '''
+    '''
     xyz = np.array(xyz)
     return {'x': xyz[1], 'y': xyz[0], 'z': xyz[2]}
 
 def boundaries(lat:Sequence='None', long:Sequence='None', x:Sequence='None', y:Sequence='None', padding:float='None', padding_x:float=0, padding_y:float=0) -> dict:
+    '''
+    '''
     _r = {}
     if isinstance(padding, float) or isinstance(padding, int):
         padding_x = padding

@@ -1,3 +1,6 @@
+# !/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import urllib.request as req
 import re
 import numpy as np
@@ -13,9 +16,13 @@ JTWC_URL = r'https://www.metoc.navy.mil/jtwc/products/best-tracks'
 JTWC_SCALE_LIST = ('DB','TD','TS','TY','ST','TC')
 
 def get_JTWC_URL(year:int) -> str:
+    '''
+    '''
     return JTWC_URL + f'//{year}//{year}s-bwp//bwp{year}.zip'
 
 def rammb(identifer:str, name:str, path:str) -> NoReturn:
+    '''
+    '''
     resp = req.urlopen(RAMMB_URL+identifer)
     fcsv = open(path+'\\'+identifer[-4:]+identifer[:4]+name+'.csv', 'w')
     fhtm = open(path+'\\'+'WEBSOURCE_'+identifer[-4:]+identifer[:4]+name+'.html', 'w')
@@ -73,6 +80,8 @@ def rammb(identifer:str, name:str, path:str) -> NoReturn:
     fcsv.close()
 
 def boundaries(track:np.ndarray) -> dict:
+    '''
+    '''
     bdrs = {
         'lat': [max(track[1].min()-5.,-70), min(track[1].max()+5.,70)],
         'long': [np.array([aux.longfix(x) for x in track[2]]).min()-10., np.array([aux.longfix(x) for x in track[2]]).max()+10.],
@@ -80,10 +89,14 @@ def boundaries(track:np.ndarray) -> dict:
     return bdrs
 
 def readSimple(path:str) -> np.ndarray:
-        dframe = pd.read_csv(path, header=None)
-        return np.array(dframe.iloc[:,:]).T
+    '''
+    '''
+    dframe = pd.read_csv(path, header=None)
+    return np.array(dframe.iloc[:,:]).T
         
 def ace(track:np.ndarray) -> float:
+    '''
+    '''
     _r = []
     for inten in track[3]:
         if inten > 34:
@@ -92,6 +105,8 @@ def ace(track:np.ndarray) -> float:
     return (_r2**2).sum()/1e4
 
 def report(name:str, track:np.ndarray, path:str) -> None:
+    '''
+    '''
     _r = []
     for inten in track[3]:
         if inten > 34:
@@ -101,6 +116,8 @@ def report(name:str, track:np.ndarray, path:str) -> None:
         f.write(f'{name}\t\t,\t{len(_r2)}\t,\t{max(track[3])}\t,\t{(_r2**2).sum()/1e4}\r')
 
 def coorproc(t, *args:Tuple[int]):
+    '''
+    '''
     for arg in args:
         for tl in t:
             _r = list(tl[arg])
@@ -114,6 +131,8 @@ def coorproc(t, *args:Tuple[int]):
     return t
 
 def readjtwc(ipath:str, opath:str) -> None:
+    '''
+    '''
     with open(ipath, 'r') as trf:
         trc = trf.read()
     trx = np.array(trc.split('\n'))
@@ -128,24 +147,29 @@ def readjtwc(ipath:str, opath:str) -> None:
     _p.to_csv(opath,index=None, header=None)
 
 def tctrack(data:np.ndarray) -> Tuple[apb.bluemarble, apf.track]:
+    '''
+    '''
     _b = apb.bluemarble(**boundaries(data), res='l').lls(10, c='w')
     _t = apf.track(x=data[2], y=data[1], z=data[3], f=sshws).lformat(c='w')
     return _b, _t
 
 def sshws(inten:int) -> dict:
-        if inten < 25:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([128,204,255])/256.}
-        elif inten < 34:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([ 94,186,255])/256.}
-        elif inten < 64:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([  0,255,244])/256.}
-        elif inten < 82:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,255,204])/256.}
-        elif inten < 96:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,231,117])/256.}
-        elif inten < 112:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,193, 64])/256.}
-        elif inten < 137:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,143, 32])/256.}
-        else:
-            return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255, 96, 96])/256.}
+    '''
+    Color scheme of Saffir-Simpson Hurricane Wind Scale
+    '''
+    if inten < 25:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([128,204,255])/256.}
+    elif inten < 34:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([ 94,186,255])/256.}
+    elif inten < 64:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([  0,255,244])/256.}
+    elif inten < 82:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,255,204])/256.}
+    elif inten < 96:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,231,117])/256.}
+    elif inten < 112:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,193, 64])/256.}
+    elif inten < 137:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255,143, 32])/256.}
+    else:
+        return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([255, 96, 96])/256.}

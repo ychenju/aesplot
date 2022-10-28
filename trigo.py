@@ -4,32 +4,58 @@
 import numpy as np
 
 def d2r(deg:float) -> float:
+    '''
+    Degree to radian
+    '''
     return deg/180.*np.pi
 
 def r2d(rad:float) -> float:
+    '''
+    Radian to degree
+    '''
     return rad/np.pi*180.
 
 def sind(deg:float) -> float:
+    '''
+    sin for value in degree
+    '''
     return np.sin(d2r(deg))
 
 def cosd(deg:float) -> float:
+    '''
+    cos for value in degree
+    '''
     return np.cos(d2r(deg))
 
 def tand(deg:float) -> float:
+    '''
+    tan for value in degree
+    '''
     return np.tan(d2r(deg))
 
 def arcsind(val:float) -> float:
+    '''
+    arcsin returning value in degree
+    '''
     return r2d(np.arcsin(val))
 
 def arccosd(val:float) -> float:
+    '''
+    arccos returning value in degree
+    '''
     return r2d(np.arccos(val))
 
 def arctand(val:float) -> float:
+    '''
+    arctan returning value in degree
+    '''
     return r2d(np.arctan(val))
 
 class tri:
     
     def __init__(self, **kwargs) -> None:
+        '''
+        '''
         if len(kwargs.keys()) != 3:
             raise RuntimeError('Invalid Triangle!')
         self.counta = 0
@@ -142,29 +168,53 @@ class tri:
 
     @property
     def area(self) -> float:
+        '''
+        Area of the triangle
+        '''
         return np.sqrt(self.circ/2*(self.circ/2-self.s1)*(self.circ/2-self.s2)*(self.circ/2-self.s3))
 
     @property
     def circ(self) -> float:
+        '''
+        Circumference of the triangle
+        '''
         return self.s1 + self.s2 + self.s3
 
     def __str__(self) -> str:
         return f's1:\t{self.s1}\n' + f's2:\t{self.s2}\n' + f's3:\t{self.s3}\n' + f'a12:\t{self.a12}\n' + f'a23:\t{self.a23}\n' + f'a13:\t{self.a13}\n'
 
 def nmtokm(value:float) -> float:
+    '''
+    Convert n mile to kilometer
+    '''
     return 10000./5400.*value
 
 def kmtonm(value:float) -> float:
+    '''
+    Convert kilometer to n mile
+    '''
     return 5400./10000.*value
 
 def lattokm(value:float) -> float:
+    '''
+    Convert degree latitute to kilometer
+    '''
     return 60.*nmtokm(value)
 
 def kmtolat(value:float) -> float:
+    '''
+    Convert kilometer to degree latitute
+    '''
     return kmtonm(value)/60.
 
 def longtokm(long:float, lat:float) -> float:
+    '''
+    Convert degree longitute on certain latitute to kilometer
+    '''
     return lattokm(long)*cosd(lat)
 
 def kmtolong(km:float, lat:float) -> float:
+    '''
+    Convert kilometer to degree longitute on certain latitute
+    '''
     return kmtolat(km)/cosd(lat)

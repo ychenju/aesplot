@@ -17,10 +17,18 @@ class gc:
 
     @staticmethod
     def read(date:str) -> GregC:
+        '''
+        Read a string of 8 digits as Gregorian dates (YYYYMMDD)
+        return: tuple (y, m, d)
+        '''
         return int(date[:4]), int(date[4:6]), int(date[6:])
 
     @staticmethod
     def ytype(year:int) -> int:
+        '''
+        Judge the year type of Gergorian Calendar
+        return 0 on normal years, 1 on leap years, and -1 on the special year of 1582
+        '''
         if year % 400:
             if year % 100:
                 if year % 4:
@@ -37,6 +45,9 @@ class gc:
 
     @staticmethod
     def ydays(year:int) -> int:
+        '''
+        Return the days in the year
+        '''
         if gc.ytype(year) == -1:
             return 355
         else:
@@ -44,6 +55,9 @@ class gc:
 
     @staticmethod
     def mdays(year:int, month:int) -> int:
+        '''
+        Return the days in the month, judged by the year and the month
+        '''
         if month != 2 and month != 10:
             return gc.NORMAL_MONTHS_DAYS[month]
         elif month == 2:
@@ -59,18 +73,32 @@ class gc:
 
     @staticmethod
     def zerostart(year:int, month:int, day:int) -> GregC:
+        '''
+        Input a date (y, m, d)
+        return in the form that the month and the day start counting from 0, e.g. (y, m-1, d-1)
+        '''
         return year, month-1, day-1
 
     @staticmethod
     def onestart(year:int, month:int, day:int) -> GregC:
+        '''
+        Input a date whose month and day start counting from 0 (y, m-1, d-1)
+        return the normal date (y, m, d)
+        '''
         return year, month+1, day+1
 
     @staticmethod
     def toyd_normal(year:int, month:int, day:int) -> YearD:
+        '''
+        Transform a date (y, m, d) to a form of (y, days_in_the_year), with the assumption that the year is a normal year
+        '''
         return year, gc.NORMAL_MONTHS_DAYS[:month].sum() + day
 
     @staticmethod
     def dfix(year:int, month:int, day:int) -> int:
+        '''
+        Fix the difference of the days in the year
+        '''
         if gc.ytype(year):
             if month < 3:
                 return 0
@@ -89,13 +117,19 @@ class gc:
                             return -10
         else:
             return 0
-
+    
     @staticmethod
     def toyd(year:int, month:int, day:int) -> YearD:
+        '''
+        Pair toyd_normal() and dfix(), transform the date (y, m, d) to (y, days_in_the_year). Working on any years
+        '''
         return gc.toyd_normal(year, month, day)[0], gc.toyd_normal(year, month, day)[1] + gc.dfix(year, month, day)
 
     @staticmethod
     def ydtogc(year:int, day:int) -> GregC:
+        '''
+        The inversion of toyd(), transform the date (y, days_in_the_year) to (y, m, d)
+        '''
         month = 0
         daysub = day
         while daysub > 0:
@@ -105,6 +139,9 @@ class gc:
 
     @staticmethod
     def leap(year1:int, month1:int, day1:int, year0:int, month0:int, day0:int) -> int:
+        '''
+        Calculate the date difference of 2 dates (y1, m1, d1), (y2, m2, d2), the latter of which stands as the reference point
+        '''
         y1, d1 = gc.toyd(year1, month1, day1)
         y0, d0 = gc.toyd(year0, month0, day0)
         if y1 > y0:
@@ -116,6 +153,9 @@ class gc:
 
     @staticmethod
     def after(year:int, month:int, day:int, period:int) -> GregC:
+        '''
+        Calculate the date (y, m, d) that [period] days after the date given (y, m, d)
+        '''
         y, d = gc.toyd(year, month, day)
         dy = 0
         d2 = d + period
@@ -131,80 +171,138 @@ class gc:
 
     @staticmethod
     def before(year:int, month:int, day:int, period:int) -> GregC:
+        '''
+        Calculate the date (y, m, d) that [period] days before the date given (y, m, d)
+        '''
         return gc.after(year, month, day, -period)
 
     @staticmethod
     def ud(year:int, month:int, day:int) -> int:
+        '''
+        Convert Gregorian date (y, m, d) to the days count of UNIX era
+        '''
         return gc.leap(year, month, day, *gc.read('19700101'))
-    
+
     @staticmethod
     def md(year:int, month:int, day:int) -> int:
+        '''
+        Convert Gregorian date (y, m, d) to the days count of the second millenium
+        '''
         return gc.leap(year, month, day, *gc.read('20000101'))
 
     @staticmethod
     def ad(year:int, month:int, day:int) -> int:
+        '''
+        Convert Gregorian date (y, m, d) to the days after common era ((1, 1, 1) as the first day)
+        '''
         return gc.leap(year, month, day, *gc.read('00010101'))
 
     @staticmethod
     def mjd(year:int, month:int, day:int) -> int:
+        '''
+        Convert Gregorian date (y, m, d) to the Modified Julian Days count
+        '''
         return gc.leap(year, month, day, *gc.read('18581116'))
 
     @staticmethod
     def arcud(days:int) -> GregC:
+        '''
+        Convert UNIX days to Gregorian date (y, m, d)
+        '''
         return gc.after(1970, 1, 1, days)
 
     @staticmethod
     def arcmd(days:int) -> GregC:
+        '''
+        Convert days after the second millenium to Gregorian date (y, m, d)
+        '''
         return gc.after(2000, 1, 1, days)
 
     @staticmethod
     def arcad(days:int) -> GregC:
+        '''
+        Convert days in the common era to Gregorian date (y, m, d)
+        '''
         return gc.after(1, 1, 1, days)
 
     @staticmethod
     def arcmjd(days:int) -> GregC:
+        '''
+        Convert Modified Julian Days to Gregorian date (y, m, d)
+        '''
         return gc.after(1858, 11, 16, days)
 
 class tm:
 
     @staticmethod
     def read(tm:str) -> TimeHMS:
+        '''
+        Read time from a 6-digit string 'HHMMSS'
+        return a tuple (h, m, s)
+        '''
         return int(tm[:2]), int(tm[2:4]), int(tm[4:])
 
     @staticmethod
     def secs(h:int,m:int, s:int) -> int:
+        '''
+        Convert the time period (h, m, s) to accumulate seconds
+        '''
         return h*3600 + m*60 + s
 
     @staticmethod
     def tohms(ss:int) -> TimeHMS:
+        '''
+        Convert the time period in seconds to (h, m, s)
+        '''
         return ss//3600, ss%3600//60, ss%60
 
     @staticmethod
     def hours(h:int, m:int, s:int) -> float:
+        '''
+        Convert the time period (h, m, s) to accumulate hours
+        '''
         return h + float(m)/60. + float(s)/3600.
 
     @staticmethod
     def days(h:int, m:int, s:int) -> float:
+        '''
+        Convert the time period (h, m, s) to accumulate days
+        '''
         return float(h)/24. + float(m)/1440. + float(s)/86400.
 
     @staticmethod
     def leap(h1:int, m1:int, s1:int, h0:int, m0:int, s0:int) -> int:
+        '''
+        Calculate the time difference of (h1, m1, s1) - (h0, m0, s0) in seconds
+        '''
         return tm.secs(h1, m1, s1) - tm.secs(h0, m0, s0)
 
     @staticmethod
     def after(h:int, m:int, s:int, period:int) -> TimeHMS:
+        '''
+        Calculate the time of [period] seconds after the input time (h, m, s)
+        Do nothing when the hour < 0 or > 24
+        '''
         ss = tm.secs(h, m, s)
         s2 = ss + period
         return tm.tohms(s2)
 
     @staticmethod
     def before(h:int, m:int, s:int, period:int) -> TimeHMS:
+        '''
+        Calculate the time of [period] seconds before the input time (h, m, s)
+        Do nothing when the hour < 0 or > 24
+        '''
         ss = tm.secs(h, m, s)
         s2 = ss - period
         return tm.tohms(s2)
 
     @staticmethod
     def afterd(h:int, m:int, s:int, period:int) -> Tuple[int, TimeHMS]:
+        '''
+        Calculate the time of [period] seconds after the input time (h, m, s)
+        return in the format (d, h, m, s), where d is the difference of the date of the new time to the reference time
+        '''
         ss = tm.secs(h, m, s)
         s2 = ss + period
         hr, mr, sr = tm.tohms(s2)
@@ -221,11 +319,24 @@ class tm:
 
     @staticmethod
     def befored(h:int, m:int, s:int, period:int) -> Tuple[int, TimeHMS]:
+        '''
+        Calculate the time of [period] seconds before the input time (h, m, s)
+        return in the format (d, h, m, s), where d is the difference of the date of the new time to the reference time
+        '''
         return tm.afterd(h, m, s, -period)
 
 class dt:
 
     def __init__(self, dtstr:str, tz:Union[int, float]=0) -> None:
+        '''
+        Initialize a date-time (dt) object from a string, with the option of the timezone (tz)
+        The string can be either 6, 8, 10, 12, or 14 digits
+        For 14 digits input, the string should be in 'YYYYMMDDHHMMSS' format
+        For 12 digits input, the string should be in 'YYYYMMDDHHMM' format, and the SS will be padded with 0
+        For 10 digits input, the string should be in 'YYYYMMDDHH' format, and the MMSS will be padded with 0
+        For 8 digits input, the string shoudld be in 'YYYYMMDD' format, and the time will be nullified
+        For 6 digits input, the string should be in 'HHMMSS' format, and the date will be nullified
+        '''
         try:
             if len(dtstr) == 14:
                 self.Y = int(dtstr[:4])
@@ -275,6 +386,10 @@ class dt:
             raise RuntimeError('Wrong data format for \'dt\' object')
 
     def __call__(self, div:str='', utc=False) -> str:
+        '''
+        Calling a dt object will return the string used to initialize it (padded if necessary)
+        NOTE that the attribute 'utc' cannot be used as of v0.5.47
+        '''
         if utc:
             pass
         else:
@@ -290,6 +405,9 @@ class dt:
 
     @property
     def date(self) -> GregC:
+        '''
+        The date part of the object (y, m, d)
+        '''
         if not self._date:
             raise RuntimeError('Invalid operation detected')
         else:
@@ -297,6 +415,9 @@ class dt:
             
     @property
     def time(self) -> TimeHMS:
+        '''
+        The time part of the object (h, m, s)
+        '''
         if not self._time:
             raise RuntimeError('Invalid operation detected')
         else:
@@ -304,6 +425,9 @@ class dt:
 
     @property
     def utc(self) -> TimeHMS:
+        '''
+        The lower case utc will return the corresponding UTC time (h, m, s) to the time of the object
+        '''
         if not self._time:
             raise RuntimeError('Invalid operation detected')
         else:
@@ -311,6 +435,9 @@ class dt:
 
     @property
     def UTC(self):
+        '''
+        The upper case UTC will return a dt object corresponding the UTC time to the time of the object
+        '''
         if not self._date or not self._time:
             raise RuntimeError('Invalid operation detected')
         if self.h-self._tz < 0:
@@ -322,6 +449,9 @@ class dt:
 
     @property
     def tz(self) -> str:
+        '''
+        return the time zone in string format
+        '''
         if self._tz > 0:
             return f'UTC +{self._tz}'
         elif self._tz < 0:
@@ -330,6 +460,10 @@ class dt:
             return 'UTC'
 
     def TZ(self, newtz:Union[int, float]):
+        '''
+        Time zone conversion.
+        return the corresponding dt object to self with a different time zone
+        '''
         diff = self._tz - newtz
         if self.h-diff < 0:
             return dt(f'{int(self.Y):0>4d}{int(self.M):0>2d}{int(self.D-1):0>2d}{int(self.h-diff+24):0>2d}{int(self.m):0>2d}{int(self.s):0>2d}')
@@ -367,6 +501,9 @@ class dt:
 
     @property
     def us(self) -> int:
+        '''
+        Convert the object to UNIX time stamp (in seconds)
+        '''
         if self._date and self._time:
             return gc.ud(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -376,6 +513,9 @@ class dt:
 
     @property
     def ud(self) -> float:
+        '''
+        Convert the object to UNIX days
+        '''
         if self._date and self._time:
             return gc.ud(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -384,6 +524,9 @@ class dt:
             return tm.days(*self.utc)
 
     def usf(self) -> int:
+        '''
+        Convert the object to UNIX time stamp (in seconds)
+        '''
         if self._date and self._time:
             return gc.ud(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -392,6 +535,9 @@ class dt:
             return tm.secs(*self.utc)
 
     def udf(self) -> float:
+        '''
+        Convert the object to UNIX days
+        '''
         if self._date and self._time:
             return gc.ud(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -401,6 +547,9 @@ class dt:
 
     @property
     def ms(self) -> int:
+        '''
+        Convert the object to time after the second millenium (in seconds)
+        '''
         if self._date and self._time:
             return gc.md(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -410,6 +559,9 @@ class dt:
 
     @property
     def md(self) -> float:
+        '''
+        Convert the object to days after the second millenium
+        '''
         if self._date and self._time:
             return gc.md(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -418,6 +570,9 @@ class dt:
             return tm.days(*self.utc)
 
     def msf(self) -> int:
+        '''
+        Convert the object to time after the second millenium (in seconds)
+        '''
         if self._date and self._time:
             return gc.md(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -426,6 +581,9 @@ class dt:
             return tm.secs(*self.utc)
 
     def mdf(self) -> float:
+        '''
+        Convert the object to days after the second millenium
+        '''
         if self._date and self._time:
             return gc.md(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -435,6 +593,9 @@ class dt:
 
     @property
     def mjs(self) -> int:
+        '''
+        Convert the object to seconds after MJD reference time
+        '''
         if self._date and self._time:
             return gc.mjd(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -444,6 +605,9 @@ class dt:
 
     @property
     def mjd(self) -> float:
+        '''
+        Convert the object to Modified Julian Days
+        '''
         if self._date and self._time:
             return gc.mjd(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -452,6 +616,9 @@ class dt:
             return tm.days(*self.utc)
 
     def mjsf(self) -> int:
+        '''
+        Convert the object to seconds after MJD reference time
+        '''
         if self._date and self._time:
             return gc.mjd(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -460,6 +627,9 @@ class dt:
             return tm.secs(*self.utc)
 
     def mjdf(self) -> float:
+        '''
+        Convert the object to Modified Julian Days
+        '''
         if self._date and self._time:
             return gc.mjd(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -469,6 +639,9 @@ class dt:
 
     @property
     def ads(self) -> int:
+        '''
+        Convert the object to seconds since the common era
+        '''
         if self._date and self._time:
             return gc.ad(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -478,6 +651,9 @@ class dt:
 
     @property
     def ad(self) -> float:
+        '''
+        Convert the day counts since the common era
+        '''
         if self._date and self._time:
             return gc.ad(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -486,6 +662,9 @@ class dt:
             return tm.days(*self.utc)
 
     def adsf(self) -> int:
+        '''
+        Convert the object to seconds since the common era
+        '''
         if self._date and self._time:
             return gc.ad(*self.date)*86400. + tm.secs(*self.utc)
         elif self._date:
@@ -494,6 +673,9 @@ class dt:
             return tm.secs(*self.utc)
 
     def adf(self) -> float:
+        '''
+        Convert the day counts since the common era
+        '''
         if self._date and self._time:
             return gc.ad(*self.date) + tm.days(*self.utc)
         elif self._date:
@@ -504,6 +686,9 @@ class dt:
 class ud(dt):
 
     def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
+        '''
+        Use UNIX days to initialize a dt object
+        '''
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcud(days)
             self._date = True
@@ -521,6 +706,9 @@ class ud(dt):
 class uds(dt):
 
     def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
+        '''
+        Use UNIX seconds to initialize a dt object
+        '''
         obj = dt('19700101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -535,6 +723,9 @@ class uds(dt):
 class md(dt):
 
     def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
+        '''
+        Use days after the second millenium to initialize a dt object
+        '''
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcmd(days)
             self._date = True
@@ -552,6 +743,9 @@ class md(dt):
 class mds(dt):
 
     def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
+        '''
+        Use seconds after the second millenium to initialize a dt object
+        '''
         obj = dt('20000101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -566,6 +760,9 @@ class mds(dt):
 class mjd(dt):
 
     def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
+        '''
+        Use Modified Julian Days to initialize a dt object
+        '''
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcmjd(days)
             self._date = True
@@ -583,6 +780,9 @@ class mjd(dt):
 class mjds(dt):
 
     def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
+        '''
+        Use seconds after the reference time of MJD to initialize a dt object
+        '''
         obj = dt('18581116000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -597,6 +797,9 @@ class mjds(dt):
 class ad(dt):
 
     def __init__(self, days:Union[int,float], tz:Union[int, float]=0) -> None:
+        '''
+        Use the day counts since the common era to initialize a dt object
+        '''
         if isinstance(days, int):
             self.Y, self.M, self.D = gc.arcad(days)
             self._date = True
@@ -614,6 +817,9 @@ class ad(dt):
 class ads(dt):
 
     def __init__(self, ss:float, tz:Union[int, float]=0) -> None:
+        '''
+        Use the second counts since the common era to initialize a dt object
+        '''
         obj = dt('00010101000000') + ss/86400.
         self.Y = obj.Y
         self.M = obj.M
@@ -628,6 +834,16 @@ class ads(dt):
 class dts(dt):
 
     def __init__(self, **kwargs:dict) -> None:
+        '''
+        Use key-value pairs to initialize a dt object
+        Y: year
+        M: month
+        D: day
+        h: hour
+        m: minute
+        s: second
+        tz: timezone
+        '''
         self._tz = 0
         self._date = False
         self._time = False
@@ -659,6 +875,10 @@ class dts(dt):
 class now(dt):
 
     def __init__(self, tz:Union[int, float]=0) -> None:
+        '''
+        Use the system time to initialize a dt object.
+        Setting the tz attribute is strongly recommended
+        '''
         obj = dt(system_time.strftime('%Y%m%d%H%M%S', system_time.localtime(system_time.time())))
         self.Y = obj.Y
         self.M = obj.M

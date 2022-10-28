@@ -15,6 +15,8 @@ from tqdm import tqdm
 class Grids:
     
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        '''
         try:
             if not 'lat' in kwargs.keys():
                 self.lat:np.ndarray = args[0]
@@ -37,9 +39,13 @@ class Grids:
 
     @property
     def data(self):
+        '''
+        '''
         return self._data
 
     def __getitem__(self, index:Union[str, Tuple[int, str, slice]]) -> Union[object, np.ndarray]:
+        '''
+        '''
         try:
             if isinstance(index, str):
                 return self.kwargs[index]
@@ -66,6 +72,8 @@ class Grids:
             raise RuntimeError('Inappropriate usage of Grids.__getitem__()')
 
     def __setitem__(self, index:Union[int, str], value:np.ndarray):
+        '''
+        '''
         try:
             if not index:
                 self._data = value
@@ -76,6 +84,8 @@ class Grids:
             raise RuntimeError('Inappropriate usage of Grids.__getitem__()')
 
     def boundaries(self, y:int, x:int):
+        '''
+        '''
         xb, yb = (0,0), (0,0)
         if x and not x== self.long.shape[1] - 1:
             xb = (self[y,x-1].long + self[y,x].long)/2, (self[y,x+1].long + self[y,x].long)/2
@@ -93,10 +103,14 @@ class Grids:
 
     @property
     def step(self) -> Tuple[float]:
+        '''
+        '''
         return np.mean(self.lat[1:,0]-self.lat[:-1,0]), np.mean(self.long[0,1:]-self.long[0,:-1])
 
     @property
     def resy(self) -> float:
+        '''
+        '''
         return atri.lattokm(np.mean(self.lat[1:,0]-self.lat[:-1,0]))
 
     def cast(self, target:object) -> object:
@@ -108,6 +122,8 @@ class Grids:
         '''
 
     def map(self, target:object, verbose:bool=True, dtype=np.float32) -> object:
+        '''
+        '''
         _md = np.zeros(list(target.lat.shape)+[2], dtype=np.int16)
         if verbose:
             try:
@@ -141,6 +157,8 @@ class Grids:
         '''
 
     def restrict(self, lat:list, long:list, buffer:float=0):
+        '''
+        '''
         ddlat = (self.lat[1,0]-self.lat[0,0])/np.abs(self.lat[1,0]-self.lat[0,0])
         ddlong = (self.long[0,1]-self.long[0,0])/np.abs(self.long[0,1]-self.long[0,0])
         latis = [0,self.lat.shape[0]]
@@ -186,6 +204,8 @@ class Grids:
         return _r
     
     def lowres3(self, verbose:bool=False):
+        '''
+        '''
         indices = (slice(None,self.lat.shape[0]//3*3), slice(None,self.lat.shape[1]//3*3))
         _r = Grids(self.lat[indices], self.long[indices])
         if isinstance(self._data, np.ndarray):
@@ -225,6 +245,8 @@ class Grids:
         return _r
 
     def pseudolowres(self, res:int):
+        '''
+        '''
         _r = Grids(pseudo_lowres(self.lat, res), pseudo_lowres(self.long, res))
         if isinstance(self._data, np.ndarray):
             _r._data = pseudo_lowres(self._data, res)
@@ -233,6 +255,8 @@ class Grids:
         return _r
 
     def fileout(self, path:str, overw:bool=False) -> None:
+        '''
+        '''
         if os.path.exists(path):
             if overw:
                 shutil.rmtree(path)
@@ -244,6 +268,7 @@ class Grids:
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
+
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
@@ -268,8 +293,12 @@ class Grid:
         return self.origin.boundaries(*self.index)[::-1]
 
 class filein(Grids):
+    '''
+    '''
 
     def __init__(self, path:str) -> None:
+        '''
+        '''
         paths = os.listdir(path)
         self.lat = aux.cp2d(app.csv(path+r'\LAT.csv', header=None)())
         self.long = aux.cp2d(app.csv(path+r'\LONG.csv', header=None)())
@@ -284,8 +313,12 @@ class filein(Grids):
                 self.kwargs[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
 
 class GridsCopy(Grids):
+    '''
+    '''
 
     def __init__(self, target:Grids) -> None:
+        '''
+        '''
         self.lat = target.lat
         self.long = target.long
         self._data = target._data if isinstance(target._data, np.ndarray) else None
@@ -293,6 +326,8 @@ class GridsCopy(Grids):
             self.kwargs[kw] = target.kwargs[kw]
 
 def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
+    '''
+    '''
     if res == 1:
         return arr
     d = np.zeros(arr.shape)
@@ -322,6 +357,9 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
     return d[res//2:-(res//2),res//2:-(res//2)]
 
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
+    '''
+    [FIXME]
+    '''
     if len(targets) == 1:
         return targets[0]
     _r = [GridsCopy(targets[0])]
@@ -331,6 +369,9 @@ def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: 
     return _r
 
 def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
+    '''
+    [XXX]
+    '''
     _o = GridsCopy(obj)
     _s = GridsCopy(subj)
     mapchart = np.zeros(list(subj.lat.shape)+[2])

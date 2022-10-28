@@ -14,42 +14,109 @@ class Time:
 
 class perfcounter(Time):
     def __init__(self) -> None:
+        '''
+        '''
         self.start_time = time.perf_counter()
 
     def reset(self) -> None:
+        '''
+        '''
         self.start_time = time.perf_counter()
 
     def s(self, label='Time') -> None:
+        '''
+        '''
         self.end_time = time.perf_counter()
         print(f'{label}:\t{self.end_time - self.start_time} s')
 
     def ms(self, label='Time') -> None:
+        '''
+        '''
         self.end_time = time.perf_counter()
         print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
 
     def min(self, label='Time') -> None:
+        '''
+        '''
         self.end_time = time.perf_counter()
         print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
 
     def mins(self, label='Time') -> None:
+        '''
+        '''
         self.end_time = time.perf_counter()
         print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
 
     def h(self, label='Time') -> None:
+        '''
+        '''
         self.end_time = time.perf_counter()
         print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
 
     def hms(self, label='Time') -> None:
+        '''
+        '''
         self.end_time = time.perf_counter()
         print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
 
+class processtime(Time):
+    def __init__(self) -> None:
+        '''
+        '''
+        self.start_time = time.process_time()
+
+    def reset(self) -> None:
+        '''
+        '''
+        self.start_time = time.process_time()
+
+    def s(self, label='Time') -> None:
+        '''
+        '''
+        self.end_time = time.process_time()
+        print(f'{label}:\t{self.end_time - self.start_time} s')
+
+    def ms(self, label='Time') -> None:
+        '''
+        '''
+        self.end_time = time.process_time()
+        print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
+
+    def min(self, label='Time') -> None:
+        '''
+        '''
+        self.end_time = time.process_time()
+        print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
+
+    def mins(self, label='Time') -> None:
+        '''
+        '''
+        self.end_time = time.process_time()
+        print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
+
+    def h(self, label='Time') -> None:
+        '''
+        '''
+        self.end_time = time.process_time()
+        print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
+
+    def hms(self, label='Time') -> None:
+        '''
+        '''
+        self.end_time = time.process_time()
+        print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
+
 def fileout(path:str, mode:str, *content:Tuple[str]) -> None:
+    '''
+    '''
     with open(path, mode) as theF:
         for c in content:
             theF.write(f'{c},\t')
         theF.write('\n')
 
 def fold(table:Sequence, length:int) -> np.ndarray:
+    '''
+    '''
     r = []
     for i in range(len(table)//length):
         r.append([])
@@ -58,6 +125,8 @@ def fold(table:Sequence, length:int) -> np.ndarray:
     return np.array(r)
 
 def npfold(table:np.ndarray, length:int) -> np.ndarray:
+    '''
+    '''
     try:
         if not isinstance(table, np.ndarray):
             table = np.array(table)
@@ -66,15 +135,22 @@ def npfold(table:np.ndarray, length:int) -> np.ndarray:
         raise RuntimeError('Cannot \'npfold\'. Please try \'fold\' instead')
 
 def tocsv(table:np.ndarray, path:str, **kwargs) -> pd.DataFrame:
+    '''
+    '''
     _df = pd.DataFrame(table)
     _df.to_csv(path, **kwargs)
     return _df
 
 def listdirfull(path: str) -> Sequence[str]:
+    '''
+    '''
     paths = os.listdir(path)
     return [f'{path}\\{p}' for p in paths]
 
 def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence[str]:
+    '''
+    DIRectory Regular Expression Find
+    '''
     paths = os.listdir(path)
     if in_os.lower() == 'windows':
         rp = []
@@ -93,6 +169,9 @@ def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence
         return rp2
 
 def ref(pattern:re.Pattern, strs:str, reI:bool=True) -> Sequence[str]:
+    '''
+    Regular Expression Filter
+    '''
     rp = []
     for p in strs:
         if reI:

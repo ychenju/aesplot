@@ -5,8 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class figure:
-    
+
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        '''
         self._args = []
         self._attr = {}
         self._formats = {}
@@ -16,6 +18,9 @@ class figure:
             self._attr[kw] = kwargs[kw]
 
     def _init_with(self, dic:dict, *args, **kwargs) -> None:
+        '''
+        Initialize a figure object with a dictionary
+        '''
         self._args = []
         self._attr = {}
         self._formats = {}
@@ -34,6 +39,8 @@ class figure:
         return self._attr[key]
 
     def set(self, *args, **kwargs):
+        '''
+        '''
         for arg in args:
             self._args.append(arg)
         for kw in kwargs.keys():
@@ -41,6 +48,9 @@ class figure:
         return self
 
     def format(self, **kwargs):
+        '''
+        The format() method does not support *args input, use **kwargs instead.
+        '''
         for kw in kwargs.keys():
             self._formats[kw] = kwargs[kw]
         self['format'] = True            
@@ -57,6 +67,9 @@ TEXT_DEFAULT_ATTRS = {
 
 class text(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Add string 's' to the 'x','y' coordinates in the figure
+        '''
         self._init_with(TEXT_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -76,6 +89,10 @@ HEAT_DEFAULT_ATTRS = {
 
 class heat(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Heat map.
+        Plot heat map of the 2-D sequence 'X'
+        '''
         self._init_with(HEAT_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -94,6 +111,11 @@ SCATTER_DEFAULT_ATTRS = {
 
 class scatter(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Scatter dots.
+        Plot the dots of each coordinate pair (xi,yi) in the given sequences 'x' and 'y'.
+        An alternative option is to input 'xy' as a sequence of coordinate pairs.
+        '''
         self._init_with(SCATTER_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -129,6 +151,10 @@ FUNC_DEFAULT_ATTRS = {
 
 class func(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Function plot.
+        Plot function 'f' on the range 'xrange', with sampling step 'step'.
+        '''
         self._init_with(FUNC_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -151,6 +177,10 @@ FOLDLINE_DEFAULT_ATTRS = {
 class line(figure):
 
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Foldline plot.
+        Plot foldline for the given 'x' and 'y' sequence in Cartesian coordinates
+        '''
         self._init_with(FOLDLINE_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -164,12 +194,88 @@ class line(figure):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+SEMILOGX_DEFAULT_ATTRS = {
+
+}
+
+class semilogx(figure):
+
+    def __init__(self, *args, **kwargs) -> None:
+        '''
+        Foldline plot.
+        Plot foldline for the given 'x' and 'y' sequence in semilog-x coordinates
+        '''
+        self._init_with(SEMILOGX_DEFAULT_ATTRS, *args, **kwargs)
+
+    def __call__(self) -> None:
+        if 'x' in self._attr.keys() and 'y' in self._attr.keys():
+            plt.semilogx(self['x'], self['y'], **self._formats)
+        else:
+            try:
+                plt.semilogx(*self._args, **self._formats)
+            except:
+                raise RuntimeError('No data')
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+SEMILOGY_DEFAULT_ATTRS = {
+
+}
+
+class semilogy(figure):
+
+    def __init__(self, *args, **kwargs) -> None:
+        '''
+        Foldline plot.
+        Plot foldline for the given 'x' and 'y' sequence in semilog-y coordinates
+        '''
+        self._init_with(SEMILOGY_DEFAULT_ATTRS, *args, **kwargs)
+
+    def __call__(self) -> None:
+        if 'x' in self._attr.keys() and 'y' in self._attr.keys():
+            plt.semilogy(self['x'], self['y'], **self._formats)
+        else:
+            try:
+                plt.semilogy(*self._args, **self._formats)
+            except:
+                raise RuntimeError('No data')
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+LOGLOG_DEFAULT_ATTRS = {
+
+}
+
+class loglog(figure):
+
+    def __init__(self, *args, **kwargs) -> None:
+        '''
+        Foldline plot.
+        Plot foldline for the given 'x' and 'y' sequence in double log coordinates
+        '''
+        self._init_with(LOGLOG_DEFAULT_ATTRS, *args, **kwargs)
+
+    def __call__(self) -> None:
+        if 'x' in self._attr.keys() and 'y' in self._attr.keys():
+            plt.loglog(self['x'], self['y'], **self._formats)
+        else:
+            try:
+                plt.loglog(*self._args, **self._formats)
+            except:
+                raise RuntimeError('No data')
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 DOTLINE_DEFAULT_ATTRS = {
 
 }
 
 class dotline(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Dotted foldline plot.
+        Note that the plot has double format, use 'dformat' for the dots, 'lformat' for the line.
+        '''
         self._dformats = {}
         self._lformats = {}
         self._init_with(DOTLINE_DEFAULT_ATTRS, *args, **kwargs)
@@ -217,6 +323,11 @@ CONTOURF_DEFAULT_ATTRS = {
 
 class contourf(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Filled contour plot.
+        Plot the contour with color filled of 'z' in 'x'-'y' plane.
+        Supports broadcasting.
+        '''
         self._init_with(CONTOURF_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -256,6 +367,12 @@ CONTOUR_DEFAULT_ATTRS = {
 
 class contour(figure):
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Contour plot.
+        Plot the contour lines of 'z' in 'x'-'y' plane.
+        Supports broadcasting.
+        Supports clabel (label on the lines)
+        '''
         self._init_with(CONTOUR_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -317,6 +434,9 @@ AXES_DEFAULT_ATTRS = {
 class axes(figure):
 
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Add horizontal (y=) or vertical (x=) lines to the figure.
+        '''
         self._init_with(AXES_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -348,6 +468,11 @@ LLS_DEFAULT_ATTRS = {
 class lls(figure):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        Add latitute or longitute lines.
+        Different from axes(), here you need to specified the intervals (set to 0 to avoid drawing) of the latitute lines and longitute lines to 'lat' and 'long', respectively.
+        While 'latref', 'longref' specifies the start point to draw the lines, and 'latref2', 'longref2' specifies the end point.
+        '''
         self._init_with(LLS_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self) -> None:
@@ -369,6 +494,9 @@ FILLRECT_DEFAULT_ATTRS = {
 class fillrect(figure):
 
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Fill the area defined by domain 'x' and domain 'y' with color
+        '''
         self._init_with(FILLRECT_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -389,6 +517,9 @@ RECT_DEFAULT_ATTRS = {
 class rect(figure):
 
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Draw a rectangle on domain 'x' and domain 'y'
+        '''
         self._init_with(RECT_DEFAULT_ATTRS, *args, **kwargs)
 
     def __call__(self) -> None:
@@ -415,6 +546,10 @@ TRACK_DEFAULT_LFORMATS = {
 class track(dotline):
 
     def __init__(self, *args, **kwargs) -> None:
+        '''
+        Plot a TC-track like figure.
+        Based on the dotline(), a function 'f' should be introduced to define the format of the dots to depict the value of data 'z'
+        '''
         self._lformats = {}
         for kw in TRACK_DEFAULT_LFORMATS.keys():
             self._lformats[kw] = TRACK_DEFAULT_LFORMATS[kw]
@@ -465,6 +600,9 @@ class track(dotline):
 
     @staticmethod
     def sshws(inten:int) -> dict:
+        '''
+        Color scheme of Saffir-Simpson Hurricane Wind Scale
+        '''
         if inten < 25:
             return {'marker': '.', 'ms': 7.5, 'zorder': 100, 'c': np.array([128,204,255])/256.}
         elif inten < 34:

@@ -1,10 +1,6 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import pandas as pd
-import xarray as xr
-import matplotlib as mpl
 import matplotlib.axes as mplaxes
 import matplotlib.pyplot as plt
 from . import settings
@@ -22,6 +18,8 @@ IMG_DEFAULT_ATTRS = {
 class image:
 
     def __init__(self, **kwargs) -> None:
+        '''
+        '''
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
             self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
@@ -42,6 +40,8 @@ class image:
         return self._attr[key]
 
     def reset(self, **kwargs):
+        '''
+        '''
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
             self._attr[kw] = IMG_DEFAULT_ATTRS[kw]
@@ -51,10 +51,15 @@ class image:
         return self
 
     def clear(self):
+        '''
+        Clear the figure.
+        '''
         plt.clf()
         return self
 
     def restart(self, **kwargs):
+        '''
+        '''
         plt.clf()
         self._attr = {}
         for kw in IMG_DEFAULT_ATTRS.keys():
@@ -65,6 +70,8 @@ class image:
         return self
 
     def preset(self, **kwargs):
+        '''
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         if self['font'] != 'default':
@@ -87,11 +94,15 @@ class image:
         return self
 
     def set(self, **kwargs):
+        '''
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
 
     def add(self, *figs:tuple):
+        '''
+        '''
         for fig in figs:
             try:
                 fig()
@@ -100,6 +111,8 @@ class image:
         return self
 
     def addbasemap(self, *bmps:tuple):
+        '''
+        '''
         for bmp in bmps:
             try:
                 bmp()
@@ -108,11 +121,15 @@ class image:
         return self
 
     def addbaseNmask(self, bmp, mask):
+        '''
+        '''
         self.addbasemap(bmp)
         self.add(mask)
         return self
 
     def formatting(self, **kwargs):
+        '''
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self.setaxes()
@@ -121,6 +138,8 @@ class image:
         return self
 
     def setaxes(self, **kwargs):
+        '''
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         setf.xlim(self)
@@ -130,6 +149,8 @@ class image:
         return self
 
     def labels(self, **kwargs):
+        '''
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         setf.xlabel(self)
@@ -139,6 +160,8 @@ class image:
         return self
 
     def save(self, path:str='\r\n'):
+        '''
+        '''
         if path != '\r\n':
             self['saveas'] = path
         try:
@@ -148,18 +171,26 @@ class image:
         return self
 
     def colorbar(self, *args, **kwargs):
+        '''
+        '''
         plt.colorbar(*args, **kwargs)
         return self
 
     def legend(self, *args, **kwargs):
+        '''
+        '''
         plt.legend(*args, **kwargs)
         return self
 
     def show(self):
+        '''
+        '''
         plt.show()
         return self
 
     def subplot(self, *args:Tuple[int], **kwargs):
+        '''
+        '''
         if len(args) == 3:
             self['subplot'] = (args[0], args[1])
             self[f'ax_{args[2]}'] = plt.subplot(*args, **kwargs)
@@ -175,6 +206,8 @@ class image:
         return self
 
     def axes(self, *args:Tuple[int]) -> Union[mplaxes.Axes, Sequence[mplaxes.Axes]]:
+        '''
+        '''
         if not len(args):
             return [self[f'ax_{arg}'] for arg in range(99) if f'ax_{arg}' in self._attr.keys()]
         elif len(args) == 1:
@@ -183,6 +216,8 @@ class image:
             return [self[f'ax_{arg}'] for arg in args]
 
     def foraxes(self, f:Callable=lambda x:x, *args:Tuple[int]) -> Union[mplaxes.Axes, Sequence[mplaxes.Axes]]:
+        '''
+        '''
         if not len(args):
             return [f(self[f'ax_{arg}']) for arg in range(99) if f'ax_{arg}' in self._attr.keys()]
         elif len(args) == 1:
@@ -191,6 +226,8 @@ class image:
             return [f(self[f'ax_{arg}']) for arg in args]
 
     def text(self, *args, **kwargs):
+        '''
+        '''
         plt.text(*args, **kwargs)
         return self
 
@@ -198,26 +235,36 @@ class setf:
 
     @staticmethod
     def xlim(img:image) -> None:
+        '''
+        '''
         if 'xlim' in img._attr.keys():
             plt.xlim(*img['xlim'])
 
     @staticmethod
     def ylim(img:image) -> None:
+        '''
+        '''
         if 'ylim' in img._attr.keys():
             plt.ylim(*img['ylim'])
 
     @staticmethod
     def xticks(img:image) -> None:
+        '''
+        '''
         if 'xticks' in img._attr.keys():
             plt.xticks(img['xticks'])
 
     @staticmethod
     def yticks(img:image) -> None:
+        '''
+        '''
         if 'yticks' in img._attr.keys():
             plt.yticks(img['yticks'])
 
     @staticmethod
     def xlabel(img:image) -> None:
+        '''
+        '''
         if 'xlabel' in img._attr.keys():
             if 'xlabel_fs' in img._attr.keys():
                 plt.title(img['xlabel'], fontsize=img['xlabel_fs'])
@@ -226,6 +273,8 @@ class setf:
 
     @staticmethod
     def ylabel(img:image) -> None:
+        '''
+        '''
         if 'ylabel' in img._attr.keys():
             if 'ylabel_fs' in img._attr.keys():
                 plt.title(img['ylabel'], fontsize=img['ylabel_fs'])
@@ -234,6 +283,8 @@ class setf:
 
     @staticmethod
     def title(img:image) -> None:
+        '''
+        '''
         if 'title' in img._attr.keys():
             if 'title_fs' in img._attr.keys():
                 plt.title(img['title'], fontsize=img['title_fs'])
@@ -242,6 +293,8 @@ class setf:
 
     @staticmethod
     def suptitle(img:image) -> None:
+        '''
+        '''
         if 'suptitle' in img._attr.keys():
             if 'suptitle_fs' in img._attr.keys():
                 plt.title(img['suptitle'], fontsize=img['suptitle_fs'])
@@ -250,6 +303,8 @@ class setf:
 
     @staticmethod
     def grid(img:image) -> None:
+        '''
+        '''
         if 'grc' in img._attr.keys() or 'grls' in img._attr.keys() or 'grlw' in img._attr.keys():
             _grattr = {}
             if 'grc' in img._attr.keys():

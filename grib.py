@@ -8,6 +8,8 @@ from . import grid as apg
 class grib1:
 
     def __init__(self, path, shortName='', typeOfLevel=''):
+        '''
+        '''
         kwargs = {'engine': 'cfgrib',}
         if typeOfLevel or shortName:
             kwargs['filter_by_keys'] = {}
@@ -20,6 +22,8 @@ class grib1:
         self.dataset = xr.open_dataset(path, **kwargs)
 
     def sel(self, shortName='', value=0, **kwargs):
+        '''
+        '''
         if shortName:
             if len(list(kwargs.keys())):
                 self.val_sub:np.ndarray = self.dataset[shortName].sel(**kwargs).values
@@ -52,4 +56,6 @@ class grib1:
         return self
 
     def to_Grids(self, use_key=False):
-            return apg.Grids(self.lat, self.long, self.val)
+        '''
+        '''
+        return apg.Grids(self.lat, self.long, self.val)

@@ -9,6 +9,9 @@ class basemap:
 
     _base = Basemap()
     def _init_with(self, dic:dict, **kwargs) -> None:
+        '''
+        Initialize a basemap object with a dictionary
+        '''
         self._attr = {}
         self._formats = {}
         for kw in dic.keys():
@@ -24,11 +27,16 @@ class basemap:
         return self
 
     def set(self, **kwargs):
+        '''
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
 
     def init(self) -> Basemap:
+        '''
+        Define the projection, resolution and the boundary of the map of the Basemap object
+        '''
         try:
             self._base = Basemap(projection=self['proj'], llcrnrlon = self['long'][0], llcrnrlat = self['lat'][0], 
                     urcrnrlon = self['long'][1], urcrnrlat = self['lat'][1], resolution=self['res'])
@@ -37,6 +45,9 @@ class basemap:
         return self._base
 
     def drawcoastlines(self) -> Basemap:
+        '''
+        Direct operation to draw the coastlines when there is any coastlines in self's boundaries
+        '''
         if 'coastline_func' in self._attr.keys():
             if 'c' in self._coastlines.keys():
                 self['clcolor'] = self._coastlines['c']
@@ -51,6 +62,9 @@ class basemap:
         return self._base
 
     def colorbg(self, style:str=None) -> Basemap:
+        '''
+        Direct operation to select any of the preset colored backgrounds
+        '''
         if style == 'bluemarble':
             self._base.bluemarble(scale=self._attr['clbgs'])
         if style == 'shadedrelief':
@@ -60,6 +74,9 @@ class basemap:
         return self._base
 
     def lldraw(self) -> None:
+        '''
+        Direct operations to draw longitute and latitute grids
+        '''
         if self['grid'] == 'grid':
             self._base.drawparallels(np.arange(self['latref'], self['latref2'], self['latinv']), labels=[1,0,0,0],
                                         color=self['gridc'], linewidth=self['gridlw'], fontsize=self['gfontsize'])
@@ -85,6 +102,9 @@ class basemap:
                                          color=self._longssub['c'], linewidth=self._longssub['lw'], linestyle=self._longssub['ls'], fontsize=self._longssub['fs'])
 
     def ifcoast(self) -> bool:
+        '''
+        Judge if drawing coastlines is needed
+        '''
         if 'coastline_func' in self._attr.keys():
             self.drawcoastlines()
             return True
@@ -92,18 +112,27 @@ class basemap:
             return False
 
     def extraproc(self):
+        '''
+        Combination of the judgment functions
+        '''
         self.ifcoast()
         self.lldraw()
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     def grid(self, **kwargs):
+        '''
+        Function of drawing lat-long grids (use full dictionary names)
+        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         self['grid'] = 'grid'
         return self
 
     def lls(self, inv:float, **kwargs):
+        '''
+        Function of drawing lat-long grids (use simple alias)
+        '''
         self._lls = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
@@ -111,6 +140,9 @@ class basemap:
         return self
 
     def longs(self, inv:float, **kwargs):
+        '''
+        Function of drawing longitute lines (use simple alias)
+        '''
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
@@ -118,6 +150,9 @@ class basemap:
         return self
 
     def lats(self, inv:float, **kwargs):
+        '''
+        Function of drawing latitute lines (use simple alias)
+        '''
         self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90}
         for kw in kwargs.keys():
             self._lls[kw] = kwargs[kw]
@@ -125,6 +160,9 @@ class basemap:
         return self
 
     def coastlines(self, **kwargs):
+        '''
+        Function to add coastlines to an object if the coastlines are not drawn by default
+        '''
         self._coastlines = {}
         for kw in COAST_DEFAULT_ATTRS.keys():
             self._attr[kw] = COAST_DEFAULT_ATTRS[kw]
@@ -140,12 +178,10 @@ BASIC_DEFAULT_ATTRS = {
     'long'      :   [-180.,180.],
     'lat'       :   [-90.,90.],
     'res'       :   'c',
-
     'grid'      :   'default',
     'gridc'     :   'k',
     'gridlw'    :   0.5,
     'gfontsize' :   12,
-
     'latinv': 0,
     'longinv': 0,
     'latref': -90,
@@ -157,6 +193,9 @@ BASIC_DEFAULT_ATTRS = {
 class blank(basemap):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        basemap object without any feature
+        '''
         self._init_with(BASIC_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -176,6 +215,9 @@ COAST_DEFAULT_ATTRS = {
 class coast(basemap):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        basemap object with coastlines drawn inside the boundaries
+        '''
         self._init_with(BASIC_DEFAULT_ATTRS, **COAST_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -195,6 +237,9 @@ CLBG_DEFAULT_ATTRS = {
 class bluemarble(basemap):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        basemap object with bluemarble background
+        '''
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -209,6 +254,9 @@ class bluemarble(basemap):
 class shadedrelief(basemap):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        basemap object with shadedrelief background
+        '''
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -223,6 +271,9 @@ class shadedrelief(basemap):
 class etopo(basemap):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        basemap object with etopo background
+        '''
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
@@ -237,6 +288,9 @@ class etopo(basemap):
 class colorbg(basemap):
 
     def __init__(self, **kwargs) -> None:
+        '''
+        basemap object with the specified colored background
+        '''
         self._init_with(BASIC_DEFAULT_ATTRS, **CLBG_DEFAULT_ATTRS, **kwargs)
 
     def __call__(self, show:bool=False) -> Basemap:
