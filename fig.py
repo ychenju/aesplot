@@ -1,11 +1,15 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from symbol import arglist
 import numpy as np
+import pandas as pd
+import xarray as xr
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 class figure:
-
+    
     def __init__(self, *args, **kwargs) -> None:
         '''
         '''
@@ -469,8 +473,8 @@ class lls(figure):
 
     def __init__(self, **kwargs) -> None:
         '''
-        Add latitute or longitute lines.
-        Different from axes(), here you need to specified the intervals (set to 0 to avoid drawing) of the latitute lines and longitute lines to 'lat' and 'long', respectively.
+        Add latitude or longitude lines.
+        Different from axes(), here you need to specified the intervals (set to 0 to avoid drawing) of the latitude lines and longitude lines to 'lat' and 'long', respectively.
         While 'latref', 'longref' specifies the start point to draw the lines, and 'latref2', 'longref2' specifies the end point.
         '''
         self._init_with(LLS_DEFAULT_ATTRS, **kwargs)
@@ -539,10 +543,12 @@ class rect(figure):
 TRACK_DEFAULT_ATTRS = {
     'zfargs': [],
 }
+
 TRACK_DEFAULT_LFORMATS = {
     'lw': .5,
     'c': 'w',
 }
+
 class track(dotline):
 
     def __init__(self, *args, **kwargs) -> None:

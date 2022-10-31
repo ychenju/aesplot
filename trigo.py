@@ -197,24 +197,24 @@ def kmtonm(value:float) -> float:
 
 def lattokm(value:float) -> float:
     '''
-    Convert degree latitute to kilometer
+    Convert degree latitude to kilometer
     '''
     return 60.*nmtokm(value)
 
 def kmtolat(value:float) -> float:
     '''
-    Convert kilometer to degree latitute
+    Convert kilometer to degree latitude
     '''
     return kmtonm(value)/60.
 
 def longtokm(long:float, lat:float) -> float:
     '''
-    Convert degree longitute on certain latitute to kilometer
+    Convert degree longitude on certain latitude to kilometer
     '''
     return lattokm(long)*cosd(lat)
 
 def kmtolong(km:float, lat:float) -> float:
     '''
-    Convert kilometer to degree longitute on certain latitute
+    Convert kilometer to degree longitude on certain latitude
     '''
     return kmtolat(km)/cosd(lat)

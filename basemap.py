@@ -27,8 +27,6 @@ class basemap:
         return self
 
     def set(self, **kwargs):
-        '''
-        '''
         for kw in kwargs.keys():
             self._attr[kw] = kwargs[kw]
         return self
@@ -75,7 +73,7 @@ class basemap:
 
     def lldraw(self) -> None:
         '''
-        Direct operations to draw longitute and latitute grids
+        Direct operations to draw longitude and latitude grids
         '''
         if self['grid'] == 'grid':
             self._base.drawparallels(np.arange(self['latref'], self['latref2'], self['latinv']), labels=[1,0,0,0],
@@ -138,10 +136,10 @@ class basemap:
             self._lls[kw] = kwargs[kw]
         self['grid'] = 'lls'
         return self
-
+    
     def longs(self, inv:float, **kwargs):
         '''
-        Function of drawing longitute lines (use simple alias)
+        Function of drawing longitude lines (use simple alias)
         '''
         self._longs = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'longref': -180, 'longref2': 180}
         for kw in kwargs.keys():
@@ -151,7 +149,7 @@ class basemap:
 
     def lats(self, inv:float, **kwargs):
         '''
-        Function of drawing latitute lines (use simple alias)
+        Function of drawing latitude lines (use simple alias)
         '''
         self._lats = {'inv': inv, 'c': 'k', 'lw': 1, 'ls': '-', 'fs': 10, 'latref': -90, 'latref2': 90}
         for kw in kwargs.keys():
