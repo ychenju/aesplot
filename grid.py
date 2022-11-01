@@ -101,6 +101,24 @@ class Grids:
             yb = (self[y-1,x].lat + self[y,x].lat)/2, (3*self[y,x].lat - self[y-1,x].lat)/2
         return yb, xb
 
+    def iboundaries(self, y:int, x:int):
+        '''
+        '''
+        xb, yb = (0,0), (0,0)
+        if x and not x== self.long.shape[1] - 1:
+            xb = (self[y,x-1].long + self[y,x].long)/2, (self[y,x+1].long + self[y,x].long)/2
+        elif not x:
+            xb = (3*self[y,0].long - self[y,1].long)/2, (self[y,1].long + self[y,0].long)/2
+        elif x == self.long.shape[1] - 1:
+            xb = (self[y,x-1].long + self[y,x].long)/2, (3*self[y,x].long - self[y,x-1].long)/2
+        if y and not y == self.lat.shape[0] - 1:
+            yb = (self[y-1,x].lat + self[y,x].lat)/2, (self[y+1,x].lat + self[y,x].lat)/2
+        elif not y:
+            yb = (3*self[0,x].lat - self[1,x].lat)/2, (self[1,x].lat + self[0,x].lat)/2
+        elif y == self.lat.shape[0] - 1:
+            yb = (self[y-1,x].lat + self[y,x].lat)/2, (3*self[y,x].lat - self[y-1,x].lat)/2
+        return xb, yb
+
     @property
     def step(self) -> Tuple[float]:
         '''
@@ -112,6 +130,18 @@ class Grids:
         '''
         '''
         return atri.lattokm(np.mean(self.lat[1:,0]-self.lat[:-1,0]))
+
+    @property
+    def shapex(self) -> int:
+        '''
+        '''
+        return self.long.shape[1]
+
+    @property
+    def shapey(self) -> int:
+        '''
+        '''
+        return self.lat.shape[0]
 
     def cast(self, target:object) -> object:
         '''
@@ -272,6 +302,14 @@ class Grids:
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
+    def contourattrs(self, key=''):
+        '''
+        '''
+        if key:
+            return self.long, self.lat, self[key]
+        else:
+            return self.long, self.lat, self._data
+
 class Grid:
 
     def __init__(self, grids:Grids, y:int, x:int) -> None:
@@ -358,7 +396,6 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
 
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
-    [FIXME]
     '''
     if len(targets) == 1:
         return targets[0]
@@ -370,7 +407,6 @@ def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: 
 
 def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
-    [XXX]
     '''
     _o = GridsCopy(obj)
     _s = GridsCopy(subj)
@@ -410,3 +446,114 @@ def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x:
         return [_o, _s]
     except:
         raise RuntimeError(f'Cannot join: {subj} and {obj}')
+
+def ll1dto2d(lat:np.ndarray, long:np.ndarray, dtype:np.dtype=np.float32) -> Tuple[np.ndarray]:
+    '''
+    '''
+    lats = np.zeros((len(lat), len(long)), dtype=dtype)
+    longs = np.zeros((len(lat), len(long)), dtype=dtype)
+    for j in range(len(long)):
+        lats[:,j] = lat[:]
+    for i in range(len(lat)):
+        longs[i,:] = long[:]
+    return lats, longs
+
+def ill1dto2d(lat:np.ndarray, long:np.ndarray, dtype:np.dtype=np.float32) -> Tuple[np.ndarray]:
+    '''
+    '''
+    lats = np.zeros((len(lat), len(long)), dtype=dtype)
+    longs = np.zeros((len(lat), len(long)), dtype=dtype)
+    for j in range(len(long)):
+        lats[:,j] = lat[:]
+    for i in range(len(lat)):
+        longs[i,:] = long[:]
+    return longs, lats
+
+class coords1d(Grids):
+
+    def __init__(self, *args, **kwargs):
+        '''
+        '''
+        try:
+            if not 'lat' in kwargs.keys() or not 'long' in kwargs.keys():
+                self.lat, self.long = ll1dto2d(args[0], args[1])
+            if len(args) >= 3:
+                self._data = args[2]
+            else:
+                self._data = None
+            self.kwargs = {}
+            for kw in kwargs.keys():
+                if not kw == 'lat' and not kw == 'long':
+                    self.kwargs[kw] = kwargs[kw]
+                elif kw == 'lat':
+                    self.lat = kwargs[kw]
+                elif kw == 'long':
+                    self.long = kwargs[kw]
+        except:
+            raise RuntimeError('Cannot generate Grids object')
+
+class ll1d_zeros(Grids):
+
+    def __init__(self, *args, **kwargs):
+        '''
+        '''
+        try:
+            if not 'lat' in kwargs.keys() or not 'long' in kwargs.keys():
+                self.lat, self.long = ll1dto2d(args[0], args[1])
+                self._data = np.zeros((len(args[0]), len(args[1])))
+            else:
+                self.lat, self.long = ll1dto2d(kwargs['lat'], kwargs['long'])
+                self._data = np.zeros((len(kwargs['lat']), len(kwargs['long'])))
+            self.kwargs = {}
+        except:
+            raise RuntimeError('Cannot generate Grids object')
+
+class ll1d_ones(Grids):
+
+    def __init__(self, *args, **kwargs):
+        '''
+        '''
+        try:
+            if not 'lat' in kwargs.keys() or not 'long' in kwargs.keys():
+                self.lat, self.long = ll1dto2d(args[0], args[1])
+                self._data = np.ones((len(args[0]), len(args[1])))
+            else:
+                self.lat, self.long = ll1dto2d(kwargs['lat'], kwargs['long'])
+                self._data = np.ones((len(kwargs['lat']), len(kwargs['long'])))
+            self.kwargs = {}
+        except:
+            raise RuntimeError('Cannot generate Grids object')
+
+class ll2d_zeros(Grids):
+
+    def __init__(self, *args, **kwargs):
+        '''
+        '''
+        try:
+            if not 'lat' in kwargs.keys() or not 'long' in kwargs.keys():
+                self.lat:np.ndarray = args[0]
+                self.long:np.ndarray = args[1]
+            else:
+                self.lat:np.ndarray = kwargs['lat']
+                self.long:np.ndarray = kwargs['long']
+            self._data = np.zeros(self.lat.shape)
+            self.kwargs = {}
+        except:
+            raise RuntimeError('Cannot generate Grids object')
+
+class ll2d_ones(Grids):
+
+    def __init__(self, *args, **kwargs):
+        '''
+        '''
+        try:
+            if not 'lat' in kwargs.keys() or not 'long' in kwargs.keys():
+                self.lat:np.ndarray = args[0]
+                self.long:np.ndarray = args[1]
+            else:
+                self.lat:np.ndarray = kwargs['lat']
+                self.long:np.ndarray = kwargs['long']
+            self._data = np.ones(self.lat.shape)
+            self.kwargs = {}
+        except:
+            raise RuntimeError('Cannot generate Grids object')
