@@ -117,7 +117,7 @@ class gc:
                             return -10
         else:
             return 0
-    
+
     @staticmethod
     def toyd(year:int, month:int, day:int) -> YearD:
         '''
@@ -182,7 +182,7 @@ class gc:
         Convert Gregorian date (y, m, d) to the days count of UNIX era
         '''
         return gc.leap(year, month, day, *gc.read('19700101'))
-
+    
     @staticmethod
     def md(year:int, month:int, day:int) -> int:
         '''
@@ -489,6 +489,8 @@ class dt:
             p_s = period % 1 * 86400.
             rY, rM, rD = gc.after(*self.date, p_d)
             rd, rh, rm, rs = tm.afterd(*self.time, p_s)
+            if rD + rd > gc.mdays(rY, rM):
+                return dt(f'{int(rY):0>4d}{int(rM+1):0>2d}{int(1):0>2d}{int(rh):0>2d}{int(rm):0>2d}{int(rs):0>2d}', tz=self._tz)
             return dt(f'{int(rY):0>4d}{int(rM):0>2d}{int(rD+rd):0>2d}{int(rh):0>2d}{int(rm):0>2d}{int(rs):0>2d}', tz=self._tz)
         elif self._date:
             p_d = period // 1
