@@ -14,6 +14,15 @@ def longfix(lon:float) -> float:
     else:
         return lon
 
+def longfix2(lon:float) -> float:
+    '''
+    Convert the longitude ranging [0,360] to [-180,180]
+    '''
+    if lon >= 180:
+        return lon-360.
+    else:
+        return lon
+
 def samesign(x:float, y:float) -> bool:
     '''
     Return if the sign of 2 floats are the same

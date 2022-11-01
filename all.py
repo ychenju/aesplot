@@ -7,7 +7,7 @@ import xarray as xr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from .rst import *
+from .rst import *  # gdal必须在Basemap之前导入，否则报错
 
 from .ascl import *
 from .atm import *
@@ -19,6 +19,7 @@ from .grid import *
 from .fig import *
 from .filter import *
 from .img import *
+from .nc import *
 from .prep import *
 from .stat import *
 from .tc import *
@@ -43,6 +44,7 @@ from .wrfp import *
 #   grib        0.5.46  GRIB file processing
 #   grid        0.5.26  grid-like data processing
 #   img         0.1.0   main part (imported with the package)
+#   nc          0.6.3   netCDF4 file processing
 #   prep        0.2.1   data preprocessing
 #   rst         0.5.21  raster processing
 #   settings    0.1.0   internal setting functions

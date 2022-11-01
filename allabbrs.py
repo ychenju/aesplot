@@ -19,6 +19,7 @@ from . import gc as gc
 from . import grib as agrib
 from . import grid as apg
 from . import img as ap
+from . import nc as apnc
 from . import prep as app
 from . import stat as aps
 from . import tc as aptc

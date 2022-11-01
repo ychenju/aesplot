@@ -889,3 +889,10 @@ class now(dt):
         self._date = True
         self._time = True
         self._tz = tz
+
+def nctime_conv(t) -> str:
+    '''
+    Convert netCDF4 style time object (XXXX-XX-XXTXX:XX:XX.XXXXXXXXX) to ascl style time string
+    '''
+    _t = str(t)
+    return _t[:4] + _t[5:7] + _t[8:10] + _t[11:13] + _t[14:16] + _t[17:19]
