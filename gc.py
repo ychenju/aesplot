@@ -9,6 +9,7 @@ from . import trigo
 from typing import Sequence, Tuple, Union
 
 R = 8.3144598e-3
+
 MEGAN_T_STANDARD = 303.
 WM2_TO_UMOLM2S = 4.766
 
@@ -264,6 +265,7 @@ class megan:
         '''
         if np.isnan(cmlai) or np.isnan(pmlai) or np.isnan(dbtwn) or np.isnan(tt):
             return np.nan            
+
         if tt <= 303.0 :
             ti = 5.0 + 0.7*(300.0 - tt)
         elif tt >  303.0:
@@ -440,6 +442,7 @@ class megan:
         '''
         if np.isnan(t):
             return np.nan
+
         _gamma_t_li = np.exp(beta*(t - MEGAN_T_STANDARD))
         return _gamma_t_li
 
@@ -562,6 +565,7 @@ class megan:
         '''
         if np.isnan(CO2a):
             return np.nan
+
         if CO2_inhibition_scheme.upper() == 'LPOSSELL':
             LPOSSELL    = True
             LWILKINSON  = False
@@ -632,3 +636,40 @@ class megan:
             return GC_MEGAN_SPECIES_CONST[species][const[0]]
         else:
             return [GC_MEGAN_SPECIES_CONST[species][c] for c in const]
+
+class wrfgc_coupler:
+
+    @staticmethod
+    def getpar(tsolar:float, pres:float, zen:float) -> Tuple[float]:
+        '''
+        Inputs
+        tsolar  ! modeled or observed total radiation (W/m2) \n
+        pres    ! atmospheric pressure (mb) \n
+        zen     ! solar zenith angle (radians) \n
+
+        Outputs (pardb, pardif) \n
+        pardb   ! direct beam PAR (umol/m2-s) now (W/m^2) \n
+        pardif  ! diffuse PAR (umol/m2-s) now (W/m^2) \n
+        '''
+        if zen >= 1.51844 or tsolar <= 0:
+            return 0, 0
+        ot = pres / 1013.25 / np.cos(zen)
+        rdvis = 600. * np.exp(-0.185*ot) * np.cos(zen)
+        rfvis = 0.42 * (600 - rdvis) * np.cos(zen)
+        wa = 1320 * 0.077 * (2. * ot)**0.3
+        rdir = (720. * np.exp(-0.06 * ot) - wa) * np.cos(zen)
+        rfir = 0.65 * (720. - wa - rdir) * np.cos(zen)
+        rvt = rdvis + rfvis
+        rirt = rdir + rfir
+        fvis = rvt/(rirt + rvt)
+        ratio = tsolar /(rirt + rvt)
+        if ratio >= 0.89:
+            fvb = rdvis/rvt * 0.941124
+        elif ratio <= 0.21:
+            fvb = rdvis/rvt * 9.55E-3
+        else:
+            fvb = rdvis/rvt * (1.-((0.9 - ratio)/0.7)**0.666667)
+        fvd = 1. - fvb
+        pardb = tsolar * fvis * fvb
+        pardif = tsolar * fvis * fvd
+        return pardb, pardif
