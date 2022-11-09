@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pandas as pd
 from . import filter as apfilter
 from typing import Sequence, Tuple
 
@@ -22,6 +23,15 @@ def longfix2(lon:float) -> float:
         return lon-360.
     else:
         return lon
+
+def longfix3(lon:float) -> float:
+    '''
+    Convert the longitude ranging [-180,180] (wrong) to [0,180]+[-180,0]
+    '''
+    if lon < 0:
+        return 180.+lon
+    else:
+        return lon-180.
 
 def samesign(x:float, y:float) -> bool:
     '''

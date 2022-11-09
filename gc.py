@@ -1,11 +1,12 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from symbol import or_test
 import numpy as np
 from .data import GC_MEGAN_SPECIES_CONST, GC_MEGAN_PFT_EF, GC_MEGAN_EM_FRAC
 from . import ascl
-from .atm import sea
-from . import trigo
+from .atm import sea, ssrd_to_tsolar
+from . import trigo as atri
 from typing import Sequence, Tuple, Union
 
 R = 8.3144598e-3
@@ -265,7 +266,6 @@ class megan:
         '''
         if np.isnan(cmlai) or np.isnan(pmlai) or np.isnan(dbtwn) or np.isnan(tt):
             return np.nan            
-
         if tt <= 303.0 :
             ti = 5.0 + 0.7*(300.0 - tt)
         elif tt >  303.0:
@@ -442,7 +442,6 @@ class megan:
         '''
         if np.isnan(t):
             return np.nan
-
         _gamma_t_li = np.exp(beta*(t - MEGAN_T_STANDARD))
         return _gamma_t_li
 
@@ -452,7 +451,6 @@ class megan:
         '''
         if np.isnan(t) or np.isnan(pt_15):
             return np.nan
-
         e_opt = ceo * np.exp(0.08*(pt_15 - 2.97e2))
         t_opt = 3.13e2 + (6.0e-1 * (pt_15 - 2.97e2))
         CT2 = 200.0
@@ -486,9 +484,24 @@ class megan:
         return _r
 
     @staticmethod
-    def gamma_p(q_dir_2:Union[float, np.ndarray], q_diff_2:Union[float, np.ndarray], pardr_avg_sim:Union[float, np.ndarray], pardf_avg_sim:Union[float, np.ndarray],
+    def gamma_p(pardr:Union[float, np.ndarray], pardf:Union[float, np.ndarray], pardr_avg_sim:Union[float, np.ndarray], pardf_avg_sim:Union[float, np.ndarray],
                 timeobj:Union[ascl.dt, np.ndarray], lat:Union[float, np.ndarray], long:Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         '''
+        The original 'gamma_p()' adding to a preprocessing module of 'gamma_p' calculation \n
+        PARDR = 0.8 * pardb \n
+        PARDF = 0.8 * pardif \n
+        q_dir_2 = PARDR * WM2_TO_UMOLM2S \n
+        q_diff_2 = PARDF * WM2_TO_UMOLM2S \n
+        pardr_avg_sim = PARDR_LASTXDAYS \n
+        pardf_avg_sim = PARDF_LASTXDAYS \n
+        '''
+        return megan.gamma_p_sub(pardr*WM2_TO_UMOLM2S, pardf*WM2_TO_UMOLM2S, pardr_avg_sim, pardf_avg_sim, timeobj, lat, long)
+
+    @staticmethod
+    def gamma_p_sub(q_dir_2:Union[float, np.ndarray], q_diff_2:Union[float, np.ndarray], pardr_avg_sim:Union[float, np.ndarray], pardf_avg_sim:Union[float, np.ndarray],
+                timeobj:Union[ascl.dt, np.ndarray], lat:Union[float, np.ndarray], long:Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        '''
+        The original 'gamma_p()'
         '''
         if not isinstance(q_dir_2, np.ndarray):
             return megan.get_gamma_p(q_dir_2, q_diff_2, pardr_avg_sim, pardf_avg_sim, timeobj, lat, long)
@@ -512,7 +525,7 @@ class megan:
         pac_instant  = q_dir_2       +  q_diff_2
         doy = ascl.gc.toyd(*timeobj.date)[1]
         beta = sea(lat, long, timeobj)
-        sinbeta = trigo.sind(beta)
+        sinbeta = atri.sind(beta)
         if sinbeta <= 0.:
             gamma_p_pceea = 0.
         elif sinbeta > 0.:
@@ -565,7 +578,6 @@ class megan:
         '''
         if np.isnan(CO2a):
             return np.nan
-
         if CO2_inhibition_scheme.upper() == 'LPOSSELL':
             LPOSSELL    = True
             LWILKINSON  = False
@@ -637,7 +649,7 @@ class megan:
         else:
             return [GC_MEGAN_SPECIES_CONST[species][c] for c in const]
 
-class wrfgc_coupler:
+class coupler:
 
     @staticmethod
     def getpar(tsolar:float, pres:float, zen:float) -> Tuple[float]:
@@ -673,3 +685,100 @@ class wrfgc_coupler:
         pardb = tsolar * fvis * fvb
         pardif = tsolar * fvis * fvd
         return pardb, pardif
+
+    @staticmethod
+    def getparfromssrd(ssrd:float, pres:float, lat:float, long:float, date:Union[str, ascl.dt]) -> Tuple[float]:
+        '''
+        Get PAR from SSRD instead of tsolar. LAT, LONG &amp; timeobj are required
+        '''
+        _sea = sea(lat, long, date)
+        szar = atri.d2r(90.-_sea)
+        return coupler.getpar(ssrd_to_tsolar(lat, long, date, ssrd), pres, szar)
+
+    @staticmethod
+    def getpardr(tsolar:float, pres:float, zen:float) -> float:
+        '''
+        Inputs
+        tsolar  ! modeled or observed total radiation (W/m2) \n
+        pres    ! atmospheric pressure (mb) \n
+        zen     ! solar zenith angle (radians) \n
+
+        Outputs (pardb, pardif) \n
+        pardb   ! direct beam PAR (umol/m2-s) now (W/m^2) \n
+        pardif  ! diffuse PAR (umol/m2-s) now (W/m^2) \n
+        '''
+        if zen >= 1.51844 or tsolar <= 0:
+            return 0, 0
+        ot = pres / 1013.25 / np.cos(zen)
+        rdvis = 600. * np.exp(-0.185*ot) * np.cos(zen)
+        rfvis = 0.42 * (600 - rdvis) * np.cos(zen)
+        wa = 1320 * 0.077 * (2. * ot)**0.3
+        rdir = (720. * np.exp(-0.06 * ot) - wa) * np.cos(zen)
+        rfir = 0.65 * (720. - wa - rdir) * np.cos(zen)
+        rvt = rdvis + rfvis
+        rirt = rdir + rfir
+        fvis = rvt/(rirt + rvt)
+        ratio = tsolar /(rirt + rvt)
+        if ratio >= 0.89:
+            fvb = rdvis/rvt * 0.941124
+        elif ratio <= 0.21:
+            fvb = rdvis/rvt * 9.55E-3
+        else:
+            fvb = rdvis/rvt * (1.-((0.9 - ratio)/0.7)**0.666667)
+        fvd = 1. - fvb
+        pardb = tsolar * fvis * fvb
+        pardif = tsolar * fvis * fvd
+        return pardb * 0.8
+
+    @staticmethod
+    def getpardf(tsolar:float, pres:float, zen:float) -> float:
+        '''
+        Inputs
+        tsolar  ! modeled or observed total radiation (W/m2) \n
+        pres    ! atmospheric pressure (mb) \n
+        zen     ! solar zenith angle (radians) \n
+
+        Outputs (pardb, pardif) \n
+        pardb   ! direct beam PAR (umol/m2-s) now (W/m^2) \n
+        pardif  ! diffuse PAR (umol/m2-s) now (W/m^2) \n
+        '''
+        if zen >= 1.51844 or tsolar <= 0:
+            return 0, 0
+        ot = pres / 1013.25 / np.cos(zen)
+        rdvis = 600. * np.exp(-0.185*ot) * np.cos(zen)
+        rfvis = 0.42 * (600 - rdvis) * np.cos(zen)
+        wa = 1320 * 0.077 * (2. * ot)**0.3
+        rdir = (720. * np.exp(-0.06 * ot) - wa) * np.cos(zen)
+        rfir = 0.65 * (720. - wa - rdir) * np.cos(zen)
+        rvt = rdvis + rfvis
+        rirt = rdir + rfir
+        fvis = rvt/(rirt + rvt)
+        ratio = tsolar /(rirt + rvt)
+        if ratio >= 0.89:
+            fvb = rdvis/rvt * 0.941124
+        elif ratio <= 0.21:
+            fvb = rdvis/rvt * 9.55E-3
+        else:
+            fvb = rdvis/rvt * (1.-((0.9 - ratio)/0.7)**0.666667)
+        fvd = 1. - fvb
+        pardb = tsolar * fvis * fvb
+        pardif = tsolar * fvis * fvd
+        return pardif * 0.8
+
+    @staticmethod
+    def getpardr_fromssrd(ssrd:float, pres:float, lat:float, long:float, date:Union[str, ascl.dt]) -> float:
+        '''
+        Get PAR from SSRD instead of tsolar. LAT, LONG &amp; timeobj are required
+        '''
+        _sea = sea(lat, long, date)
+        szar = atri.d2r(90.-_sea)
+        return coupler.getpardr(ssrd_to_tsolar(lat, long, date, ssrd), pres, szar)    
+
+    @staticmethod
+    def getpardf_fromssrd(ssrd:float, pres:float, lat:float, long:float, date:Union[str, ascl.dt]) -> float:
+        '''
+        Get PAR from SSRD instead of tsolar. LAT, LONG &amp; timeobj are required
+        '''
+        _sea = sea(lat, long, date)
+        szar = atri.d2r(90.-_sea)
+        return coupler.getpardf(ssrd_to_tsolar(lat, long, date, ssrd), pres, szar)

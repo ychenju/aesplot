@@ -51,7 +51,7 @@ def tdt(lat:float, date:Union[str, ascl.dt]) -> float:
     '''
     return np.arccos(tr.tand(-lat)*tr.tand(declination(date)))*86400./np.pi
 
-def ssrdtotsolar(lat:float, long:float, date:Union[str, ascl.dt], ssrd:float) -> float:
+def ssrd_to_tsolar(lat:float, long:float, date:Union[str, ascl.dt], ssrd:float) -> float:
     '''
     Convert SSRD data (of a day) to tsolar value (of a moment)
     '''

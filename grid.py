@@ -11,7 +11,7 @@ from . import toolkit as tk
 from . import trigo as atri
 from typing import Sequence, Union, Tuple, Callable
 from tqdm import tqdm
-
+  
 class Grids:
     
     def __init__(self, *args, **kwargs) -> None:
@@ -129,7 +129,7 @@ class Grids:
     def resy(self) -> float:
         '''
         '''
-        return atri.lattokm(np.mean(self.lat[1:,0]-self.lat[:-1,0]))
+        return np.abs(atri.lattokm(np.mean(self.lat[1:,0]-self.lat[:-1,0])))
 
     @property
     def shapex(self) -> int:
@@ -298,7 +298,6 @@ class Grids:
         tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
         if isinstance(self.data, np.ndarray):
             tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
-
         for key in self.kwargs.keys():
             tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
 
@@ -309,6 +308,27 @@ class Grids:
             return self.long, self.lat, self[key]
         else:
             return self.long, self.lat, self._data
+
+    def longconv(self, f:Callable=aux.longfix3):
+        '''
+        '''
+        _long = np.vectorize(f)(self.long)[0,:]
+        _lat = self.lat[:,0]
+        argls = np.argsort(_long)
+        _lats = np.zeros((len(_lat), len(_long)), dtype=np.float32)
+        _longs = np.zeros((len(_lat), len(_long)), dtype=np.float32)
+        for j in range(len(_long)):
+            _lats[:,argls[j]] = _lat[:]
+        for i in range(len(_lat)):
+            _longs[i,argls[:]] = _long[:]
+        return Grids(_lats, _longs, self._data, **self.kwargs)
+
+    def rearrange22Nov(self):
+        '''
+        '''
+        g1 = self.longconv(lambda x: x+180).restrict([-90,90],long=[0,180])
+        g2 = self.longconv(lambda x: x-180).restrict([-90,90],long=[-180,0])
+        return attach_we(g2,g1)
 
 class Grid:
 
@@ -349,6 +369,10 @@ class filein(Grids):
         for p in paths:
             if p[:5] == 'DATA_':
                 self.kwargs[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
+
+class semifin(Grids):
+    '''
+    '''
 
 class GridsCopy(Grids):
     '''
@@ -396,6 +420,7 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
 
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
+    [FIXME]
     '''
     if len(targets) == 1:
         return targets[0]
@@ -407,6 +432,7 @@ def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: 
 
 def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
+    [XXX]
     '''
     _o = GridsCopy(obj)
     _s = GridsCopy(subj)
@@ -557,3 +583,18 @@ class ll2d_ones(Grids):
             self.kwargs = {}
         except:
             raise RuntimeError('Cannot generate Grids object')
+
+def attach_we(west:Grids, east:Grids) -> Grids:
+    '''
+    '''
+    midi = west.long.shape[1]
+    longs = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+    lats = np.ones((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+    datas = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+    longs[:,:midi] = west.long[:,:]
+    longs[:,midi:] = east.long[:,:]
+    lats[:,:midi] = west.lat[:,:]
+    lats[:,midi:] = east.lat[:,:]
+    datas[:,:midi] = west.data[:,:]
+    datas[:,midi:] = east.data[:,:]
+    return Grids(lats, longs, datas)

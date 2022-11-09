@@ -141,11 +141,14 @@ def tocsv(table:np.ndarray, path:str, **kwargs) -> pd.DataFrame:
     _df.to_csv(path, **kwargs)
     return _df
 
-def listdirfull(path: str) -> Sequence[str]:
+def listdir(path: str, full=False) -> Sequence[str]:
     '''
     '''
     paths = os.listdir(path)
-    return [f'{path}\\{p}' for p in paths]
+    if full:
+        return [f'{path}\\{p}' for p in paths]
+    else:
+        return [f'{p}' for p in paths]
 
 def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence[str]:
     '''
