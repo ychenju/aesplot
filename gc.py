@@ -30,6 +30,7 @@ class megan:
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+
     @staticmethod
     def emis(**kwargs):
         '''
@@ -99,6 +100,7 @@ class megan:
         '''
         pass
 
+        # - FIXME - * - FIXME - * - FIXME - * - FIXME - * - #
     @staticmethod
     def get_aef():
         """
@@ -442,6 +444,7 @@ class megan:
         '''
         if np.isnan(t):
             return np.nan
+
         _gamma_t_li = np.exp(beta*(t - MEGAN_T_STANDARD))
         return _gamma_t_li
 
@@ -451,6 +454,7 @@ class megan:
         '''
         if np.isnan(t) or np.isnan(pt_15):
             return np.nan
+
         e_opt = ceo * np.exp(0.08*(pt_15 - 2.97e2))
         t_opt = 3.13e2 + (6.0e-1 * (pt_15 - 2.97e2))
         CT2 = 200.0
@@ -633,7 +637,7 @@ class megan:
         'AAXX',
         'C2H4',
         'TOLU',
-        'HCNX',
+        'HCNX'
         'PRPE',
         'FARN',
         'BCAR',
@@ -693,7 +697,7 @@ class coupler:
         '''
         _sea = sea(lat, long, date)
         szar = atri.d2r(90.-_sea)
-        return coupler.getpar(ssrd_to_tsolar(lat, long, date, ssrd), pres, szar)
+        return coupler.getpar(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar)
 
     @staticmethod
     def getpardr(tsolar:float, pres:float, zen:float) -> float:
@@ -708,7 +712,7 @@ class coupler:
         pardif  ! diffuse PAR (umol/m2-s) now (W/m^2) \n
         '''
         if zen >= 1.51844 or tsolar <= 0:
-            return 0, 0
+            return 0
         ot = pres / 1013.25 / np.cos(zen)
         rdvis = 600. * np.exp(-0.185*ot) * np.cos(zen)
         rfvis = 0.42 * (600 - rdvis) * np.cos(zen)
@@ -743,7 +747,7 @@ class coupler:
         pardif  ! diffuse PAR (umol/m2-s) now (W/m^2) \n
         '''
         if zen >= 1.51844 or tsolar <= 0:
-            return 0, 0
+            return 0
         ot = pres / 1013.25 / np.cos(zen)
         rdvis = 600. * np.exp(-0.185*ot) * np.cos(zen)
         rfvis = 0.42 * (600 - rdvis) * np.cos(zen)
@@ -770,15 +774,19 @@ class coupler:
         '''
         Get PAR from SSRD instead of tsolar. LAT, LONG &amp; timeobj are required
         '''
+        if np.isnan(ssrd) or np.isnan(pres):
+            return np.nan
         _sea = sea(lat, long, date)
         szar = atri.d2r(90.-_sea)
-        return coupler.getpardr(ssrd_to_tsolar(lat, long, date, ssrd), pres, szar)    
+        return coupler.getpardr(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar)    
 
     @staticmethod
     def getpardf_fromssrd(ssrd:float, pres:float, lat:float, long:float, date:Union[str, ascl.dt]) -> float:
         '''
         Get PAR from SSRD instead of tsolar. LAT, LONG &amp; timeobj are required
         '''
+        if np.isnan(ssrd) or np.isnan(pres):
+            return np.nan
         _sea = sea(lat, long, date)
         szar = atri.d2r(90.-_sea)
-        return coupler.getpardf(ssrd_to_tsolar(lat, long, date, ssrd), pres, szar)
+        return coupler.getpardf(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar)

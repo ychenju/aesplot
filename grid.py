@@ -11,7 +11,7 @@ from . import toolkit as tk
 from . import trigo as atri
 from typing import Sequence, Union, Tuple, Callable
 from tqdm import tqdm
-  
+
 class Grids:
     
     def __init__(self, *args, **kwargs) -> None:
@@ -326,7 +326,7 @@ class Grids:
     def rearrange22Nov(self):
         '''
         '''
-        g1 = self.longconv(lambda x: x+180).restrict([-90,90],long=[0,180])
+        g1 = self.longconv(lambda x: x+180).restrict([-90,90],long=[0,180-self.step[1]/2])
         g2 = self.longconv(lambda x: x-180).restrict([-90,90],long=[-180,0])
         return attach_we(g2,g1)
 
@@ -586,6 +586,7 @@ class ll2d_ones(Grids):
 
 def attach_we(west:Grids, east:Grids) -> Grids:
     '''
+    Attach two Grids object with some latitudes
     '''
     midi = west.long.shape[1]
     longs = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))

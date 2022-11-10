@@ -49,11 +49,19 @@ def tdt(lat:float, date:Union[str, ascl.dt]) -> float:
     '''
     Calculate the total daytime (in seconds)
     '''
-    return np.arccos(tr.tand(-lat)*tr.tand(declination(date)))*86400./np.pi
+    if tr.tand(-lat)*tr.tand(declination(date)) > 1:
+        return 0
+    elif tr.tand(-lat)*tr.tand(declination(date)) < -1:
+        return 86400
+    else:
+        return np.arccos(tr.tand(-lat)*tr.tand(declination(date)))*86400./np.pi
 
 def ssrd_to_tsolar(lat:float, long:float, date:Union[str, ascl.dt], ssrd:float) -> float:
     '''
     Convert SSRD data (of a day) to tsolar value (of a moment)
     '''
-    return np.pi*ssrd*tr.sind(max(sea(lat, long, date),0))/\
-        (np.pi*tdt(lat,date)*tr.sind(lat)*tr.sind(declination(date))+86400*tr.cosd(lat)*tr.cosd(declination(date))*np.sin(np.pi/86400.*tdt(lat,date)))
+    if not np.isnan(_r := np.pi*ssrd*tr.sind(max(sea(lat, long, date),0))/\
+        (np.pi*tdt(lat,date)*tr.sind(lat)*tr.sind(declination(date))+86400*tr.cosd(lat)*tr.cosd(declination(date))*np.sin(np.pi/86400.*tdt(lat,date)))):
+        return _r
+    else:
+        return 0
