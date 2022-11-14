@@ -182,6 +182,49 @@ class Grids:
             _r[kw][:,:] = self[kw][_md[:,:,0],_md[:,:,1]]
         return _r
 
+    def map_f(self, target:object, verbose:bool=True, dtype=np.float32) -> object:
+        '''
+        '''
+        _r = Grids(target.lat, target.long)
+        if isinstance(self._data, np.ndarray):
+            _r._data = np.zeros(target.lat.shape)
+        for kw in self.kwargs:
+            _r[kw] = np.zeros(self[kw].shape)
+        if verbose:
+            try:
+                with tqdm(range(target.lat.shape[0]), desc='grid.Grids.map()') as _tqdm:
+                    for i in _tqdm:
+                        for j in range(target.lat.shape[1]):
+                            sub = self.restrict([target.lat[i,j]-target.step[0],target.lat[i,j]+target.step[0]], [target.long[i,j]-target.step[1],target.long[i,j]+target.step[1]])
+                            _d = np.zeros(sub.lat.shape)
+                            _d[:,:] = aux.dist((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                            _md = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
+                            if isinstance(self._data, np.ndarray):
+                                _r._data[i,j] = sub._data[_md[0],_md[1]]
+                            for kw in self.kwargs:
+                                _r[kw][i,j] = sub[kw][_md[0],_md[1]]
+            except KeyboardInterrupt:
+                _tqdm.close()
+                raise
+            _tqdm.close()
+        else:
+            for i in range(target.lat.shape[0]):
+                for j in range(target.lat.shape[1]):
+                    sub = self.restrict([target.lat[i,j]-target.step[0],target.lat[i,j]+target.step[0]], [target.long[i,j]-target.step[1],target.long[i,j]+target.step[1]])
+                    print(sub._data)
+                    _d = np.zeros(sub.lat.shape)
+                    _d[:,:] = aux.dist((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                    print(_d)
+                    _md = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
+                    print(_md)
+                    if isinstance(self._data, np.ndarray):
+                        _r._data[i,j] = sub._data[_md[0],_md[1]]
+                        print(sub._data[_md[0],_md[1]])
+                        print(_r._data[i,j])
+                    for kw in self.kwargs:
+                        _r[kw][i,j] = sub[kw][_md[0],_md[1]]
+        return _r
+
     def maps(self, targets:Sequence[object], verbose:bool=True, dtype=np.float32) -> object:
         '''
         '''
@@ -586,7 +629,6 @@ class ll2d_ones(Grids):
 
 def attach_we(west:Grids, east:Grids) -> Grids:
     '''
-    Attach two Grids object with some latitudes
     '''
     midi = west.long.shape[1]
     longs = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
