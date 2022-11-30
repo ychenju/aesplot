@@ -1,7 +1,6 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from symbol import or_test
 import numpy as np
 from .data import GC_MEGAN_SPECIES_CONST, GC_MEGAN_PFT_EF, GC_MEGAN_EM_FRAC
 from . import ascl
@@ -29,7 +28,6 @@ class megan:
     }
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 
     @staticmethod
     def emis(**kwargs):
@@ -100,7 +98,6 @@ class megan:
         '''
         pass
 
-        # - FIXME - * - FIXME - * - FIXME - * - FIXME - * - #
     @staticmethod
     def get_aef():
         """
@@ -268,6 +265,7 @@ class megan:
         '''
         if np.isnan(cmlai) or np.isnan(pmlai) or np.isnan(dbtwn) or np.isnan(tt):
             return np.nan            
+
         if tt <= 303.0 :
             ti = 5.0 + 0.7*(300.0 - tt)
         elif tt >  303.0:
@@ -454,7 +452,6 @@ class megan:
         '''
         if np.isnan(t) or np.isnan(pt_15):
             return np.nan
-
         e_opt = ceo * np.exp(0.08*(pt_15 - 2.97e2))
         t_opt = 3.13e2 + (6.0e-1 * (pt_15 - 2.97e2))
         CT2 = 200.0
@@ -521,7 +518,7 @@ class megan:
         '''
         '''
         if np.isnan(q_dir_2) or np.isnan(q_diff_2) or np.isnan(pardr_avg_sim) or np.isnan(pardf_avg_sim) or np.isnan(lat) or np.isnan(long):
-            return np.nan
+            return np.nanargmax
         ptoa   = 0.0
         mm_pardr_daily = pardr_avg_sim  * WM2_TO_UMOLM2S
         mm_pardf_daily = pardf_avg_sim  * WM2_TO_UMOLM2S
@@ -582,6 +579,7 @@ class megan:
         '''
         if np.isnan(CO2a):
             return np.nan
+
         if CO2_inhibition_scheme.upper() == 'LPOSSELL':
             LPOSSELL    = True
             LWILKINSON  = False
@@ -618,30 +616,43 @@ class megan:
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     SPECIES_LIST = (
-        'ISOP',
-        'MBOX',
-        'MYRC',
-        'SABI',
-        'APIN',
-        'LIMO',
-        'CARE',
-        'BPIN',
-        'OCIM',
-        'OMON',
-        'MOH' ,
-        'ACET',
-        'EOH' ,
-        'CH2O',
-        'ALD2',
-        'FAXX',
-        'AAXX',
-        'C2H4',
-        'TOLU',
-        'HCNX'
-        'PRPE',
-        'FARN',
-        'BCAR',
-        'OSQT',
+        'ISOP', #  isoprene
+        'MBOX', #  MBO
+        'MYRC', #  myrcene
+        'SABI', #  sabinene
+        'APIN', #  alpha-pinene
+        'LIMO', #  limonene
+        'CARE', #  3-carene
+        'BPIN', #  beta-pinene
+        'OCIM', #  t-beta-ocimene
+        'OMON', #  other monoterpenes
+        'MOH' , #  methanol
+        'ACET', #  acetone
+        'EOH' , #  ethanol
+        'CH2O', #  formaldehyde
+        'ALD2', #  acetaldehyde
+        'FAXX', #  formic acid
+        'AAXX', #  acetic acid
+        'C2H4', #  ethene
+        'TOLU', #  toluene
+        'HCNX', #  HCN
+        'PRPE', #  >C2 alkenes
+        'FARN', #  alpha-Farnesene
+        'BCAR', #  beta-Caryophyllene
+        'OSQT', #  other sesquiterpenes
+    )
+
+    UNIQUE_SPECIES_LIST = (
+        'ISOP', #  GROUP 1 with MBOX
+        'EOH' , #  GROUP 2 with CH2O, ALD2, FAXX, AAXX
+        'C2H4', #  GROUP 3 with TOLU, HCNX
+        'MYRC', #  GROUP 4 with SABI, APIN
+        'FARN', #  GROUP 5 with BCAR, OSQT
+        'LIMO', #  GROUP 6 with CARE, BPIN
+        'ACET', #  GROUP 7 with PRPE
+        'OCIM', #  UNIQUE
+        'OMON', #  UNIQUE
+        'MOH' , #  UNIQUE
     )
 
     @staticmethod
