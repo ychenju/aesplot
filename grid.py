@@ -161,7 +161,7 @@ class Grids:
                     for i in _tqdm:
                         for j in range(target.lat.shape[1]):
                             _d = np.zeros(self.lat.shape)
-                            _d[:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                            _d[:,:] = aux.dist2((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
                             _md[i,j] = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
             except KeyboardInterrupt:
                 _tqdm.close()
@@ -171,7 +171,7 @@ class Grids:
             for i in range(target.lat.shape[0]):
                 for j in range(target.lat.shape[1]):
                     _d = np.zeros(self.lat.shape)
-                    _d[:,:] = aux.dist((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                    _d[:,:] = aux.dist2((self.lat[:,:],self.long[:,:]),(target.lat[i,j],target.long[i,j]))
                     _md[i,j] = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
         _r = Grids(target.lat, target.long)
         if isinstance(self._data, np.ndarray):
@@ -197,7 +197,7 @@ class Grids:
                         for j in range(target.lat.shape[1]):
                             sub = self.restrict([target.lat[i,j]-target.step[0],target.lat[i,j]+target.step[0]], [target.long[i,j]-target.step[1],target.long[i,j]+target.step[1]])
                             _d = np.zeros(sub.lat.shape)
-                            _d[:,:] = aux.dist((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                            _d[:,:] = aux.dist2((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
                             _md = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
                             if isinstance(self._data, np.ndarray):
                                 _r._data[i,j] = sub._data[_md[0],_md[1]]
@@ -213,7 +213,7 @@ class Grids:
                     sub = self.restrict([target.lat[i,j]-target.step[0],target.lat[i,j]+target.step[0]], [target.long[i,j]-target.step[1],target.long[i,j]+target.step[1]])
                     print(sub._data)
                     _d = np.zeros(sub.lat.shape)
-                    _d[:,:] = aux.dist((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
+                    _d[:,:] = aux.dist2((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
                     print(_d)
                     _md = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
                     print(_md)
@@ -407,7 +407,7 @@ class filein(Grids):
             self._data = aux.cp2d(app.csv(path+r'\DATA.csv', header=None)())
         except:
             self._data = None
-            print('The directory has no \'DATA.csv\', thus self.data will be void')
+            # print('The directory has no \'DATA.csv\', thus self.data will be void')
         self.kwargs = {}    
         for p in paths:
             if p[:5] == 'DATA_':
@@ -486,7 +486,7 @@ def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x:
                 for i in _tqdm:
                     for j in range(subj.lat.shape[1]):
                         _d = np.ones(obj.lat.shape)
-                        _d[:,:] = aux.dist((subj.lat[i,j], subj.long[i,j]), (obj.lat[:,:], obj.long[:,:]))
+                        _d[:,:] = aux.dist2((subj.lat[i,j], subj.long[i,j]), (obj.lat[:,:], obj.long[:,:]))
                         if np.min(_d) < threshold:
                             mapchart[i,j] = np.array([np.argmin(_d)//_d.shape[1]+1, np.argmin(_d)%_d.shape[1]]+1)
                             if isinstance(_o._data, np.ndarray):
@@ -501,7 +501,7 @@ def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x:
             for i in range(subj.lat.shape[0]):
                 for j in range(subj.lat.shape[1]):
                     _d = np.ones(obj.lat.shape)
-                    _d[:,:] = aux.dist((subj.lat[i,j], subj.long[i,j]), (obj.lat[:,:], obj.long[:,:]))
+                    _d[:,:] = aux.dist2((subj.lat[i,j], subj.long[i,j]), (obj.lat[:,:], obj.long[:,:]))
                     if np.min(_d) < threshold:
                         mapchart[i,j] = np.array([np.argmin(_d)//_d.shape[1]+1, np.argmin(_d)%_d.shape[1]]+1)
                         if isinstance(_o._data, np.ndarray):

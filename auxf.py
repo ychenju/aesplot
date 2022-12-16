@@ -105,3 +105,15 @@ def dist(coor1:tuple, coor2:tuple) -> float:
     Return the distance between 2 Cartesian coordinates in Eculidean plane
     '''
     return np.sqrt((coor2[0]-coor1[0])**2 + (coor2[1]-coor1[1])**2)
+
+def dist2(coor1:tuple, coor2:tuple) -> float:
+    '''
+    Return the square of distance between 2 Cartesian coordinates in Eculidean plane
+    '''
+    return (coor2[0]-coor1[0])**2 + (coor2[1]-coor1[1])**2
+
+def abs_pdist(coor1:tuple, coor2:tuple) -> float:
+    '''
+    Return the 'pseudo distance' (replace the square in dist2 by abs())
+    '''
+    return np.abs(coor2[0]-coor1[0]) + np.abs(coor2[1]-coor1[1])
