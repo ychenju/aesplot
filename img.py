@@ -1,6 +1,10 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import numpy as np
+import pandas as pd
+import xarray as xr
+import matplotlib as mpl
 import matplotlib.axes as mplaxes
 import matplotlib.pyplot as plt
 from . import settings
@@ -267,7 +271,7 @@ class setf:
         '''
         if 'xlabel' in img._attr.keys():
             if 'xlabel_fs' in img._attr.keys():
-                plt.title(img['xlabel'], fontsize=img['xlabel_fs'])
+                plt.xlabel(img['xlabel'], fontsize=img['xlabel_fs'])
             else:
                 plt.xlabel(img['xlabel'])
 
@@ -277,7 +281,7 @@ class setf:
         '''
         if 'ylabel' in img._attr.keys():
             if 'ylabel_fs' in img._attr.keys():
-                plt.title(img['ylabel'], fontsize=img['ylabel_fs'])
+                plt.ylabel(img['ylabel'], fontsize=img['ylabel_fs'])
             else:
                 plt.ylabel(img['ylabel'])
 
@@ -297,7 +301,7 @@ class setf:
         '''
         if 'suptitle' in img._attr.keys():
             if 'suptitle_fs' in img._attr.keys():
-                plt.title(img['suptitle'], fontsize=img['suptitle_fs'])
+                plt.suptitle(img['suptitle'], fontsize=img['suptitle_fs'])
             else:
                 plt.suptitle(img['suptitle'])
 
