@@ -271,7 +271,7 @@ class megan:
         elif tt >  303.0:
             ti = 2.9
         tm = 2.3 * ti
-        if cmlai == pmlai:
+        if cmlai == pmlai: 
             fnew = 0.
             fgro = 0.
             fmat = 0.
@@ -518,7 +518,7 @@ class megan:
         '''
         '''
         if np.isnan(q_dir_2) or np.isnan(q_diff_2) or np.isnan(pardr_avg_sim) or np.isnan(pardf_avg_sim) or np.isnan(lat) or np.isnan(long):
-            return np.nanargmax
+            return np.nan
         ptoa   = 0.0
         mm_pardr_daily = pardr_avg_sim  * WM2_TO_UMOLM2S
         mm_pardf_daily = pardf_avg_sim  * WM2_TO_UMOLM2S
@@ -579,7 +579,6 @@ class megan:
         '''
         if np.isnan(CO2a):
             return np.nan
-
         if CO2_inhibition_scheme.upper() == 'LPOSSELL':
             LPOSSELL    = True
             LWILKINSON  = False
@@ -643,16 +642,16 @@ class megan:
     )
 
     UNIQUE_SPECIES_LIST = (
-        'ISOP', #  GROUP 1 with MBOX
-        'EOH' , #  GROUP 2 with CH2O, ALD2, FAXX, AAXX
-        'C2H4', #  GROUP 3 with TOLU, HCNX
-        'MYRC', #  GROUP 4 with SABI, APIN
-        'FARN', #  GROUP 5 with BCAR, OSQT
-        'LIMO', #  GROUP 6 with CARE, BPIN
-        'ACET', #  GROUP 7 with PRPE
-        'OCIM', #  UNIQUE
-        'OMON', #  UNIQUE
-        'MOH' , #  UNIQUE
+        'ISOP',
+        'EOH' ,
+        'C2H4',
+        'MYRC',
+        'FARN',
+        'LIMO',
+        'ACET',
+        'OCIM',
+        'OMON',
+        'MOH' ,
     )
 
     @staticmethod
@@ -789,7 +788,7 @@ class coupler:
             return np.nan
         _sea = sea(lat, long, date)
         szar = atri.d2r(90.-_sea)
-        return coupler.getpardr(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar)    
+        return float(coupler.getpardr(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar))
 
     @staticmethod
     def getpardf_fromssrd(ssrd:float, pres:float, lat:float, long:float, date:Union[str, ascl.dt]) -> float:
@@ -800,4 +799,4 @@ class coupler:
             return np.nan
         _sea = sea(lat, long, date)
         szar = atri.d2r(90.-_sea)
-        return coupler.getpardf(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar)
+        return float(coupler.getpardf(ssrd_to_tsolar(lat, long, date, ssrd), pres/100., szar))
