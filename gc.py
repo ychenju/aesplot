@@ -273,9 +273,9 @@ class megan:
         tm = 2.3 * ti
         if cmlai == pmlai: 
             fnew = 0.
-            fgro = 0.
-            fmat = 0.
-            fold = 0.
+            fgro = 0.1
+            fmat = 0.8
+            fold = 0.1
         elif cmlai > pmlai:
             if dbtwn > ti:
                 fnew = ti/dbtwn*(1.-pmlai/cmlai)

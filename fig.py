@@ -1,11 +1,7 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from symbol import arglist
 import numpy as np
-import pandas as pd
-import xarray as xr
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 class figure:
@@ -381,12 +377,14 @@ class contour(figure):
 
     def __call__(self) -> None:
         if 'x' in self._attr.keys() and 'y' in self._attr.keys() and 'z' in self._attr.keys():
+            # 尝试plt自带的可广播的方法
             try:
                 if self['clabel']:
                     C = plt.contour(self['x'], self['y'], self['z'], **self._formats)
                     plt.clabel(C, **self['clabel_format'])
                 else:
                     plt.contour(self['x'], self['y'], self['z'], **self._formats)
+            # 无广播的情况，强制对齐为一维
             except:
                 self['x'] = np.array(self['x']).reshape(-1)
                 self['y'] = np.array(self['y']).reshape(-1)
@@ -543,12 +541,10 @@ class rect(figure):
 TRACK_DEFAULT_ATTRS = {
     'zfargs': [],
 }
-
 TRACK_DEFAULT_LFORMATS = {
     'lw': .5,
     'c': 'w',
 }
-
 class track(dotline):
 
     def __init__(self, *args, **kwargs) -> None:
