@@ -18,6 +18,7 @@ from . import filter as apft
 from . import gc as gc
 from . import grib as agrib
 from . import grid as apg
+from . import h5 as aph
 from . import img as ap
 from . import nc as apnc
 from . import prep as app

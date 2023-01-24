@@ -9,8 +9,10 @@ from . import filter as apfilter
 from . import prep as app
 from . import toolkit as tk
 from . import trigo as atri
+from . import h5 as aph
 from typing import Sequence, Union, Tuple, Callable
 from tqdm import tqdm
+import h5py
 
 class Grids:
     
@@ -327,22 +329,66 @@ class Grids:
             _r.kwargs[kw] = pseudo_lowres(self.kwargs[kw], res)
         return _r
 
-    def fileout(self, path:str, overw:bool=False) -> None:
+    def fileout(self, path:Union[str, aph.h5], overw:bool=False, format='csv') -> None:
         '''
         '''
-        if os.path.exists(path):
-            if overw:
-                shutil.rmtree(path)
-                os.mkdir(path)
+        if format.lower() == 'hdf5' or format.lower() == 'h5':
+            with h5py.File(path, 'w') as h:
+                h.create_dataset('LAT', data=self.lat)
+                h.create_dataset('LONG', data=self.long)
+                if isinstance(self.data, np.ndarray):
+                    h.create_dataset('DATA', data=self.data)
+                for key in self.kwargs.keys():
+                    h.create_dataset(f'DATA_{key}', data=self[key])
+        elif format.lower() == 'aph5' or format.lower() == 'aph':
+            if isinstance(path, aph.h5):
+                path.add('LAT', data=self.lat)
+                path.add('LONG', data=self.long)
+                if isinstance(self.data, np.ndarray):
+                    path.add('DATA', data=self.data)
+                for key in self.kwargs.keys():
+                    path.add(f'DATA_{key}', data=self[key])
+            else:
+                raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
         else:
-            os.mkdir(path)
-        kwargs = {'header': False, 'index': False}
-        tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
-        tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
-        if isinstance(self.data, np.ndarray):
-            tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
-        for key in self.kwargs.keys():
-            tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+
+            if os.path.exists(path):
+                if overw:
+                    shutil.rmtree(path)
+                    os.mkdir(path)
+            else:
+                os.mkdir(path)
+            kwargs = {'header': False, 'index': False}
+            tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
+            tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
+            if isinstance(self.data, np.ndarray):
+                tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
+            for key in self.kwargs.keys():
+                tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+
+    def hout(self, path:str) -> None:
+        '''
+        '''
+        with h5py.File(path, 'w') as h:
+            h.create_dataset('LAT', data=self.lat)
+            h.create_dataset('LONG', data=self.long)
+            if isinstance(self.data, np.ndarray):
+                h.create_dataset('DATA', data=self.data)
+            for key in self.kwargs.keys():
+                h.create_dataset(f'DATA_{key}', data=self[key])
+
+    def aphout(self, h5:aph.h5) -> None:
+        '''
+        '''
+        if isinstance(h5, aph.h5):
+            h5.add('LAT', data=self.lat)
+            h5.add('LONG', data=self.long)
+            if isinstance(self.data, np.ndarray):
+                h5.add('DATA', data=self.data)
+            for key in self.kwargs.keys():
+                h5.add(f'DATA_{key}', data=self[key])
+        else:
+            raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
 
     def contourattrs(self, key=''):
         '''
@@ -393,7 +439,7 @@ class Grid:
     def boundariesT(self):
         return self.origin.boundaries(*self.index)[::-1]
 
-class filein(Grids):
+class dirin(Grids):
     '''
     '''
 
@@ -407,11 +453,52 @@ class filein(Grids):
             self._data = aux.cp2d(app.csv(path+r'\DATA.csv', header=None)())
         except:
             self._data = None
-            # print('The directory has no \'DATA.csv\', thus self.data will be void')
         self.kwargs = {}    
         for p in paths:
             if p[:5] == 'DATA_':
                 self.kwargs[p[5:-4]] = aux.cp2d(app.csv(f'{path}\\{p}', header=None)())
+
+class filein(dirin):
+    '''
+    'filein' is deprecated and will be removed later. Use 'dirin' instead.
+    '''
+
+class h5in(Grids):
+    '''
+    '''
+
+    def __init__(self, path:str) -> None:
+        '''
+        '''
+        with h5py.File(path, 'r') as _h:
+            self.lat = aux.cp2d(_h['LAT'][:])
+            self.long = aux.cp2d(_h['LONG'][:])
+            try:
+                self._data = aux.cp2d(_h['DATA'][:])
+            except:
+                self._data = None
+            self.kwargs = {}
+            for p in _h.keys():
+                if p[:5] == 'DATA_':
+                    self.kwargs[p[5:]] = aux.cp2d(_h[p][:])
+
+class aphin(Grids):
+    '''
+    '''
+
+    def __init__(self, h5:aph.h5) -> None:
+        '''
+        '''
+        self.lat = aux.cp2d(h5('LAT'))
+        self.long = aux.cp2d(h5('LONG'))
+        try:
+            self._data = aux.cp2d(h5('DATA'))
+        except:
+            self._data = None
+        self.kwargs = {}
+        for p in h5.keys():
+            if p[:5] == 'DATA_':
+                self.kwargs[p[5:]] = aux.cp2d(h5(p))
 
 class semifin(Grids):
     '''
@@ -463,7 +550,6 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
 
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
-    [FIXME]
     '''
     if len(targets) == 1:
         return targets[0]
@@ -475,7 +561,6 @@ def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: 
 
 def join2(subj:Grids, obj:Grids, threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
-    [XXX]
     '''
     _o = GridsCopy(obj)
     _s = GridsCopy(subj)
@@ -629,6 +714,7 @@ class ll2d_ones(Grids):
 
 def attach_we(west:Grids, east:Grids) -> Grids:
     '''
+    Attach two Grids object with some latitudes
     '''
     midi = west.long.shape[1]
     longs = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
@@ -641,3 +727,9 @@ def attach_we(west:Grids, east:Grids) -> Grids:
     datas[:,:midi] = west.data[:,:]
     datas[:,midi:] = east.data[:,:]
     return Grids(lats, longs, datas)
+
+def csvdir_to_h5(ipath:str, opath:str) -> None:
+    '''
+    Convert Grids data stored in csv directories to hdf5 file via Grids method
+    '''
+    dirin(ipath).hout(opath)
