@@ -351,7 +351,6 @@ class Grids:
             else:
                 raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
         else:
-
             if os.path.exists(path):
                 if overw:
                     shutil.rmtree(path)
@@ -441,6 +440,7 @@ class Grid:
 
 class dirin(Grids):
     '''
+    - namechange: filein -> dirin (0.6.16)
     '''
 
     def __init__(self, path:str) -> None:
@@ -733,3 +733,51 @@ def csvdir_to_h5(ipath:str, opath:str) -> None:
     Convert Grids data stored in csv directories to hdf5 file via Grids method
     '''
     dirin(ipath).hout(opath)
+
+def attachWE(west:Grids, east:Grids) -> Grids:
+    '''
+    Attach two Grids object with some latitudes
+    '''
+    midi = west.long.shape[1]
+    longs = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+    lats = np.ones((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+    longs[:,:midi] = west.long[:,:]
+    longs[:,midi:] = east.long[:,:]
+    lats[:,:midi] = west.lat[:,:]
+    lats[:,midi:] = east.lat[:,:]
+    _kws = {}
+    for kw in west.kwargs:
+        _kws[kw] = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+        _kws[kw][:,:midi] = west[kw][:,:]
+        _kws[kw][:,midi:] = east[kw][:,:]
+    if isinstance(west._data, np.ndarray) and isinstance(east._data, np.ndarray):
+        datas = np.zeros((east.long.shape[0],east.long.shape[1]+west.long.shape[1]))
+        datas[:,:midi] = west.data[:,:]
+        datas[:,midi:] = east.data[:,:]
+        return Grids(lats, longs, datas, **_kws)
+    else:
+        return Grids(lats, longs, **_kws)
+
+def attachSN(south:Grids, north:Grids) -> Grids:
+    '''
+    Attach two Grids object with some longitudes
+    '''
+    midi = south.long.shape[0]
+    longs = np.zeros((south.lat.shape[0]+north.lat.shape[0],north.long.shape[1]))
+    lats = np.ones((south.lat.shape[0]+north.lat.shape[0],north.long.shape[1]))
+    longs[:midi,:] = south.long[:,:]
+    longs[midi:,:] = north.long[:,:]
+    lats[:midi,:] = south.lat[:,:]
+    lats[midi:,:] = north.lat[:,:]
+    _kws = {}
+    for kw in south.kwargs:
+        _kws[kw] = np.zeros((south.lat.shape[0]+north.lat.shape[0],north.long.shape[1]))
+        _kws[kw][:midi,:] = south[kw][:,:]
+        _kws[kw][midi:,:] = north[kw][:,:]
+    if isinstance(south._data, np.ndarray) and isinstance(north._data, np.ndarray):
+        datas = np.zeros((south.lat.shape[0]+north.lat.shape[0],north.long.shape[1]))
+        datas[:midi,:] = south.data[:,:]
+        datas[midi:,:] = north.data[:,:]
+        return Grids(lats, longs, datas, **_kws)
+    else:
+        return Grids(lats, longs, **_kws)  
