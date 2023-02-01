@@ -329,25 +329,25 @@ class Grids:
             _r.kwargs[kw] = pseudo_lowres(self.kwargs[kw], res)
         return _r
 
-    def fileout(self, path:Union[str, aph.h5], overw:bool=False, format='csv') -> None:
+    def fileout(self, path:Union[str, aph.h5], overw:bool=False, format='csv', **kwargs) -> None:
         '''
         '''
         if format.lower() == 'hdf5' or format.lower() == 'h5':
             with h5py.File(path, 'w') as h:
-                h.create_dataset('LAT', data=self.lat)
-                h.create_dataset('LONG', data=self.long)
+                h.create_dataset('LAT', data=self.lat, **kwargs)
+                h.create_dataset('LONG', data=self.long, **kwargs)
                 if isinstance(self.data, np.ndarray):
-                    h.create_dataset('DATA', data=self.data)
+                    h.create_dataset('DATA', data=self.data, **kwargs)
                 for key in self.kwargs.keys():
-                    h.create_dataset(f'DATA_{key}', data=self[key])
+                    h.create_dataset(f'DATA_{key}', data=self[key], **kwargs)
         elif format.lower() == 'aph5' or format.lower() == 'aph':
             if isinstance(path, aph.h5):
-                path.add('LAT', data=self.lat)
-                path.add('LONG', data=self.long)
+                path.add('LAT', data=self.lat, **kwargs)
+                path.add('LONG', data=self.long, **kwargs)
                 if isinstance(self.data, np.ndarray):
-                    path.add('DATA', data=self.data)
+                    path.add('DATA', data=self.data, **kwargs)
                 for key in self.kwargs.keys():
-                    path.add(f'DATA_{key}', data=self[key])
+                    path.add(f'DATA_{key}', data=self[key], **kwargs)
             else:
                 raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
         else:
@@ -357,35 +357,35 @@ class Grids:
                     os.mkdir(path)
             else:
                 os.mkdir(path)
-            kwargs = {'header': False, 'index': False}
-            tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs)
-            tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs)
+            kwargs2 = {'header': False, 'index': False}
+            tk.tocsv(self.lat, path+f'\\LAT.csv', **kwargs2)
+            tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs2)
             if isinstance(self.data, np.ndarray):
-                tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs)
+                tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs2)
             for key in self.kwargs.keys():
-                tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs)
+                tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs2)
 
-    def hout(self, path:str) -> None:
+    def hout(self, path:str, **kwargs) -> None:
         '''
         '''
         with h5py.File(path, 'w') as h:
-            h.create_dataset('LAT', data=self.lat)
-            h.create_dataset('LONG', data=self.long)
+            h.create_dataset('LAT', data=self.lat, **kwargs)
+            h.create_dataset('LONG', data=self.long, **kwargs)
             if isinstance(self.data, np.ndarray):
-                h.create_dataset('DATA', data=self.data)
+                h.create_dataset('DATA', data=self.data, **kwargs)
             for key in self.kwargs.keys():
-                h.create_dataset(f'DATA_{key}', data=self[key])
+                h.create_dataset(f'DATA_{key}', data=self[key], **kwargs)
 
-    def aphout(self, h5:aph.h5) -> None:
+    def aphout(self, h5:aph.h5, **kwargs) -> None:
         '''
         '''
         if isinstance(h5, aph.h5):
-            h5.add('LAT', data=self.lat)
-            h5.add('LONG', data=self.long)
+            h5.add('LAT', data=self.lat, **kwargs)
+            h5.add('LONG', data=self.long, **kwargs)
             if isinstance(self.data, np.ndarray):
-                h5.add('DATA', data=self.data)
+                h5.add('DATA', data=self.data, **kwargs)
             for key in self.kwargs.keys():
-                h5.add(f'DATA_{key}', data=self[key])
+                h5.add(f'DATA_{key}', data=self[key], **kwargs)
         else:
             raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
 
@@ -467,10 +467,10 @@ class h5in(Grids):
     '''
     '''
 
-    def __init__(self, path:str) -> None:
+    def __init__(self, path:str, **kwargs) -> None:
         '''
         '''
-        with h5py.File(path, 'r') as _h:
+        with h5py.File(path, 'r', **kwargs) as _h:
             self.lat = aux.cp2d(_h['LAT'][:])
             self.long = aux.cp2d(_h['LONG'][:])
             try:

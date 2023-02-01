@@ -5,11 +5,11 @@ import h5py
 
 class h5:
     
-    def __init__(self, path:str, mode:str='r'):
+    def __init__(self, path:str, mode:str='r', **kwargs):
         '''
         '''
         self.path = path
-        self.open(mode=mode)
+        self.open(mode=mode, **kwargs)
 
     def open(self, mode:str='r'):
         '''
