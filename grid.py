@@ -213,16 +213,11 @@ class Grids:
             for i in range(target.lat.shape[0]):
                 for j in range(target.lat.shape[1]):
                     sub = self.restrict([target.lat[i,j]-target.step[0],target.lat[i,j]+target.step[0]], [target.long[i,j]-target.step[1],target.long[i,j]+target.step[1]])
-                    print(sub._data)
                     _d = np.zeros(sub.lat.shape)
                     _d[:,:] = aux.dist2((sub.lat[:,:],sub.long[:,:]),(target.lat[i,j],target.long[i,j]))
-                    print(_d)
                     _md = np.array([np.argmin(_d)//_d.shape[1], np.argmin(_d)%_d.shape[1]])
-                    print(_md)
                     if isinstance(self._data, np.ndarray):
                         _r._data[i,j] = sub._data[_md[0],_md[1]]
-                        print(sub._data[_md[0],_md[1]])
-                        print(_r._data[i,j])
                     for kw in self.kwargs:
                         _r[kw][i,j] = sub[kw][_md[0],_md[1]]
         return _r
@@ -362,6 +357,7 @@ class Grids:
             tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs2)
             if isinstance(self.data, np.ndarray):
                 tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs2)
+
             for key in self.kwargs.keys():
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs2)
 
@@ -376,6 +372,28 @@ class Grids:
             for key in self.kwargs.keys():
                 h.create_dataset(f'DATA_{key}', data=self[key], **kwargs)
 
+    def houtlzf(self, path:str, **kwargs) -> None:
+        '''
+        '''
+        with h5py.File(path, 'w') as h:
+            h.create_dataset('LAT', data=self.lat, compression='lzf', **kwargs)
+            h.create_dataset('LONG', data=self.long, compression='lzf', **kwargs)
+            if isinstance(self.data, np.ndarray):
+                h.create_dataset('DATA', data=self.data, compression='lzf', **kwargs)
+            for key in self.kwargs.keys():
+                h.create_dataset(f'DATA_{key}', data=self[key], compression='lzf', **kwargs)
+
+    def houtgz(self, path:str, opts:int=6, **kwargs) -> None:
+        '''
+        '''
+        with h5py.File(path, 'w') as h:
+            h.create_dataset('LAT', data=self.lat, compression='gzip', compression_opts=opts, **kwargs)
+            h.create_dataset('LONG', data=self.long, compression='gzip', compression_opts=opts, **kwargs)
+            if isinstance(self.data, np.ndarray):
+                h.create_dataset('DATA', data=self.data, compression='gzip', compression_opts=opts, **kwargs)
+            for key in self.kwargs.keys():
+                h.create_dataset(f'DATA_{key}', data=self[key], compression='gzip', compression_opts=opts, **kwargs)
+
     def aphout(self, h5:aph.h5, **kwargs) -> None:
         '''
         '''
@@ -389,7 +407,41 @@ class Grids:
         else:
             raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
 
+    def aphlzf(self, h5:aph.h5, **kwargs) -> None:
+        '''
+        '''
+        if isinstance(h5, aph.h5):
+            h5.add('LAT', data=self.lat, compression='lzf', **kwargs)
+            h5.add('LONG', data=self.long, compression='lzf', **kwargs)
+            if isinstance(self.data, np.ndarray):
+                h5.add('DATA', data=self.data, compression='lzf', **kwargs)
+            for key in self.kwargs.keys():
+                h5.add(f'DATA_{key}', data=self[key], compression='lzf', **kwargs)
+        else:
+            raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
+
+    def aphgz(self, h5:aph.h5, opts:int=6, **kwargs) -> None:
+        '''
+        '''
+        if isinstance(h5, aph.h5):
+            h5.add('LAT', data=self.lat, compression='gzip', compression_opts=opts, **kwargs)
+            h5.add('LONG', data=self.long, compression='gzip', compression_opts=opts, **kwargs)
+            if isinstance(self.data, np.ndarray):
+                h5.add('DATA', data=self.data, compression='gzip', compression_opts=opts, **kwargs)
+            for key in self.kwargs.keys():
+                h5.add(f'DATA_{key}', data=self[key], compression='gzip', compression_opts=opts, **kwargs)
+        else:
+            raise RuntimeError('The \'path\' used in \'aph\' format should be an aph.h5 object')
+
     def contourattrs(self, key=''):
+        '''
+        '''
+        if key:
+            return self.long, self.lat, self[key]
+        else:
+            return self.long, self.lat, self._data
+
+    def cfa(self, key=''):
         '''
         '''
         if key:
@@ -548,6 +600,7 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
                     d[i,j] = np.nan
     return d[res//2:-(res//2),res//2:-(res//2)]
 
+# 暂未完成，请勿使用
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
     '''
