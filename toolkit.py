@@ -7,6 +7,7 @@ import time
 import numpy as np
 import pandas as pd
 from typing import Tuple, Sequence
+from . import ascl
 
 class Time:
     start_time = 0
@@ -184,3 +185,12 @@ def ref(pattern:re.Pattern, strs:str, reI:bool=True) -> Sequence[str]:
             if re.search(pattern, p):
                 rp.append(p)
     return rp
+
+def log(path:str, *content:Tuple[str]) -> None:
+    '''
+    '''
+    with open(path, 'a') as theF:
+        theF.write(f'{ascl.now()("-")},\t')
+        for c in content:
+            theF.write(f'{c},\t')
+        theF.write('\n')
