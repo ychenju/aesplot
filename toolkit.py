@@ -142,16 +142,24 @@ def tocsv(table:np.ndarray, path:str, **kwargs) -> pd.DataFrame:
     _df.to_csv(path, **kwargs)
     return _df
 
-def listdir(path: str, full=False) -> Sequence[str]:
+def listdir(path: str, full=False, sort=True) -> Sequence[str]:
     '''
     '''
     paths = os.listdir(path)
-    if full:
-        return [f'{path}\\{p}' for p in paths]
+    if sort:
+        if full:
+            r = [f'{path}\\{p}' for p in paths]
+        else:
+            r = [f'{p}' for p in paths]
+        r = sorted(r, key=lambda k: [ord(i) for i in k], reverse=False)
+        return r
     else:
-        return [f'{p}' for p in paths]
+        if full:
+            return [f'{path}\\{p}' for p in paths]
+        else:
+            return [f'{p}' for p in paths]
 
-def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence[str]:
+def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows', sort=True) -> Sequence[str]:
     '''
     DIRectory Regular Expression Find
     '''
@@ -166,11 +174,20 @@ def dirref(pattern:re.Pattern, path:str, full=True, in_os='windows') -> Sequence
         for p in paths:
             if re.search(pattern, p):
                 rp.append(p)
-    if not full:
-        return rp
+    if sort:
+        if not full:
+            rp = sorted(rp, key=lambda k: [ord(i) for i in k], reverse=False)
+            return rp
+        else:
+            rp2 = [f'{path}\\{p}' for p in rp]
+            rp2 = sorted(rp2, key=lambda k: [ord(i) for i in k], reverse=False)
+            return rp2
     else:
-        rp2 = [f'{path}\\{p}' for p in rp]
-        return rp2
+        if not full:
+            return rp
+        else:
+            rp2 = [f'{path}\\{p}' for p in rp]
+            return rp2
 
 def ref(pattern:re.Pattern, strs:str, reI:bool=True) -> Sequence[str]:
     '''
