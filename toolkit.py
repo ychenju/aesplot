@@ -24,41 +24,53 @@ class perfcounter(Time):
         '''
         self.start_time = time.perf_counter()
 
-    def s(self, label='Time') -> None:
+    def s(self, label='Time', verbose=True) -> float:
         '''
         '''
         self.end_time = time.perf_counter()
-        print(f'{label}:\t{self.end_time - self.start_time} s')
+        if verbose:
+            print(f'{label}:\t{self.end_time - self.start_time} s')
+        return self.end_time - self.start_time
 
-    def ms(self, label='Time') -> None:
+    def ms(self, label='Time', verbose=True) -> float:
         '''
         '''
         self.end_time = time.perf_counter()
-        print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
+        return (self.end_time - self.start_time)*1000.
 
-    def min(self, label='Time') -> None:
+    def min(self, label='Time', verbose=True) -> float:
         '''
         '''
         self.end_time = time.perf_counter()
-        print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
+        return (self.end_time - self.start_time)/60.
 
-    def mins(self, label='Time') -> None:
+    def mins(self, label='Time', verbose=True) -> Tuple:
         '''
         '''
         self.end_time = time.perf_counter()
-        print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
+        return (self.end_time - self.start_time)//60, (self.end_time - self.start_time)%60
 
-    def h(self, label='Time') -> None:
+    def h(self, label='Time', verbose=True) -> float:
         '''
         '''
         self.end_time = time.perf_counter()
-        print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
+        return (self.end_time - self.start_time)/3600.
 
-    def hms(self, label='Time') -> None:
+    def hms(self, label='Time', verbose=True) -> Tuple:
         '''
         '''
         self.end_time = time.perf_counter()
-        print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
+        return (self.end_time - self.start_time)//3600, (self.end_time - self.start_time)%3600//60, (self.end_time - self.start_time)%60
 
 class processtime(Time):
     def __init__(self) -> None:
@@ -71,41 +83,53 @@ class processtime(Time):
         '''
         self.start_time = time.process_time()
 
-    def s(self, label='Time') -> None:
+    def s(self, label='Time', verbose=True) -> float:
         '''
         '''
-        self.end_time = time.process_time()
-        print(f'{label}:\t{self.end_time - self.start_time} s')
+        self.end_time = time.perf_counter()
+        if verbose:
+            print(f'{label}:\t{self.end_time - self.start_time} s')
+        return self.end_time - self.start_time
 
-    def ms(self, label='Time') -> None:
+    def ms(self, label='Time', verbose=True) -> float:
         '''
         '''
-        self.end_time = time.process_time()
-        print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
+        self.end_time = time.perf_counter()
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)*1000.} ms')
+        return (self.end_time - self.start_time)*1000.
 
-    def min(self, label='Time') -> None:
+    def min(self, label='Time', verbose=True) -> float:
         '''
         '''
-        self.end_time = time.process_time()
-        print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
+        self.end_time = time.perf_counter()
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)/60.} min')
+        return (self.end_time - self.start_time)/60.
 
-    def mins(self, label='Time') -> None:
+    def mins(self, label='Time', verbose=True) -> Tuple:
         '''
         '''
-        self.end_time = time.process_time()
-        print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
+        self.end_time = time.perf_counter()
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)//60} m \t{(self.end_time - self.start_time)%60} s')
+        return (self.end_time - self.start_time)//60, (self.end_time - self.start_time)%60
 
-    def h(self, label='Time') -> None:
+    def h(self, label='Time', verbose=True) -> float:
         '''
         '''
-        self.end_time = time.process_time()
-        print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
+        self.end_time = time.perf_counter()
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)/3600.} h')
+        return (self.end_time - self.start_time)/3600.
 
-    def hms(self, label='Time') -> None:
+    def hms(self, label='Time', verbose=True) -> Tuple:
         '''
         '''
-        self.end_time = time.process_time()
-        print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
+        self.end_time = time.perf_counter()
+        if verbose:
+            print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
+        return (self.end_time - self.start_time)//3600, (self.end_time - self.start_time)%3600//60, (self.end_time - self.start_time)%60
 
 def fileout(path:str, mode:str, *content:Tuple[str]) -> None:
     '''
