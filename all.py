@@ -1,12 +1,6 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import pandas as pd
-import xarray as xr
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-
 from .rst import *
 
 from .ascl import *
@@ -14,6 +8,7 @@ from .atm import *
 from .basemap import *
 from .cnnc import *
 from .gc import *
+from .gcpara import *
 from .grib import *
 from .grid import *
 from .fig import *
@@ -42,6 +37,8 @@ from .wrfp import *
 #   fig         0.1.0   figure objects
 #   filter      0.3.0   filter objects
 #   gc          0.4.7   GeosChem functions
+#   gcpara      0.6.24  Parameterization module
+#   gcparadata  0.6.24  Parameterization data used in module
 #   grib        0.5.46  GRIB file processing
 #   grid        0.5.26  grid-like data processing
 #   h5          0.6.16  hdf5 supportss
