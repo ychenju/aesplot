@@ -3,6 +3,7 @@
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from typing import Union, Sequence
 
 class csv:
@@ -97,7 +98,7 @@ class xls(csv):
             self._y, self._x = index
         else:
             self._y = index
-        _df:pd.DataFrame = pd.read_csv(self._path, **self._pdattrs)
+        _df:pd.DataFrame = pd.read_excel(self._path, **self._pdattrs)
         _ar = np.array(_df.iloc[:,:])
         _y, _x = _ar.shape
         if isinstance(self._x, str):
