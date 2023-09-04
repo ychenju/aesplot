@@ -58,6 +58,23 @@ class basemap:
         if len(self._base.coastsegs) and len(self._base.coastsegs[0]):
             self._base.drawcoastlines(color=self._attr['clcolor'], linewidth=self._attr['cllw'])
         return self._base
+    
+    def rivers(self) -> Basemap:
+        '''
+        Direct operation to draw the coastlines when there is any coastlines in self's boundaries
+        '''
+        if 'coastline_func' in self._attr.keys():
+            if 'c' in self._coastlines.keys():
+                self['clcolor'] = self._coastlines['c']
+            if 'color' in self._coastlines.keys():
+                self['clcolor'] = self._coastlines['color']
+            if 'lw' in self._coastlines.keys():
+                self['cllw'] = self._coastlines['lw']
+            if 'linewidth' in self._coastlines.keys():
+                self['cllw'] = self._coastlines['linewidth']
+        # if len(self._base.coastsegs) and len(self._base.coastsegs[0]):
+        self._base.drawrivers(color=self._attr['clcolor'], linewidth=self._attr['cllw'])
+        return self._base
 
     def colorbg(self, style:str=None) -> Basemap:
         '''
@@ -115,8 +132,6 @@ class basemap:
         '''
         self.ifcoast()
         self.lldraw()
-
-    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
     def grid(self, **kwargs):
         '''
@@ -221,6 +236,29 @@ class coast(basemap):
     def __call__(self, show:bool=False) -> Basemap:
         self.init()
         self._base = self.drawcoastlines()
+        self.extraproc()
+        if show:
+            plt.show()
+        return self._base
+    
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+COAST_DEFAULT_ATTRS = {
+    'clcolor'   :   'k',
+    'cllw'      :   1.,
+}
+
+class rivers(basemap):
+
+    def __init__(self, **kwargs) -> None:
+        '''
+        basemap object with coastlines drawn inside the boundaries
+        '''
+        self._init_with(BASIC_DEFAULT_ATTRS, **COAST_DEFAULT_ATTRS, **kwargs)
+
+    def __call__(self, show:bool=False) -> Basemap:
+        self.init()
+        self._base = self.rivers()
         self.extraproc()
         if show:
             plt.show()

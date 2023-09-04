@@ -131,12 +131,15 @@ class processtime(Time):
             print(f'{label}:\t{(self.end_time - self.start_time)//3600} h \t{(self.end_time - self.start_time)%3600//60} m \t{(self.end_time - self.start_time)%60} s')
         return (self.end_time - self.start_time)//3600, (self.end_time - self.start_time)%3600//60, (self.end_time - self.start_time)%60
 
-def fileout(path:str, mode:str, *content:Tuple[str]) -> None:
+def fileout(path:str, mode:str, *content:Tuple[str], tab=False) -> None:
     '''
     '''
     with open(path, mode) as theF:
         for c in content:
-            theF.write(f'{c},\t')
+            if tab:
+                theF.write(f'{c},\t')
+            else:
+                theF.write(f'{c},')
         theF.write('\n')
 
 def fold(table:Sequence, length:int) -> np.ndarray:

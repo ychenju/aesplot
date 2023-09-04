@@ -191,7 +191,7 @@ class Grids:
         if isinstance(self._data, np.ndarray):
             _r._data = np.zeros(target.lat.shape)
         for kw in self.kwargs:
-            _r[kw] = np.zeros(self[kw].shape)
+            _r[kw] = np.zeros(target.lat.shape)
         if verbose:
             try:
                 with tqdm(range(target.lat.shape[0]), desc='grid.Grids.map()') as _tqdm:
@@ -357,7 +357,6 @@ class Grids:
             tk.tocsv(self.long, path+f'\\LONG.csv', **kwargs2)
             if isinstance(self.data, np.ndarray):
                 tk.tocsv(self.data, path+f'\\DATA.csv', **kwargs2)
-
             for key in self.kwargs.keys():
                 tk.tocsv(self[key], path+f'\\DATA_{key}.csv', **kwargs2)
 
@@ -492,7 +491,6 @@ class Grid:
 
 class dirin(Grids):
     '''
-    - namechange: filein -> dirin (0.6.16)
     '''
 
     def __init__(self, path:str) -> None:
@@ -512,7 +510,6 @@ class dirin(Grids):
 
 class filein(dirin):
     '''
-    'filein' is deprecated and will be removed later. Use 'dirin' instead.
     '''
 
 class h5in(Grids):
@@ -559,7 +556,6 @@ class semifin(Grids):
 class GridsCopy(Grids):
     '''
     '''
-
     def __init__(self, target:Grids) -> None:
         '''
         '''
@@ -600,7 +596,6 @@ def pseudo_lowres(arr: np.ndarray, res:int, verbose:bool=False) -> np.ndarray:
                     d[i,j] = np.nan
     return d[res//2:-(res//2),res//2:-(res//2)]
 
-# 暂未完成，请勿使用
 def join(*targets:Tuple[Grids], threshold:float=0.0001, func:Callable=lambda x: np.nanmean(x), verbose:bool=False) -> Grids:
     '''
     '''
